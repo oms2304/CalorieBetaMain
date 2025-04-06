@@ -1,174 +1,129 @@
 import SwiftUI
-<<<<<<< HEAD
 import FirebaseAuth
-=======
-import FirebaseAuth 
->>>>>>> d3d7eb3 (Initial commit)
 import Firebase
 
+// This view provides a login interface for users to sign in using their email and password,
+// integrating with Firebase Authentication and Firestore for user data retrieval.
 struct LoginView: View {
-    @State private var email = ""
-    @State private var password = ""
-    @State private var loginError = ""
-<<<<<<< HEAD
+    // State variables to manage user input and UI state.
+    @State private var email = "" // Stores the email input.
+    @State private var password = "" // Stores the password input.
+    @State private var loginError = "" // Stores any error message to display.
+    // Environment variable to control dismissal of the view.
     @Environment(\.presentationMode) var presentationMode
 
+    // The main body of the view, organized in a vertical stack.
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 0) { // Vertical stack with no spacing between sections.
             // Header with Background Image and Close Button
-            ZStack {
+            ZStack { // Layers the background image and text content.
                 // Background Image with Blur and Dark Overlay
-                Image("healthy") // Replace with your background image name
-                    .resizable()
-                    .scaledToFill()
-                    .clipped()
-                    .overlay(Color.black.opacity(0.65))
-                    .blur(radius: 6)
+                Image("healthy") // Placeholder for a background image (must be added to assets).
+                    .resizable() // Allows the image to be resized.
+                    .scaledToFill() // Fills the frame while maintaining aspect ratio.
+                    .clipped() // Clips any overflow.
+                    .overlay(Color.black.opacity(0.65)) // Adds a dark overlay for contrast.
+                    .blur(radius: 6) // Applies a blur effect for a soft look.
 
                 // Text Content Centered Vertically
                 VStack(spacing: 10) {
-                    Text("Welcome Back!")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                    Text("Welcome Back!") // Welcome message.
+                        .font(.largeTitle) // Large, prominent font.
+                        .fontWeight(.bold) // Bold text for emphasis.
+                        .foregroundColor(.white) // White text for contrast against the dark overlay.
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center) // Centers the text.
             }
-            .frame(height: 200) // Set fixed height for the header
+            .frame(height: 200) // Fixed height for the header section.
 
             // Login Form Section
-            VStack(spacing: 16) {
+            VStack(spacing: 16) { // Vertical stack with spacing between elements.
                 VStack(spacing: 16) {
+                    // Email input field using a custom RoundedTextField.
                     RoundedTextField(placeholder: "Enter your email", text: $email, isEmail: true)
+                    // Password input field using a custom RoundedSecureField.
                     RoundedSecureField(placeholder: "Enter your password", text: $password)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal) // Adds horizontal padding to the input fields.
 
                 // Error Message
-                if !loginError.isEmpty {
-                    Text(loginError)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                        .padding(.top, 10)
+                if !loginError.isEmpty { // Shows error message if present.
+                    Text(loginError) // Displays the error text.
+                        .foregroundColor(.red) // Red color for error visibility.
+                        .font(.caption) // Smaller font for the error message.
+                        .padding(.top, 10) // Adds space above the error message.
                 }
-                Spacer()
+                Spacer() // Pushes the buttons to the bottom of the form section.
 
                 // Buttons Section
-                VStack(spacing: 10) {
-                    Button(action: loginUser) {
-                        Text("Login")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green)
-                            .foregroundColor(.black)
-                            .cornerRadius(30)
+                VStack(spacing: 10) { // Vertical stack for the buttons.
+                    Button(action: loginUser) { // Login button.
+                        Text("Login") // Button label.
+                            .font(.title2) // Slightly larger font for emphasis.
+                            .fontWeight(.semibold) // Semibold text for readability.
+                            .frame(maxWidth: .infinity) // Expands to full width.
+                            .padding() // Adds internal padding.
+                            .background(Color.green) // Green background for visibility.
+                            .foregroundColor(.black) // Black text for contrast.
+                            .cornerRadius(30) // Rounded corners for a modern look.
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal) // Adds horizontal padding around the button.
 
-                    Button(action: clearFields) {
-                        Text("Clear")
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.gray.opacity(0.3))
-                            .foregroundColor(.black)
-                            .cornerRadius(30)
+                    Button(action: clearFields) { // Clear button.
+                        Text("Clear") // Button label.
+                            .font(.body) // Standard font size.
+                            .fontWeight(.medium) // Medium weight for readability.
+                            .frame(maxWidth: .infinity) // Expands to full width.
+                            .padding() // Adds internal padding.
+                            .background(Color.gray.opacity(0.3)) // Light gray background.
+                            .foregroundColor(.black) // Black text for contrast.
+                            .cornerRadius(30) // Rounded corners.
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal) // Adds horizontal padding.
                 }
             }
-            .padding(.top, 20)
-            .background(
+            .padding(.top, 20) // Adds space above the form section.
+            .background( // Applies a styled background to the form section.
                 Color.white
-                    .clipShape(CustomCorners(corners: [.topLeft, .topRight], radius: 30))
+                    .clipShape(CustomCorners(corners: [.topLeft, .topRight], radius: 30)) // Rounds the top corners.
             )
         }
-        .background(Color.white.edgesIgnoringSafeArea(.all))
-=======
-
-    var body: some View {
-        VStack {
-            Text("Sign In")
-                .font(.largeTitle)
-                .padding()
-
-            TextField("Email", text: $email)
-                .keyboardType(.emailAddress)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            if !loginError.isEmpty {
-                Text(loginError)
-                    .foregroundColor(.red)
-                    .padding()
-            }
-
-            Button(action: loginUser) {
-                Text("Login")
-                    .font(.title2)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            .padding()
-
-            Spacer()
-        }
-        .padding()
->>>>>>> d3d7eb3 (Initial commit)
+        .background(Color.white.edgesIgnoringSafeArea(.all)) // Ensures a white background across the entire view.
     }
 
+    // Handles user login using Firebase Authentication.
     private func loginUser() {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                loginError = error.localizedDescription
+            if let error = error { // Checks for authentication errors.
+                loginError = error.localizedDescription // Sets the error message to display.
                 return
             }
 
-<<<<<<< HEAD
-=======
-            // Fetch user-specific data and navigate to the main app screen
->>>>>>> d3d7eb3 (Initial commit)
-            if let user = authResult?.user {
-                fetchUserData(user: user)
+            if let user = authResult?.user { // Ensures a user was authenticated.
+                fetchUserData(user: user) // Fetches additional user data from Firestore.
             }
         }
     }
 
+    // Retrieves user data from Firestore after successful login.
     private func fetchUserData(user: FirebaseAuth.User) {
-        let db = Firestore.firestore()
+        let db = Firestore.firestore() // Initializes the Firestore database instance.
+        // Fetches the user document from Firestore using the user's UID.
         db.collection("users").document(user.uid).getDocument { document, error in
-            if let document = document, document.exists {
-<<<<<<< HEAD
-                if let data = document.data() {
-=======
-                // Handle user-specific data (e.g., goals, weight)
-                if let data = document.data() {
-                    // Update app state with user-specific data
->>>>>>> d3d7eb3 (Initial commit)
-                    print("User data: \(data)")
+            if let document = document, document.exists { // Checks if the document exists.
+                if let data = document.data() { // Retrieves the document data.
+                    print("User data: \(data)") // Logs the user data for debugging.
                 }
-            } else {
-                loginError = "User data not found."
+            } else { // Handles missing user data.
+                loginError = "User data not found." // Sets an error message.
             }
         }
     }
-<<<<<<< HEAD
 
+    // Clears all input fields and error messages.
     private func clearFields() {
-        email = ""
-        password = ""
-        loginError = ""
+        email = "" // Resets email field.
+        password = "" // Resets password field.
+        loginError = "" // Clears any error message.
     }
-=======
->>>>>>> d3d7eb3 (Initial commit)
 }

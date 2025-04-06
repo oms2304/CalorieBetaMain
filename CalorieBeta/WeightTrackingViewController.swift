@@ -1,124 +1,71 @@
-<<<<<<< HEAD
 import UIKit
 import SwiftUI
 import DGCharts
 import FirebaseAuth
 import FirebaseFirestore
 
+// This view controller manages the weight tracking interface using a SwiftUI chart embedded
+// in a UIKit environment, fetching and displaying weight history data from Firestore.
 class WeightTrackingViewController: UIViewController {
-    var weightHistory: [(date: Date, weight: Double)] = [] // ✅ Store weight history locally
-    var hostingController: UIHostingController<WeightChartView>? // ✅ Keep reference to avoid reloading issues
-=======
-//
-//  WeightTrackingViewController.swift
-//  CalorieBeta
-//
-//  Created by Peter Andrews, jr.  on 10/25/24.
-//
+    // Array to store weight history locally, consisting of date-weight pairs.
+    var weightHistory: [(date: Date, weight: Double)] = [] // ✅ Stores weight data locally for chart use.
 
-import UIKit
-import DGCharts
-
-class WeightTrackingViewController: UIViewController {
-    var lineChartView: DGCharts.LineChartView!
->>>>>>> d3d7eb3 (Initial commit)
+    // Optional reference to the hosting controller for the SwiftUI chart to manage updates.
+    var hostingController: UIHostingController<WeightChartView>? // ✅ Retains reference to avoid reloading issues.
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
+        super.viewDidLoad() // Calls the superclass's initialization.
+        view.backgroundColor = .white // Sets a white background for the view.
 
-<<<<<<< HEAD
-        setupSwiftUIChart()
-        loadWeightData() // ✅ Fetch actual user weight data
+        setupSwiftUIChart() // Initializes and adds the SwiftUI chart to the view.
+        loadWeightData() // Fetches weight data from Firestore. ✅ Ensures actual user data is loaded.
     }
 
+    // Sets up the SwiftUI chart within the UIKit view controller.
     private func setupSwiftUIChart() {
-        // ✅ Ensure chart updates dynamically
+        // ✅ Ensures the chart updates dynamically by creating a hosting controller.
         let chartView = UIHostingController(rootView: WeightChartView(weightHistory: weightHistory))
-        addChild(chartView)
-        chartView.view.frame = view.bounds
-        chartView.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(chartView.view)
-        chartView.didMove(toParent: self)
+        addChild(chartView) // Adds the hosting controller as a child.
+        chartView.view.frame = view.bounds // Matches the chart view to the parent view's bounds.
+        chartView.view.autoresizingMask = [.flexibleWidth, .flexibleHeight] // Allows resizing with the parent.
+        view.addSubview(chartView.view) // Adds the chart view to the hierarchy.
+        chartView.didMove(toParent: self) // Completes the child view controller setup.
 
-        hostingController = chartView // ✅ Store reference for later updates
+        hostingController = chartView // ✅ Stores the reference for later updates.
     }
 
+    // Fetches weight history data from Firestore for the authenticated user.
     private func loadWeightData() {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
-        let db = Firestore.firestore()
+        guard let userID = Auth.auth().currentUser?.uid else { return } // Ensures a user is logged in.
+        let db = Firestore.firestore() // Initializes the Firestore database instance.
 
+        // Queries the weight history collection, ordered by timestamp.
         db.collection("users").document(userID).collection("weightHistory")
-            .order(by: "timestamp", descending: false)
+            .order(by: "timestamp", descending: false) // Sorts by timestamp in ascending order.
             .getDocuments { snapshot, error in
-                if let error = error {
-                    print("❌ Error fetching weight history: \(error.localizedDescription)")
+                if let error = error { // Checks for Firestore query errors.
+                    print("❌ Error fetching weight history: \(error.localizedDescription)") // Logs the error.
                     return
                 }
 
+                // Maps Firestore documents to weight history tuples, handling optional data.
                 self.weightHistory = snapshot?.documents.compactMap { doc in
-                    if let weight = doc.data()["weight"] as? Double,
-                       let timestamp = doc.data()["timestamp"] as? Timestamp {
-                        return (timestamp.dateValue(), weight)
+                    if let weight = doc.data()["weight"] as? Double, // Extracts weight as Double.
+                       let timestamp = doc.data()["timestamp"] as? Timestamp { // Extracts timestamp.
+                        return (timestamp.dateValue(), weight) // Returns a tuple of date and weight.
                     }
-                    return nil
-                } ?? []
+                    return nil // Returns nil for invalid data to filter out.
+                } ?? [] // Defaults to empty array if snapshot is nil.
 
-                DispatchQueue.main.async {
-                    self.updateChart()
+                DispatchQueue.main.async { // Ensures UI updates on the main thread.
+                    self.updateChart() // Updates the chart with the new data.
                 }
             }
     }
 
+    // Updates the SwiftUI chart with the latest weight history data.
     private func updateChart() {
-        // ✅ Ensure chart updates dynamically when weight data changes
-        hostingController?.rootView = WeightChartView(weightHistory: weightHistory)
-=======
-      
-        setupLineChartView()
-        setChartData() // Set initial chart data
-    }
-
-    private func setupLineChartView() {
-        lineChartView = DGCharts.LineChartView()
-        lineChartView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(lineChartView)
-
-      
-        NSLayoutConstraint.activate([
-            lineChartView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            lineChartView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            lineChartView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            lineChartView.heightAnchor.constraint(equalToConstant: 300)
-        ])
-    }
-
-    private func setChartData() {
-    
-        let sampleData = [1500, 1600, 1700, 1800, 1900]
-        var dataEntries: [ChartDataEntry] = []
-
-    
-        for (index, value) in sampleData.enumerated() {
-            let dataEntry = ChartDataEntry(x: Double(index), y: Double(value))
-            dataEntries.append(dataEntry)
-        }
-
-      
-        let lineDataSet = LineChartDataSet(entries: dataEntries, label: "Weight Over Time")
-        lineDataSet.colors = [NSUIColor.blue]
-        lineDataSet.circleColors = [NSUIColor.red]
-        lineDataSet.circleRadius = 4
-        lineDataSet.lineWidth = 2
-        lineDataSet.valueFont = .systemFont(ofSize: 12)
-        lineDataSet.mode = .cubicBezier
-
-       
-        let lineData = LineChartData(dataSet: lineDataSet)
-        lineChartView.data = lineData
-
-       
-        lineChartView.animate(xAxisDuration: 1.5, yAxisDuration: 1.5, easingOption: .easeInOutQuad)
->>>>>>> d3d7eb3 (Initial commit)
+        // ✅ Ensures the chart updates dynamically when weight data changes.
+        hostingController?.rootView = WeightChartView(weightHistory: weightHistory) // Replaces the root view with updated data.
     }
 }

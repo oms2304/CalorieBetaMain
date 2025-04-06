@@ -1,187 +1,207 @@
 import SwiftUI
 import FirebaseAuth
 
+// This view displays detailed information about a food item and allows the user to adjust
+// its quantity or serving size before adding or updating it in their daily log.
 struct FoodDetailView: View {
+    // The food item being edited or added, passed as a constant.
     var foodItem: FoodItem
+    // A binding to the daily log, allowing updates to be reflected in the parent view.
     @Binding var dailyLog: DailyLog?
+    // A closure to notify the parent view when the log is updated.
     var onLogUpdated: (DailyLog) -> Void
 
-    @State private var quantity: String
-    @State private var customServingSize: String
-    @State private var selectedServingUnit: String
-    @State private var useCustomServing: Bool
+    // State variables to manage user input and preferences:
+    @State private var quantity: String = "1" // Default quantity set to 1 serving.
+    @State private var customServingSize: String // Custom serving size entered by the user.
+    @State private var selectedServingUnit: String // The unit of measurement (e.g., "g" or "oz").
+    @State private var useCustomServing: Bool // Toggle to enable custom serving size.
 
-    @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var dailyLogService: DailyLogService
-    @Environment(\.presentationMode) var presentationMode // Added for NavigationLink dismissal
+    // Environment variables for view dismissal and service access:
+    @Environment(\.dismiss) var dismiss // Allows dismissing the view programmatically.
+    @EnvironmentObject var dailyLogService: DailyLogService // Provides access to log management.
+    @Environment(\.presentationMode) var presentationMode // Used to dismiss the view via navigation.
 
+    // Initializer to set up the view with the food item and initialize state variables.
     init(foodItem: FoodItem, dailyLog: Binding<DailyLog?>, onLogUpdated: @escaping (DailyLog) -> Void) {
         self.foodItem = foodItem
         self._dailyLog = dailyLog
         self.onLogUpdated = onLogUpdated
 
-        self._quantity = State(initialValue: "1")
+        // Initializes state with the food item's serving weight and unit.
         self._customServingSize = State(initialValue: String(Int(foodItem.servingWeight)))
         self._selectedServingUnit = State(initialValue: foodItem.servingSize.contains("oz") ? "oz" : "g")
-        self._useCustomServing = State(initialValue: foodItem.servingWeight != 100.0)
+        self._useCustomServing = State(initialValue: foodItem.servingWeight != 100.0) // Defaults to custom if not 100g.
 
+        // Logs the food item details for debugging purposes.
         print("✅ Received FoodItem in Detail View: \(foodItem.name)")
-        print("🔹 Calories: \(foodItem.calories)")
+        print("🔹 Base Calories (per serving): \(foodItem.calories)") // Original calories per serving.
         print("🔹 Protein: \(foodItem.protein)")
         print("🔹 Carbs: \(foodItem.carbs)")
         print("🔹 Fats: \(foodItem.fats)")
         print("🔹 Serving Weight: \(foodItem.servingWeight)g")
     }
 
+    // Computed property to determine the base serving weight, defaulting to 100g if invalid.
     var baseServingWeight: Double {
         return foodItem.servingWeight > 0 ? foodItem.servingWeight : 100.0
     }
 
+    // Computed property to convert between units (oz to g or vice versa).
     var conversionFactor: Double {
-        return selectedServingUnit == "oz" ? 1 / 28.3495 : 1.0
+        return selectedServingUnit == "oz" ? 1 / 28.3495 : 1.0 // 1 oz = 28.3495g.
     }
 
+    // Computed property to calculate adjusted nutrient values based on quantity and serving size.
     var adjustedNutrients: FoodItem {
-        let enteredQuantity = Double(quantity) ?? 1.0
-        let customWeight = Double(customServingSize) ?? baseServingWeight
-        let convertedWeight = useCustomServing ? (customWeight * conversionFactor) : baseServingWeight
-        let factor = (convertedWeight / baseServingWeight) * enteredQuantity
+        let enteredQuantity = Double(quantity) ?? 1.0 // Converts quantity to a double, defaults to 1.
+        let customWeight = Double(customServingSize) ?? baseServingWeight // Custom weight or default.
+        let convertedWeight = useCustomServing ? (customWeight * conversionFactor) : baseServingWeight // Applies unit conversion.
+        let factor = enteredQuantity // Scales nutrients by the number of servings.
 
         return FoodItem(
             id: foodItem.id,
             name: foodItem.name,
-            calories: foodItem.calories * factor,
+            calories: foodItem.calories * factor, // Scales original calories by quantity.
             protein: foodItem.protein * factor,
             carbs: foodItem.carbs * factor,
             fats: foodItem.fats * factor,
-            servingSize: "\(Int(convertedWeight))\(selectedServingUnit)",
-            servingWeight: convertedWeight
+            servingSize: "\(Int(convertedWeight))\(selectedServingUnit)", // Updated serving size.
+            servingWeight: convertedWeight,
+            timestamp: foodItem.timestamp // Preserves the original timestamp.
         )
     }
 
+    // The main body of the view, wrapped in a ScrollView for content overflow.
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                // Section for nutritional information.
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Nutritional Information")
-                        .font(.headline)
+                    Text("Nutritional Information") // Section title.
+                        .font(.headline) // Bold, larger font.
 
                     HStack {
-                        Text("Item:")
+                        Text("Item:") // Label for the food name.
                             .fontWeight(.bold)
-                        Text(foodItem.name)
+                        Text(foodItem.name) // Displays the food name.
                     }
 
                     HStack {
-                        Text("Calories:")
+                        Text("Calories:") // Label for calories.
                             .fontWeight(.bold)
-                        Text("\(adjustedNutrients.calories, specifier: "%.0f") kcal")
+                        Text("\(adjustedNutrients.calories, specifier: "%.0f") kcal") // Adjusted calorie count.
                     }
 
                     HStack {
-                        Text("Carbs:")
+                        Text("Carbs:") // Label for carbohydrates.
                             .fontWeight(.bold)
-                        Text("\(adjustedNutrients.carbs, specifier: "%.1f")g")
+                        Text("\(adjustedNutrients.carbs, specifier: "%.1f")g") // Adjusted carbs.
                     }
 
                     HStack {
-                        Text("Proteins:")
+                        Text("Proteins:") // Label for protein.
                             .fontWeight(.bold)
-                        Text("\(adjustedNutrients.protein, specifier: "%.1f")g")
+                        Text("\(adjustedNutrients.protein, specifier: "%.1f")g") // Adjusted protein.
                     }
 
                     HStack {
-                        Text("Fats:")
+                        Text("Fats:") // Label for fats.
                             .fontWeight(.bold)
-                        Text("\(adjustedNutrients.fats, specifier: "%.1f")g")
+                        Text("\(adjustedNutrients.fats, specifier: "%.1f")g") // Adjusted fats.
                     }
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
-                .padding(.horizontal)
+                .padding() // Adds internal padding.
+                .background(Color(.systemGray6)) // Light gray background.
+                .cornerRadius(12) // Rounded corners.
+                .padding(.horizontal) // Horizontal padding from edges.
 
+                // Section for adjusting quantity and serving size.
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Adjust Quantity")
-                        .font(.headline)
+                    Text("Adjust Quantity") // Section title.
+                        .font(.headline) // Bold, larger font.
 
                     HStack {
-                        Text("Servings:")
-                        TextField("1", text: $quantity)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(width: 60)
+                        Text("Servings:") // Label for servings.
+                        TextField("1", text: $quantity) // Input for number of servings.
+                            .keyboardType(.decimalPad) // Shows a numeric keypad.
+                            .textFieldStyle(RoundedBorderTextFieldStyle()) // Styled text field.
+                            .frame(width: 60) // Fixed width for the field.
                     }
 
-                    Toggle("Use Custom Serving Size", isOn: $useCustomServing)
-                        .padding(.top, 5)
+                    Toggle("Use Custom Serving Size", isOn: $useCustomServing) // Toggle to enable custom size.
+                        .padding(.top, 5) // Adds top padding.
 
                     if useCustomServing {
+                        // Displays custom serving size options when toggled on.
                         HStack {
-                            Text("Custom Size:")
-                            TextField("\(Int(baseServingWeight))", text: $customServingSize)
-                                .keyboardType(.decimalPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(width: 80)
+                            Text("Custom Size:") // Label for custom size.
+                            TextField("\(Int(baseServingWeight))", text: $customServingSize) // Input for custom weight.
+                                .keyboardType(.decimalPad) // Numeric keypad.
+                                .textFieldStyle(RoundedBorderTextFieldStyle()) // Styled text field.
+                                .frame(width: 80) // Fixed width.
 
-                            Picker("Unit", selection: $selectedServingUnit) {
-                                Text("g").tag("g")
-                                Text("oz").tag("oz")
+                            Picker("Unit", selection: $selectedServingUnit) { // Unit selection.
+                                Text("g").tag("g") // Gram option.
+                                Text("oz").tag("oz") // Ounce option.
                             }
-                            .pickerStyle(SegmentedPickerStyle())
-                            .frame(width: 100)
+                            .pickerStyle(SegmentedPickerStyle()) // Segmented style for picker.
+                            .frame(width: 100) // Fixed width.
                         }
                     } else {
+                        // Displays recommended serving size when custom is off.
                         HStack {
-                            Text("Recommended Size:")
+                            Text("Recommended Size:") // Label for recommended size.
                                 .fontWeight(.bold)
-                            Text("\(Int(baseServingWeight))g")
-                                .foregroundColor(.gray)
+                            Text("\(Int(baseServingWeight))g") // Default serving weight.
+                                .foregroundColor(.gray) // Gray color for secondary text.
                         }
                     }
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
-                .padding(.horizontal)
+                .padding() // Adds internal padding.
+                .background(Color(.systemGray6)) // Light gray background.
+                .cornerRadius(12) // Rounded corners.
+                .padding(.horizontal) // Horizontal padding from edges.
 
+                // Button to add or update the food item in the log.
                 Button(action: {
                     if var log = dailyLog {
-                        // Check if this is an update or a new addition
+                        // Checks if the food item is already in the log to determine action.
                         let isUpdating = log.meals.contains { meal in
                             meal.foodItems.contains { $0.id == foodItem.id }
                         }
 
                         if isUpdating {
-                            // Remove the old food item
+                            // Removes the old version of the food item if updating.
                             for i in log.meals.indices {
                                 log.meals[i].foodItems.removeAll { $0.id == foodItem.id }
                             }
                         }
 
-                        // Add the updated/new food item
+                        // Adds the adjusted food item to the log.
                         if let userID = Auth.auth().currentUser?.uid {
                             dailyLogService.addFoodToCurrentLog(for: userID, foodItem: adjustedNutrients)
-                            onLogUpdated(log)
+                            onLogUpdated(log) // Notifies the parent of the update.
                         }
                     }
-                    // Dismiss back to HomeView
-                    presentationMode.wrappedValue.dismiss() // Dismiss FoodDetailView
-                    dismiss() // Dismiss FoodSearchView sheet if present
+                    // Dismisses the view, handling nested navigation if present.
+                    presentationMode.wrappedValue.dismiss() // Dismisses via navigation.
+                    dismiss() // Dismisses the sheet if opened from FoodSearchView.
                 }) {
+                    // Dynamically sets button text based on whether it’s an update or addition.
                     Text(dailyLog?.meals.contains { $0.foodItems.contains { $0.id == foodItem.id } } == true ? "Update Log" : "Add to Log")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(12)
+                        .font(.headline) // Bold, larger font.
+                        .foregroundColor(.white) // White text.
+                        .padding() // Adds internal padding.
+                        .frame(maxWidth: .infinity) // Expands to full width.
+                        .background(Color.blue) // Blue background.
+                        .cornerRadius(12) // Rounded corners.
                 }
-                .padding(.horizontal)
+                .padding(.horizontal) // Horizontal padding from edges.
             }
-            .padding(.bottom, 20)
+            .padding(.bottom, 20) // Adds bottom padding for the scroll view.
         }
-        .navigationTitle("Edit Food")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Edit Food") // Sets the navigation title.
+        .navigationBarTitleDisplayMode(.inline) // Centers the title.
     }
 }

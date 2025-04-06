@@ -1,15 +1,20 @@
-<<<<<<< HEAD
 import SwiftUI
 import Charts
 
+// This view displays a weight tracking interface, allowing users to view their weight history
+// over different timeframes and enter new weight data, integrated with the GoalSettings model.
 struct WeightTrackingView: View {
+    // Environment object to access and modify user goals and weight history.
     @EnvironmentObject var goalSettings: GoalSettings
+    // State variable to control the visibility of the weight entry sheet.
     @State private var showingWeightEntry = false
-    @State private var selectedTimeframe: Timeframe = .year // Default to Year
+    // State variable to manage the selected timeframe for weight data filtering.
+    @State private var selectedTimeframe: Timeframe = .year // Default to one-year view.
 
+    // Computed property to filter weight history based on the selected timeframe.
     var filteredWeightData: [(date: Date, weight: Double)] {
-        let now = Date()
-        switch selectedTimeframe {
+        let now = Date() // Current date as the reference point.
+        switch selectedTimeframe { // Filters data based on the chosen timeframe.
         case .day:
             return goalSettings.weightHistory.filter { $0.date > Calendar.current.date(byAdding: .day, value: -1, to: now)! }
         case .week:
@@ -23,71 +28,51 @@ struct WeightTrackingView: View {
         }
     }
 
+    // The main body of the view, organized in a vertical stack.
     var body: some View {
-        VStack {
-            Text("Weight Tracking")
-                .font(.largeTitle)
-                .padding()
+        VStack { // Vertical stack to arrange the content.
+            Text("Weight Tracking") // Title of the view.
+                .font(.largeTitle) // Large, prominent font.
+                .padding() // Adds padding around the title.
 
-            Picker("Select Timeframe", selection: $selectedTimeframe) {
-                Text("D").tag(Timeframe.day)
-                Text("W").tag(Timeframe.week)
-                Text("M").tag(Timeframe.month)
-                Text("6M").tag(Timeframe.sixMonths)
-                Text("Y").tag(Timeframe.year)
+            // Picker to select the timeframe for weight data display.
+            Picker("Select Timeframe", selection: $selectedTimeframe) { // Segmented picker for timeframe options.
+                Text("D").tag(Timeframe.day) // Day option with "D" label.
+                Text("W").tag(Timeframe.week) // Week option with "W" label.
+                Text("M").tag(Timeframe.month) // Month option with "M" label.
+                Text("6M").tag(Timeframe.sixMonths) // Six months option with "6M" label.
+                Text("Y").tag(Timeframe.year) // Year option with "Y" label.
             }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding()
+            .pickerStyle(SegmentedPickerStyle()) // Uses a segmented control style.
+            .padding() // Adds padding around the picker.
 
-            // ✅ Updated to use new WeightChartView
-            WeightChartView(weightHistory: filteredWeightData)
+            // Displays a chart of weight history using the filtered data.
+            WeightChartView(weightHistory: filteredWeightData) // Custom chart view for weight data.
 
+            // Button to trigger the weight entry sheet.
             Button(action: {
-                showingWeightEntry = true
+                showingWeightEntry = true // Shows the weight entry sheet.
             }) {
-                Text("Enter Current Weight")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                Text("Enter Current Weight") // Button label.
+                    .frame(maxWidth: .infinity) // Expands to full width.
+                    .padding() // Adds internal padding.
+                    .background(Color.blue) // Blue background for visibility.
+                    .foregroundColor(.white) // White text for contrast.
+                    .cornerRadius(10) // Rounded corners for a modern look.
             }
-            .padding()
-            .sheet(isPresented: $showingWeightEntry) {
-                CurrentWeightView()
-                    .environmentObject(goalSettings)
+            .padding() // Adds padding around the button.
+            .sheet(isPresented: $showingWeightEntry) { // Presents the weight entry view as a sheet.
+                CurrentWeightView() // View for entering new weight data.
+                    .environmentObject(goalSettings) // Passes the goal settings to the sheet.
             }
         }
         .onAppear {
-            goalSettings.loadWeightHistory()
+            goalSettings.loadWeightHistory() // Loads the weight history when the view appears.
         }
     }
 }
 
+// Enum defining the possible timeframes for filtering weight data.
 enum Timeframe {
-    case day, week, month, sixMonths, year
+    case day, week, month, sixMonths, year // Options for data filtering (1 day, 1 week, 1 month, 6 months, 1 year).
 }
-=======
-//
-//  SwiftUIView.swift
-//  CalorieBeta
-//
-//  Created by Peter Andrews, jr.  on 10/25/24.
-//
-
-import SwiftUI
-import DGCharts
-
-struct WeightTrackingView: UIViewControllerRepresentable {
-
-    
-    func makeUIViewController(context: Context) -> WeightTrackingViewController {
-        return WeightTrackingViewController()
-    }
-
-    
-    func updateUIViewController(_ uiViewController: WeightTrackingViewController, context: Context) {
-       
-    }
-}
->>>>>>> d3d7eb3 (Initial commit)

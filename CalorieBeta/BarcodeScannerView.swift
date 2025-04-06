@@ -1,107 +1,71 @@
 import SwiftUI
-<<<<<<< HEAD
 import FirebaseFirestore
 import AVFoundation
 
+// This view provides a barcode scanner interface using AVFoundation, allowing users to scan
+// food barcodes and fetch corresponding food items from the FatSecret API.
 struct BarcodeScannerView: UIViewControllerRepresentable {
+    // Environment variable to control dismissal of the view.
     @Environment(\.presentationMode) var presentationMode
+    // Closure to pass the detected food item back to the parent view.
     var onFoodItemDetected: (FoodItem) -> Void
 
+    // Instance of the FatSecret API service to fetch food data.
     private let fatSecretService = FatSecretFoodAPIService()
-=======
-import AVFoundation
 
-struct BarcodeScannerView: UIViewControllerRepresentable {
-    var didFindBarcode: (String) -> Void
->>>>>>> d3d7eb3 (Initial commit)
-
+    // Creates a coordinator to handle AVCaptureMetadataOutputDelegate callbacks.
     func makeCoordinator() -> Coordinator {
-        return Coordinator(parent: self)
+        return Coordinator(parent: self) // Returns a new Coordinator instance.
     }
 
-<<<<<<< HEAD
+    // Creates and configures the UIViewController for the scanner.
     func makeUIViewController(context: Context) -> ScannerViewController {
-        let viewController = ScannerViewController()
-        viewController.delegate = context.coordinator
+        let viewController = ScannerViewController() // Initializes the scanner view controller.
+        viewController.delegate = context.coordinator // Sets the coordinator as the delegate.
         return viewController
     }
 
+    // Updates the UIViewController when the SwiftUI view changes (currently no updates needed).
     func updateUIViewController(_ uiViewController: ScannerViewController, context: Context) {}
-=======
-    func makeUIViewController(context: Context) -> UIViewController {
-        let viewController = UIViewController()
-        let captureSession = AVCaptureSession()
 
-        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return viewController }
-        let videoInput: AVCaptureDeviceInput
-
-        do {
-            videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
-            if captureSession.canAddInput(videoInput) {
-                captureSession.addInput(videoInput)
-            }
-        } catch {
-            return viewController
-        }
-
-        let metadataOutput = AVCaptureMetadataOutput()
-        if captureSession.canAddOutput(metadataOutput) {
-            captureSession.addOutput(metadataOutput)
-            metadataOutput.setMetadataObjectsDelegate(context.coordinator, queue: DispatchQueue.main)
-            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .qr]
-        }
-
-        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer.frame = viewController.view.layer.bounds
-        previewLayer.videoGravity = .resizeAspectFill
-        viewController.view.layer.addSublayer(previewLayer)
-
-        captureSession.startRunning()
-
-        return viewController
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
->>>>>>> d3d7eb3 (Initial commit)
-
+    // Coordinator class to handle barcode detection and API calls.
     class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
-        var parent: BarcodeScannerView
+        var parent: BarcodeScannerView // Reference to the parent view.
 
         init(parent: BarcodeScannerView) {
-            self.parent = parent
+            self.parent = parent // Initializes with the parent view.
         }
 
+        // Called when metadata (e.g., barcodes) is detected by the camera.
         func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-            if let metadataObject = metadataObjects.first,
+            if let metadataObject = metadataObjects.first, // Gets the first detected object.
                let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
-               let barcode = readableObject.stringValue {
-<<<<<<< HEAD
+               let barcode = readableObject.stringValue { // Extracts the barcode string.
 
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate)) // Vibrates the device.
 
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.parent.presentationMode.wrappedValue.dismiss()
-                    self.fetchFromFatSecret(barcode: barcode)
+                DispatchQueue.main.async { [weak self] in // Ensures UI updates on the main thread.
+                    guard let self = self else { return } // Prevents retain cycles with weak self.
+                    self.parent.presentationMode.wrappedValue.dismiss() // Dismisses the scanner view.
+                    self.fetchFromFatSecret(barcode: barcode) // Fetches food data for the barcode.
                 }
             }
         }
 
+        // Fetches food details from FatSecret using the detected barcode.
         private func fetchFromFatSecret(barcode: String) {
             parent.fatSecretService.fetchFoodByBarcode(barcode: barcode) { result in
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { // Ensures UI updates on the main thread.
                     switch result {
                     case .success(let foodItems):
-                        if let firstFoodItem = foodItems.first {
-                            print("✅ Navigating to FoodDetailView for: \(firstFoodItem.name)")
-                            
-                            // ✅ Pass full food item to handler
-                            self.parent.onFoodItemDetected(firstFoodItem)
+                        if let firstFoodItem = foodItems.first { // Uses the first matching food item.
+                            print("✅ Navigating to FoodDetailView for: \(firstFoodItem.name)") // Logs success.
+                            self.parent.onFoodItemDetected(firstFoodItem) // Passes the food item to the parent.
                         } else {
-                            print("⚠️ No valid results found.")
+                            print("⚠️ No valid results found.") // Logs when no food is found.
                         }
                     case .failure(let error):
-                        print("❌ No results found. Error: \(error.localizedDescription)")
+                        print("❌ No results found. Error: \(error.localizedDescription)") // Logs any errors.
                     }
                 }
             }
@@ -110,166 +74,66 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
 }
 
 // ✅ **Restored `ScannerViewController` to fix "Cannot find in scope" errors**
+// Custom UIViewController to manage the camera and barcode scanning process.
 class ScannerViewController: UIViewController {
-    var captureSession: AVCaptureSession?
-    var previewLayer: AVCaptureVideoPreviewLayer!
-    var delegate: AVCaptureMetadataOutputObjectsDelegate?
+    var captureSession: AVCaptureSession? // Manages the camera input and output.
+    var previewLayer: AVCaptureVideoPreviewLayer! // Displays the camera feed.
+    var delegate: AVCaptureMetadataOutputObjectsDelegate? // Delegate for metadata detection.
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-        setupCamera()
-        setupOverlay()
+        super.viewDidLoad() // Calls the superclass's view setup.
+        setupCamera() // Initializes the camera.
+        setupOverlay() // Adds a visual overlay for scanning guidance.
     }
 
+    // Sets up the camera session and configures input/output.
     func setupCamera() {
-        captureSession = AVCaptureSession()
+        captureSession = AVCaptureSession() // Initializes the capture session.
 
-        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
+        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return } // Gets the default video device.
         let videoInput: AVCaptureDeviceInput
 
         do {
-            videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
+            videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice) // Creates input from the device.
             if captureSession?.canAddInput(videoInput) == true {
-                captureSession?.addInput(videoInput)
+                captureSession?.addInput(videoInput) // Adds the input if supported.
             }
         } catch {
-            return
+            return // Exits if input setup fails.
         }
 
-        let metadataOutput = AVCaptureMetadataOutput()
+        let metadataOutput = AVCaptureMetadataOutput() // Creates metadata output for barcode detection.
         if captureSession?.canAddOutput(metadataOutput) == true {
-            captureSession?.addOutput(metadataOutput)
-            metadataOutput.setMetadataObjectsDelegate(delegate, queue: DispatchQueue.main)
-            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .qr]
+            captureSession?.addOutput(metadataOutput) // Adds the output if supported.
+            metadataOutput.setMetadataObjectsDelegate(delegate, queue: DispatchQueue.main) // Sets delegate and main queue.
+            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .qr] // Specifies supported barcode types.
         }
 
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
-        previewLayer.frame = view.layer.bounds
-        previewLayer.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(previewLayer)
+        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!) // Creates the preview layer.
+        previewLayer.frame = view.layer.bounds // Matches the layer to the view bounds.
+        previewLayer.videoGravity = .resizeAspectFill // Fills the view while maintaining aspect ratio.
+        view.layer.addSublayer(previewLayer) // Adds the preview layer to the view.
 
-        DispatchQueue.global(qos: .background).async {
-            self.captureSession?.startRunning() // ✅ **Moved to background to prevent UI freeze**
+        DispatchQueue.global(qos: .background).async { // Runs camera start on a background thread.
+            self.captureSession?.startRunning() // Starts the capture session.
         }
     }
 
+    // Adds a green-bordered overlay to guide the user during scanning.
     func setupOverlay() {
-        let overlayView = UIView()
-        overlayView.layer.borderColor = UIColor.green.cgColor
-        overlayView.layer.borderWidth = 3
-        overlayView.backgroundColor = UIColor.clear
-        overlayView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(overlayView)
+        let overlayView = UIView() // Creates a new view for the overlay.
+        overlayView.layer.borderColor = UIColor.green.cgColor // Sets a green border.
+        overlayView.layer.borderWidth = 3 // Sets border width.
+        overlayView.backgroundColor = UIColor.clear // Transparent background.
+        overlayView.translatesAutoresizingMaskIntoConstraints = false // Enables Auto Layout.
+        view.addSubview(overlayView) // Adds the overlay to the view.
 
+        // Sets up constraints for the overlay.
         NSLayoutConstraint.activate([
-            overlayView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            overlayView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            overlayView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
-            overlayView.heightAnchor.constraint(equalTo: overlayView.widthAnchor, multiplier: 0.5)
+            overlayView.centerXAnchor.constraint(equalTo: view.centerXAnchor), // Centers horizontally.
+            overlayView.centerYAnchor.constraint(equalTo: view.centerYAnchor), // Centers vertically.
+            overlayView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6), // 60% of view width.
+            overlayView.heightAnchor.constraint(equalTo: overlayView.widthAnchor, multiplier: 0.5) // Height 50% of width.
         ])
-=======
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-                parent.handleBarcode(barcode)
-            }
-        }
-    }
-
-    // Handle the scanned barcode and query the OpenFoodFacts API
-    private func handleBarcode(_ barcode: String) {
-        let endpoint = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json"
-
-        guard let url = URL(string: endpoint) else {
-            print("Invalid URL for barcode \(barcode)")
-            didFindBarcode("Invalid URL")
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                print("Error fetching data: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.didFindBarcode("Error fetching data")
-                }
-                return
-            }
-
-            guard let data = data else {
-                print("No data returned from API")
-                DispatchQueue.main.async {
-                    self.didFindBarcode("No data")
-                }
-                return
-            }
-
-            do {
-                // Decode the API response
-                let apiResponse = try JSONDecoder().decode(OpenFoodFactsAPIResponse.self, from: data)
-
-                // Check if product data is available
-                if let product = apiResponse.product {
-                    DispatchQueue.main.async {
-                        self.didFindBarcode(product.productName ?? "Unknown Product")
-                    }
-                } else {
-                    print("No product found for barcode \(barcode)")
-                    DispatchQueue.main.async {
-                        self.didFindBarcode("No product found")
-                    }
-                }
-            } catch {
-                print("Error decoding API response: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.didFindBarcode("Error decoding data")
-                }
-            }
-        }.resume()
-    }
-}
-
-// MARK: - API Response Structs
-
-// The main response structure from OpenFoodFacts API
-struct OpenFoodFactsAPIResponse: Decodable {
-    let code: String?
-    let product: OpenFoodFactsProduct?
-    let status: Int?
-    let statusVerbose: String?
-
-    enum CodingKeys: String, CodingKey {
-        case code
-        case product
-        case status
-        case statusVerbose = "status_verbose"
-    }
-}
-
-// The product information structure within the response
-struct OpenFoodFactsProduct: Decodable {
-    let productName: String?
-    let nutriments: OpenFoodFactsNutrients?
-    let servingSize: String?
-    let servingWeight: Double?
-
-    enum CodingKeys: String, CodingKey {
-        case productName = "product_name"
-        case nutriments
-        case servingSize = "serving_size"
-        case servingWeight = "serving_weight"
-    }
-}
-
-// The nutrients structure within the product information
-struct OpenFoodFactsNutrients: Decodable {
-    let energyKcal: Double?
-    let proteins: Double?
-    let carbohydrates: Double?
-    let fat: Double?
-
-    enum CodingKeys: String, CodingKey {
-        case energyKcal = "energy-kcal_100g"
-        case proteins = "proteins_100g"
-        case carbohydrates = "carbohydrates_100g"
-        case fat = "fat_100g"
->>>>>>> d3d7eb3 (Initial commit)
     }
 }

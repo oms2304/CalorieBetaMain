@@ -1,17 +1,8 @@
-<<<<<<< HEAD
 import SwiftUI
 import DGCharts
 
 struct WeightChartView: UIViewRepresentable {
     var weightHistory: [(date: Date, weight: Double)] // ✅ Updated to use weight tracking
-=======
-
-import SwiftUI
-import DGCharts
-struct LineChartView: UIViewRepresentable {
-    
-    var calorieData: [DailyLog]
->>>>>>> d3d7eb3 (Initial commit)
 
     func makeUIView(context: Context) -> DGCharts.LineChartView {
         let chartView = DGCharts.LineChartView()
@@ -19,14 +10,9 @@ struct LineChartView: UIViewRepresentable {
         chartView.xAxis.labelPosition = .bottom
         chartView.xAxis.drawGridLinesEnabled = false
         chartView.leftAxis.drawGridLinesEnabled = false
-<<<<<<< HEAD
         chartView.leftAxis.axisMinimum = 0
         chartView.legend.form = .line
         chartView.xAxis.valueFormatter = DateValueFormatter() // ✅ Formats X-axis as dates
-=======
-        chartView.leftAxis.axisMinimum = 0 // Start the y-axis from 0
-        chartView.legend.form = .line
->>>>>>> d3d7eb3 (Initial commit)
         return chartView
     }
 
@@ -35,7 +21,6 @@ struct LineChartView: UIViewRepresentable {
     }
 
     private func setChartData(for chartView: DGCharts.LineChartView) {
-<<<<<<< HEAD
         guard !weightHistory.isEmpty else {
             chartView.data = nil // Clear the chart if there is no data
             return
@@ -52,17 +37,6 @@ struct LineChartView: UIViewRepresentable {
         }
 
         let lineDataSet = LineChartDataSet(entries: dataEntries, label: "Weight Over Time")
-=======
-        var dataEntries: [ChartDataEntry] = []
-
-        // Create data entries from calorieData
-        for (index, log) in calorieData.enumerated() {
-            let dataEntry = ChartDataEntry(x: Double(index), y: log.totalCalories())
-            dataEntries.append(dataEntry)
-        }
-
-        let lineDataSet = LineChartDataSet(entries: dataEntries, label: "Calories Over Time")
->>>>>>> d3d7eb3 (Initial commit)
         lineDataSet.colors = [NSUIColor.blue]
         lineDataSet.circleColors = [NSUIColor.red]
         lineDataSet.circleRadius = 4
@@ -73,7 +47,6 @@ struct LineChartView: UIViewRepresentable {
         let lineData = LineChartData(dataSet: lineDataSet)
         chartView.data = lineData
 
-<<<<<<< HEAD
         chartView.animate(xAxisDuration: 1.5, yAxisDuration: 1.5, easingOption: .easeInOutQuad)
     }
 }
@@ -92,9 +65,3 @@ class DateValueFormatter: AxisValueFormatter {
         return dateFormatter.string(from: date)
     }
 }
-=======
- 
-        chartView.animate(xAxisDuration: 1.5, yAxisDuration: 1.5, easingOption: .easeInOutQuad)
-    }
-}
->>>>>>> d3d7eb3 (Initial commit)
