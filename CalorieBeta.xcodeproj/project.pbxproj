@@ -50,6 +50,7 @@
 		3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693DD2CB83BDC002222C6 /* GoalSettings.swift */; };
 		3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */; };
 		3EC693E22CBD90B2002222C6 /* AIChatBotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */; };
+		414735632DA7646D002489C6 /* WeightChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414735622DA7646D002489C6 /* WeightChartViewController.swift */; };
 		4B619A942D677DBC00D6C9A8 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B619A932D677DB500D6C9A8 /* APIError.swift */; };
 		4B619A962D6FAADA00D6C9A8 /* HorizontalBarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B619A952D6FAAD000D6C9A8 /* HorizontalBarChartView.swift */; };
 		4B619A982D79EB5200D6C9A8 /* LandingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B619A972D79EB4C00D6C9A8 /* LandingPageView.swift */; };
@@ -57,6 +58,8 @@
 		4B7053FF2D5E4CB7001D9C1C /* OpenFoodFactsAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7053FE2D5E4CA7001D9C1C /* OpenFoodFactsAPIService.swift */; };
 		4B750C772D148F6B002AE2FB /* SetHeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B750C762D148F5E002AE2FB /* SetHeightView.swift */; };
 		4B999ECB2D80847300930413 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B999ECA2D80846C00930413 /* WelcomeView.swift */; };
+		4B999ECD2D8DC4B000930413 /* OnBoardingSurveyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B999ECC2D8DC4A200930413 /* OnBoardingSurveyView.swift */; };
+		4B999ECF2D93027A00930413 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B999ECE2D93027200930413 /* NotificationManager.swift */; };
 		4BA2DB3C2D42A38B00B6BDED /* MLImageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA2DB3B2D42A37B00B6BDED /* MLImageModel.swift */; };
 		4BA2DB3E2D42A74800B6BDED /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA2DB3D2D42A74300B6BDED /* ImagePicker.swift */; };
 		4BE7685A2D51040E00EAF4C8 /* FoodDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE768592D51040200EAF4C8 /* FoodDetailView.swift */; };
@@ -116,6 +119,7 @@
 		3EC693DD2CB83BDC002222C6 /* GoalSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettings.swift; sourceTree = "<group>"; };
 		3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatSecretFoodAPIService.swift; sourceTree = "<group>"; };
 		3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatBotView.swift; sourceTree = "<group>"; };
+		414735622DA7646D002489C6 /* WeightChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightChartViewController.swift; sourceTree = "<group>"; };
 		4B619A932D677DB500D6C9A8 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		4B619A952D6FAAD000D6C9A8 /* HorizontalBarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalBarChartView.swift; sourceTree = "<group>"; };
 		4B619A972D79EB4C00D6C9A8 /* LandingPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingPageView.swift; sourceTree = "<group>"; };
@@ -123,6 +127,8 @@
 		4B7053FE2D5E4CA7001D9C1C /* OpenFoodFactsAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFoodFactsAPIService.swift; sourceTree = "<group>"; };
 		4B750C762D148F5E002AE2FB /* SetHeightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetHeightView.swift; sourceTree = "<group>"; };
 		4B999ECA2D80846C00930413 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		4B999ECC2D8DC4A200930413 /* OnBoardingSurveyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnBoardingSurveyView.swift; sourceTree = "<group>"; };
+		4B999ECE2D93027200930413 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		4BA2DB3B2D42A37B00B6BDED /* MLImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLImageModel.swift; sourceTree = "<group>"; };
 		4BA2DB3D2D42A74300B6BDED /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		4BE768592D51040200EAF4C8 /* FoodDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDetailView.swift; sourceTree = "<group>"; };
@@ -178,6 +184,7 @@
 			children = (
 				3EB297982CAEF8D40093E1B9 /* Info.plist */,
 				3EB2977B2CAEEDC90093E1B9 /* HomeView.swift */,
+				4B999ECE2D93027200930413 /* NotificationManager.swift */,
 				3EB09F452CC7F41D0088C849 /* FirestoreSeeder.swift */,
 				3EB09F402CC2B0990088C849 /* DailyLogService.swift */,
 				3E7821042CBEC38A007E219A /* CalorieLogView.swift */,
@@ -198,10 +205,11 @@
 				4B619A932D677DB500D6C9A8 /* APIError.swift */,
 				4B7053FC2D5E4C05001D9C1C /* ManualFoodEntryView.swift */,
 				3EB2978C2CAEEF830093E1B9 /* LoginView.swift */,
-				3EB297942CAEF34A0093E1B9 /* SignUpView.swift */,
 				3E676A172CCFE4AD0019DC51 /* AppState.swift */,
 				3EB2978E2CAEEFAB0093E1B9 /* MainAppView.swift */,
 				4B999ECA2D80846C00930413 /* WelcomeView.swift */,
+				3EB297942CAEF34A0093E1B9 /* SignUpView.swift */,
+				4B999ECC2D8DC4A200930413 /* OnBoardingSurveyView.swift */,
 				3E676A192CCFE6AD0019DC51 /* MainTabView.swift */,
 				4B619A972D79EB4C00D6C9A8 /* LandingPageView.swift */,
 				3EB09F4C2CCBFB310088C849 /* WeightTrackingView.swift */,
@@ -209,6 +217,7 @@
 				3EC693CE2CB827F2002222C6 /* UserProfileView.swift */,
 				3EC693D02CB8281C002222C6 /* WeightChartView.swift */,
 				3E78210C2CC18259007E219A /* CurrentWeightView.swift */,
+				414735622DA7646D002489C6 /* WeightChartViewController.swift */,
 				3EB297922CAEF1300093E1B9 /* SettingsView.swift */,
 				3E78210A2CC0294B007E219A /* CaloricCalculatorView.swift */,
 				3E676A1B2CDBC1C30019DC51 /* CommunityHubView.swift */,
@@ -328,6 +337,7 @@
 				4B7053FF2D5E4CB7001D9C1C /* OpenFoodFactsAPIService.swift in Sources */,
 				3E7821092CC02464007E219A /* FoodSearchView.swift in Sources */,
 				3E7821072CC02423007E219A /* FoodAddOptionView.swift in Sources */,
+				414735632DA7646D002489C6 /* WeightChartViewController.swift in Sources */,
 				3E78210B2CC0294B007E219A /* CaloricCalculatorView.swift in Sources */,
 				4BA2DB3C2D42A38B00B6BDED /* MLImageModel.swift in Sources */,
 				3EB297912CAEF0460093E1B9 /* Model.swift in Sources */,
@@ -338,6 +348,7 @@
 				3E676A2A2CE3C76D0019DC51 /* JoinGroupConfirmationView.swift in Sources */,
 				3EB09F4D2CCBFB310088C849 /* WeightTrackingView.swift in Sources */,
 				4B750C772D148F6B002AE2FB /* SetHeightView.swift in Sources */,
+				4B999ECD2D8DC4B000930413 /* OnBoardingSurveyView.swift in Sources */,
 				3E676A242CE3C0080019DC51 /* CreateGroupView.swift in Sources */,
 				3E676A1A2CCFE6AD0019DC51 /* MainTabView.swift in Sources */,
 				3EB2978B2CAEEF250093E1B9 /* BarcodeScannerView.swift in Sources */,
@@ -365,6 +376,7 @@
 				3EB09F4F2CCBFFE60088C849 /* WeightTrackingViewController.swift in Sources */,
 				3E78210D2CC18259007E219A /* CurrentWeightView.swift in Sources */,
 				4B999ECB2D80847300930413 /* WelcomeView.swift in Sources */,
+				4B999ECF2D93027A00930413 /* NotificationManager.swift in Sources */,
 				3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */,
 				3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */,
 				3EC693CB2CB81F8B002222C6 /* NutritionProgressView.swift in Sources */,

@@ -39,13 +39,38 @@ struct FoodSearchView: View {
     // The main body of the view, wrapped in a NavigationView for title and navigation.
     var body: some View {
         NavigationView {
-            VStack {
-                // A custom view for the search bar, defined below.
-                searchBar
-                // A custom view for the content (results and recent foods), defined below.
-                contentView
+            ScrollView {
+                VStack(spacing: 16) {
+                    // A custom view for the search bar, defined below.
+                    VStack(alignment: .leading, spacing: 8) {
+                        searchBar
+                    }
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(15)
+                    .shadow(radius: 2)
+
+                    // A custom view for the content (results and recent foods), defined below.
+                    VStack(alignment: .leading, spacing: 8) {
+                        contentView
+                    }
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(15)
+                    .shadow(radius: 2)
+                }
+                .padding(.vertical)
             }
             .navigationTitle("Search Food") // Sets the title displayed at the top of the view.
+            .toolbar {
+                // Adds "MyFitPlate" branding in the top-left corner, replacing .withMyFitPlateBranding().
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Text("MyFitPlate")
+                        .font(.headline)
+                        .foregroundColor(.primary.opacity(0.5))
+                        .padding(.leading, 5)
+                }
+            }
             .onAppear {
                 // Pre-fill the search query if an initial query is provided.
                 searchQuery = initialSearchQuery ?? ""
@@ -69,7 +94,6 @@ struct FoodSearchView: View {
             .alert(item: $error) { error in // Displays an alert if an error occurs.
                 Alert(title: Text("Error"), message: Text(error.message), dismissButton: .default(Text("OK")))
             }
-            
         }
     }
 

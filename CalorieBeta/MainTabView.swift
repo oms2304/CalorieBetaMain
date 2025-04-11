@@ -1,1059 +1,119 @@
 import SwiftUI
-
-
-
 import FirebaseAuth
 
-
-
-
-
-
-
+// MARK: - MainTabView
+/// The main tabbed navigation interface for the MyFitPlate app, providing access to Home, AI Chatbot, and Weight Chart tabs.
+/// This view manages tab selection, handles navigation to UserProfileView, and presents SettingsView as a sheet.
+/// It serves as the root navigation container, integrating with environment objects for data management.
 struct MainTabView: View {
-
-
-
+    // MARK: - State Variables
+    /// Tracks the currently selected tab index (0: Home, 1: AI Chatbot, 2: Weight Chart).
     @State private var selectedTab = 0
-
-
-
-    @State private var showingAddFoodOptions = false
-
-
-
     
+    // MARK: - State Objects
+    /// Initializes GoalSettings to manage user-defined goals (e.g., calories, weight) and weight history.
+    @StateObject private var goalSettings = GoalSettings()
+    /// Initializes DailyLogService to manage interactions with Firebase Firestore for daily logs.
+    @StateObject private var dailyLogService = DailyLogService()
 
+    // MARK: - State for Navigation and Presentation
+    /// Controls navigation to UserProfileView via a hidden NavigationLink, passed to HomeView.
+    @State private var navigateToProfile = false
+    /// Toggles the visibility of the SettingsView as a modal sheet.
+    @State private var showSettings = false
 
+    // MARK: - Environment
+    /// Detects the current color scheme to adapt the UI for light or dark mode.
+    @Environment(\.colorScheme) var colorScheme
 
-    // Added variables from HomeView
-
-
-
-    @State private var showingAddFoodView = false
-
-
-
-    @State private var showingSearchView = false
-
-
-
-    @State private var showingBarcodeScanner = false
-
-
-
-    @State private var showingImagePicker = false
-
-
-
-    @State private var scannedFoodName: String?
-
-
-
-    @State private var foodPrediction: String = ""
-
-
-
-    
-
-
-
-    // Environment objects needed
-
-
-
-    @EnvironmentObject var dailyLogService: DailyLogService
-
-
-
-    
-
-
-
-    // ML model for image classification
-
-
-
-    private let mlModel = MLImageModel()
-
-
-
-    
-
-
-
+    // MARK: - Body
     var body: some View {
-
-
-
-        ZStack(alignment: .bottom) {
-
-
-
-            // Main content area
-
-
-
-            TabView(selection: $selectedTab) {
-
-
-
-                // Home Tab
-
-
-
-                HomeView()
-
-
-
-                    .tag(0)
-
-
-
-
-
-
-
-                // AI Recipe Bot Tab
-
-
-
+        // TabView: The primary navigation structure, containing multiple tabs with distinct content.
+        /// The accentColor is set to green (#43AD6F) to align with the app's branding and active tab indicators.
+        /// Each tab's NavigationView is managed within the respective view (e.g., HomeView) to avoid conflicts.
+        TabView(selection: $selectedTab) {
+            // Home Tab: Displays the main dashboard for calorie tracking and food diary.
+            HomeView(
+                navigateToProfile: $navigateToProfile,
+                showSettings: $showSettings
+            )
+            .tabItem {
+                Image(systemName: "house")
+                    .foregroundColor(selectedTab == 0 ? Color(red: 67/255, green: 173/255, blue: 111/255) : (colorScheme == .dark ? .white : .black))
+                Text("Home")
+                    .foregroundColor(selectedTab == 0 ? Color(red: 67/255, green: 173/255, blue: 111/255) : (colorScheme == .dark ? .white : .black))
+            }
+            .tag(0)
+            
+            // AI Chatbot Tab: Provides an interface for interacting with the AI chatbot.
+            NavigationView {
                 AIChatbotView(selectedTab: $selectedTab)
-
-
-
-                    .tag(1)
-
-
-
-                
-
-
-
-                // Empty view for center tab
-
-
-
-                Color.clear
-
-
-
-                    .tag(2)
-
-
-
-                
-
-
-
-                // Weight Tracking Tab
-
-
-
+                    .navigationTitle("AI Chatbot")
+                    .navigationBarTitleDisplayMode(.inline) // Ensures consistent title display.
+            }
+            .tabItem {
+                Image(systemName: "message")
+                    .foregroundColor(selectedTab == 1 ? Color(red: 67/255, green: 173/255, blue: 111/255) : (colorScheme == .dark ? .white : .black))
+                Text("AI Chatbot")
+                    .foregroundColor(selectedTab == 1 ? Color(red: 67/255, green: 173/255, blue: 111/255) : (colorScheme == .dark ? .white : .black))
+            }
+            .tag(1)
+            
+            // Weight Chart Tab: Displays the user's weight history in a graphical format.
+            NavigationView {
                 WeightTrackingView()
-
-
-
-                    .tag(3)
-
-
-
-                
-
-
-
-                // Analytics Tab
-
-
-
-                Color(red: 0/255, green: 61/255, blue: 58/255)
-
-
-
-                    .tag(4)
-
-
-
+                    .navigationTitle("Weight Chart")
+                    .navigationBarTitleDisplayMode(.inline) // Ensures consistent title display.
             }
-
-
-
-            
-
-
-
-            // Custom tab bar
-
-
-
-            VStack {
-
-
-
-                Spacer()
-
-
-
-                CustomTabBar(
-
-
-
-                    selectedTab: $selectedTab,
-
-
-
-                    showingAddFoodOptions: $showingAddFoodOptions
-
-
-
-                )
-
-                .background(Color.white)
-
-                       .ignoresSafeArea(edges: .bottom)  // This removes the extra space
-
-
-
+            .tabItem {
+                Image(systemName: "chart.xyaxis.line")
+                    .foregroundColor(selectedTab == 2 ? Color(red: 67/255, green: 173/255, blue: 111/255) : (colorScheme == .dark ? .white : .black))
+                Text("Weight Chart")
+                    .foregroundColor(selectedTab == 2 ? Color(red: 67/255, green: 173/255, blue: 111/255) : (colorScheme == .dark ? .white : .black))
             }
-
-
-
-            
-
-
-
-            // Overlay for the add food options menu
-
-
-
-            if showingAddFoodOptions {
-
-
-
-                Color.black.opacity(0.4)
-
-
-
-                    .edgesIgnoringSafeArea(.all)
-
-
-
-                    .onTapGesture { showingAddFoodOptions = false }
-
-
-
-                
-
-
-
-                VStack(spacing: 16) {
-
-
-
-                    Button(action: {
-
-
-
-                        showingAddFoodOptions = false
-
-
-
-                        showingSearchView = true
-
-
-
-                        scannedFoodName = nil
-
-
-
-                    }) {
-
-
-
-                        FoodOptionButton(title: "Search Food", icon: "magnifyingglass")
-
-
-
-                    }
-
-
-
-                    Button(action: {
-
-
-
-                        showingAddFoodOptions = false
-
-
-
-                        showingBarcodeScanner = true
-
-
-
-                    }) {
-
-
-
-                        FoodOptionButton(title: "Scan Barcode", icon: "barcode.viewfinder")
-
-
-
-                    }
-
-
-
-                    Button(action: {
-
-
-
-                        showingAddFoodOptions = false
-
-
-
-                        showingImagePicker = true
-
-
-
-                    }) {
-
-
-
-                        FoodOptionButton(title: "Scan Food Image", icon: "camera")
-
-
-
-                    }
-
-
-
-                    Button(action: {
-
-
-
-                        showingAddFoodOptions = false
-
-
-
-                        showingAddFoodView = true
-
-
-
-                    }) {
-
-
-
-                        FoodOptionButton(title: "Add Food Manually", icon: "plus.circle")
-
-
-
-                    }
-
-
-
-                }
-
-
-
-                .padding()
-
-
-
-                .background(Color.white)
-
-
-
-                .cornerRadius(16)
-
-
-
-                .shadow(radius: 10)
-
-
-
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-
-
-
-            }
-
-
-
+            .tag(2)
         }
-
-
-
-        .sheet(isPresented: $showingAddFoodView) {
-
-
-
-            AddFoodView { newFood in
-
-
-
-                if let userID = Auth.auth().currentUser?.uid {
-
-
-
-                    dailyLogService.addFoodToCurrentLog(for: userID, foodItem: newFood)
-
-
-
-                }
-
-
-
-            }
-
-
-
+        .accentColor(Color(red: 67/255, green: 173/255, blue: 111/255))
+        // Apply a background color to the tab bar to ensure it adapts to dark mode.
+        .onAppear {
+            // Customize the tab bar appearance for dark mode.
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = colorScheme == .dark ? UIColor.systemBackground : UIColor.white
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
         }
-
-
-
-        .sheet(isPresented: $showingSearchView) {
-
-
-
-            if let currentLog = dailyLogService.currentDailyLog {
-
-
-
-                FoodSearchView(
-
-
-
-                    dailyLog: .constant(currentLog),
-
-
-
-                    onLogUpdated: { updatedLog in
-
-
-
-                        dailyLogService.currentDailyLog = updatedLog
-
-
-
-                    },
-
-
-
-                    initialSearchQuery: scannedFoodName ?? ""
-
-
-
-                )
-
-
-
-            } else {
-
-
-
-                Text("Loading...")
-
-
-
+        // SettingsView Sheet: Presented when showSettings is true, managed by the hamburger menu.
+        /// The NavigationView ensures proper navigation within the settings interface, using StackNavigationViewStyle for iPad compatibility.
+        /// The environment objects (dailyLogService, goalSettings) are passed, and appState is available via the environment injected by MainAppView.
+        .sheet(isPresented: $showSettings) {
+            NavigationView {
+                SettingsView(showSettings: $showSettings)
+                    .environmentObject(dailyLogService)
+                    .environmentObject(goalSettings)
+                    .navigationViewStyle(StackNavigationViewStyle())
             }
-
-
-
         }
-
-
-
-        .sheet(isPresented: $showingBarcodeScanner) {
-
-
-
-            BarcodeScannerView { foodItem in
-
-
-
-                DispatchQueue.main.async {
-
-
-
-                    scannedFoodName = foodItem.name
-
-
-
-                    showingBarcodeScanner = false
-
-
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-
-
-
-                        showingSearchView = true
-
-
-
-                    }
-
-
-
-                }
-
-
-
-            }
-
-
-
-        }
-
-
-
-        .sheet(isPresented: $showingImagePicker) {
-
-
-
-            ImagePicker(sourceType: .camera) { image in
-
-
-
-                mlModel.classifyImage(image: image) { result in
-
-
-
+        .onAppear {
+            // Load the user's weight history and daily log when the view appears.
+            goalSettings.loadWeightHistory()
+            if let userID = Auth.auth().currentUser?.uid {
+                // Fetch the current day's log to ensure it's available for all tabs.
+                dailyLogService.fetchOrCreateTodayLog(for: userID) { result in
                     switch result {
-
-
-
-                    case .success(let foodName):
-
-
-
-                        self.foodPrediction = "Predicted: \(foodName)"
-
-
-
-                        self.scannedFoodName = foodName
-
-
-
-                        self.showingImagePicker = false
-
-
-
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-
-
-
-                            self.showingSearchView = true
-
-
-
-                        }
-
-
-
+                    case .success(let log):
+                        dailyLogService.currentDailyLog = log
+                        print("✅ Loaded today's log in MainTabView: \(log.id ?? "nil")")
                     case .failure(let error):
-
-
-
-                        self.foodPrediction = "No food recognized: \(error.localizedDescription)"
-
-
-
-                        self.showingImagePicker = false
-
-
-
+                        print("❌ Error loading today's log in MainTabView: \(error.localizedDescription)")
                     }
-
-
-
                 }
-
-
-
+                // Load user goals to ensure they are up-to-date.
+                goalSettings.loadUserGoals(userID: userID)
             }
-
-
-
         }
-
-
-
-    }
-
-
-
-}
-
-
-
-
-
-
-
-struct CustomTabBar: View {
-
-
-
-    @Binding var selectedTab: Int
-
-
-
-    @Binding var showingAddFoodOptions: Bool
-
-
-
-    
-
-
-
-    var body: some View {
-
-
-
-        HStack(spacing: 0) {
-
-
-
-            ForEach(0..<5) { index in
-
-
-
-                if index == 2 {
-
-
-
-                    // Center add button
-
-
-
-                    Button(action: {
-
-
-
-                        showingAddFoodOptions.toggle()
-
-
-
-                    }) {
-
-
-
-                        Image(systemName: "plus.circle.fill")
-
-
-
-                            .resizable()
-
-
-
-                            .aspectRatio(contentMode: .fit)
-
-
-
-                            .frame(width: 35, height: 35)
-
-
-
-                            .foregroundColor(Color(red: 0/255, green: 61/255, blue: 58/255))
-
-
-
-                            .padding(.vertical, 8)
-
-
-
-                    }
-
-
-
-                    .frame(maxWidth: .infinity)
-
-
-
-                } else {
-
-
-
-                    // Regular tab buttons
-
-
-
-                    let tabIndex = index
-
-
-
-                    TabButton(
-
-
-
-                        icon: getIcon(for: tabIndex),
-
-
-
-                        isSelected: selectedTab == tabIndex,
-
-
-
-                        action: { selectedTab = tabIndex }
-
-
-
-                    )
-
-
-
-                }
-
-
-
-            }
-
-
-
-        }
-
-
-
-        .padding(.horizontal, 8)
-
-
-
-        .padding(.top, 7)
-
-
-
-        .padding(.bottom, 12)
-
-
-
-        .background(Color.white)
-
-
-
-        .cornerRadius(25, corners: [.topLeft, .topRight])
-
-
-
-       
-
-
-
-    }
-
-
-
-    
-
-
-
-    private func getIcon(for index: Int) -> String {
-
-
-
-        switch index {
-
-
-
-        case 0: return "house.fill"
-
-
-
-        case 1: return "message.fill"
-
-
-
-        case 3: return "scalemass.fill"
-
-
-
-        case 4: return "person.2.fill"
-
-
-
-        default: return ""
-
-
-
-        }
-
-
-
-    }
-
-
-
-}
-
-
-
-
-
-
-
-struct TabButton: View {
-
-
-
-    let icon: String
-
-
-
-    let isSelected: Bool
-
-
-
-    let action: () -> Void
-
-
-
-    
-
-
-
-    var body: some View {
-
-
-
-        Button(action: action) {
-
-            
-
-            Image(systemName: icon)
-
-            
-
-                .resizable()
-
-            
-
-                .aspectRatio(contentMode: .fit)
-
-            
-
-                .frame(width: 24, height: 24)
-
-            
-
-                .foregroundColor(isSelected ? Color(red: 0/255, green: 61/255, blue: 58/255): .gray)
-
-
-
-                                .padding(.vertical, 8)
-
-
-
-                        }
-
-
-
-                        .frame(maxWidth: .infinity)
-
-
-
-                    }
-
-
-
-                }
-
-
-
-
-
-
-
-                struct FoodOptionButton: View {
-
-
-
-                    let title: String
-
-
-
-                    let icon: String
-
-
-
-                    
-
-
-
-                    var body: some View {
-
-
-
-                        HStack {
-
-
-
-                            Image(systemName: icon)
-
-
-
-                                .foregroundColor(.green)
-
-
-
-                                .frame(width: 24, height: 24)
-
-
-
-                            Text(title)
-
-
-
-                                .foregroundColor(.black)
-
-
-
-                                .font(.system(size: 16, weight: .medium))
-
-
-
-                        }
-
-
-
-                        .padding()
-
-
-
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-
-
-                        .background(Color.white)
-
-
-
-                        .cornerRadius(8)
-
-
-
-                        .overlay(
-
-
-
-                            RoundedRectangle(cornerRadius: 8)
-
-
-
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-
-
-
-                        )
-
-
-
-                    }
-
-
-
-                }
-
-
-
-
-
-
-
-                // Extension for rounded corners
-
-
-
-                extension View {
-
-
-
-                    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-
-
-
-                        clipShape(RoundedCorner(radius: radius, corners: corners))
-
-
-
-                    }
-
-
-
-                }
-
-
-
-
-
-
-
-                struct RoundedCorner: Shape {
-
-
-
-                    var radius: CGFloat = .infinity
-
-
-
-                    var corners: UIRectCorner = .allCorners
-
-
-
-
-
-
-
-                    func path(in rect: CGRect) -> Path {
-
-
-
-                        let path = UIBezierPath(
-
-
-
-                            roundedRect: rect,
-
-
-
-                            byRoundingCorners: corners,
-
-
-
-                            cornerRadii: CGSize(width: radius, height: radius)
-
-
-
-                        )
-
-
-
-                        return Path(path.cgPath)
-
-
-
-                    }
-
-
-
-                }
-
-struct ActionButtonLabel: View {
-    let title: String
-    let icon: String
-
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.blue)
-                .frame(width: 24, height: 24)
-
-            Text(title)
-                .foregroundColor(.black)
-                .font(.headline)
-
-            Spacer()
-        }
-        .padding()
-        .background(Color.gray.opacity(0.2))
-        .cornerRadius(12)
+        // Inject environment objects into the view hierarchy.
+        .environmentObject(goalSettings)
+        .environmentObject(dailyLogService)
     }
 }

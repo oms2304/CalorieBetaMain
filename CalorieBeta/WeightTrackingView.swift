@@ -56,15 +56,18 @@ struct WeightTrackingView: View {
                 Text("Enter Current Weight") // Button label.
                     .frame(maxWidth: .infinity) // Expands to full width.
                     .padding() // Adds internal padding.
-                    .background(Color.blue) // Blue background for visibility.
+                    .background(Color(red: 67/255, green: 173/255, blue: 111/255)) // Changed to #43AD6F.
                     .foregroundColor(.white) // White text for contrast.
                     .cornerRadius(10) // Rounded corners for a modern look.
             }
             .padding() // Adds padding around the button.
             .sheet(isPresented: $showingWeightEntry) { // Presents the weight entry view as a sheet.
                 CurrentWeightView() // View for entering new weight data.
-                    .environmentObject(goalSettings) // Passes the goal settings to the sheet.
+                    .environmentObject(goalSettings)
+                // Passes the goal settings to the sheet.
             }
+            WeightChartViewController()
+                .environmentObject(goalSettings)
         }
         .onAppear {
             goalSettings.loadWeightHistory() // Loads the weight history when the view appears.

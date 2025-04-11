@@ -23,6 +23,7 @@ class GoalSettings: ObservableObject {
     @Published var gender: String = "Male" // Default gender.
     @Published var goal: String = "Maintain" // User’s goal (e.g., "Lose", "Maintain", "Gain").
     @Published var showingBubbles: Bool = true // Default to bubbles
+    @Published var targetWeight: Double? // Target Weight in pounds, to be set by the user.
 
     // Private properties for Firebase and state management:
     private let db = Firestore.firestore() // Firestore database instance.
@@ -55,6 +56,7 @@ class GoalSettings: ObservableObject {
     func recalculateCalorieGoal() {
         let weightInKg = weight * 0.453592 // Converts weight from pounds to kilograms.
         let heightInCm = height // Height is already in centimeters.
+        
 
         // Calculates Basal Metabolic Rate (BMR) using the Mifflin-St Jeor equation.
         let bmr: Double
@@ -73,9 +75,21 @@ class GoalSettings: ObservableObject {
         default:
             break // No adjustment for "Maintain".
         }
+        
+        if let targetWeight = targetWeight {
+            let weightDifference = weight - targetWeight // would be positive if weight was lost, negative if weight was gained.
+            if weightDifference > 0 {
+                calories -= 250
+
+            }else if weightDifference < 0 {
+                calories += 250
+            }
+        }
+        print("Calories: \(calories)")
 
         self.calories = max(calories, 0) // Ensures calories are not negative.
         updateMacros() // Updates macronutrients based on the new calorie goal.
+        
     }
 
     // Loads user goals from Firestore for a given user ID.
@@ -108,14 +122,19 @@ class GoalSettings: ObservableObject {
                         self.age = goals["age"] as? Int ?? self.age
                         self.gender = goals["gender"] as? String ?? self.gender
                         self.goal = goals["goal"] as? String ?? self.goal
+                        self.targetWeight = goals["targetWeight"] as? Double
                     }
 
                     self.weight = data["weight"] as? Double ?? self.weight
                     self.height = data["height"] as? Double ?? self.height
-
+                    
+                    self.targetWeight = 140.0
+                    self.weight = 150.0
+                    
                     self.recalculateCalorieGoal() // Recalculates goals based on loaded data.
                     print("✅ Loaded user goals: \(self.calories ?? 0) calories") // Logs success.
                 }
+                
             } else {
                 print("❌ Error fetching user goals: \(error?.localizedDescription ?? "Unknown error")") // Logs any errors.
             }
@@ -140,7 +159,8 @@ class GoalSettings: ObservableObject {
             "activityLevel": activityLevel,
             "age": age,
             "gender": gender,
-            "goal": goal
+            "goal": goal,
+            "targetWeight" : targetWeight ?? NSNull() // NSNUll for nill values in firestore
         ] as [String: Any]
 
         let userData = [
@@ -233,5 +253,44 @@ class GoalSettings: ObservableObject {
     func setHeight(feet: Int, inches: Int) {
         let totalInches = (feet * 12) + inches // Combines feet and inches into total inches.
         height = Double(totalInches) * 2.54 // Converts inches to centimeters.
+    }
+    
+    func calculateWeightProgress() -> Double? {
+        guard let targetWeight = targetWeight, !weightHistory.isEmpty
+        else {
+            return nil
+        }
+        let initialWeight = weightHistory.first?.weight ?? weight
+        
+        let currentWeight = weight
+        let totalChangeNeeded = initialWeight - targetWeight
+        let changeSoFar = initialWeight - currentWeight
+        
+        guard totalChangeNeeded != 0 else { return 0 }
+        print("weight progress: \((changeSoFar / totalChangeNeeded) * 100)")
+        return (changeSoFar / totalChangeNeeded) * 100
+        
+    }
+    
+    func calculateWeeklyWeightChange() -> Double? {
+        guard weightHistory.count >= 2
+        else {
+            return nil
+        }
+        let fourWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -4, to: Date())!
+        let recentHistory = weightHistory.filter { $0.date >= fourWeeksAgo }
+        guard recentHistory.count >= 2
+        else {
+            return nil
+        }
+        let firstWeight = recentHistory.first!.weight // ! is needed as swift doesnt know if the recentHistory.first even exists
+        let lastWeight = recentHistory.last!.weight // ! is needed as swift doesnt know if the recentHistory.first even exists
+        let weeks = Double(recentHistory.count - 1) / 7.0
+        guard weeks > 0
+        else {
+            return 0
+        }
+        
+        return abs((lastWeight - firstWeight) / weeks) // returns mean changes per week.
     }
 }

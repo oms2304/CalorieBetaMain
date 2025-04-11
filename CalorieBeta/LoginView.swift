@@ -2,20 +2,26 @@ import SwiftUI
 import FirebaseAuth
 import Firebase
 
-// This view provides a login interface for users to sign in using their email and password,
-// integrating with Firebase Authentication and Firestore for user data retrieval.
+/// This view provides a login interface for users to sign in using their email and password,
+/// integrating with Firebase Authentication and Firestore for user data retrieval.
 struct LoginView: View {
-    // State variables to manage user input and UI state.
+    // MARK: - State Properties
+    
+    /// State variables to manage user input and UI state.
     @State private var email = "" // Stores the email input.
     @State private var password = "" // Stores the password input.
     @State private var loginError = "" // Stores any error message to display.
-    // Environment variable to control dismissal of the view.
+    
+    // MARK: - Environment Properties
+    
+    /// Environment variable to control dismissal of the view.
     @Environment(\.presentationMode) var presentationMode
 
-    // The main body of the view, organized in a vertical stack.
+    // MARK: - Body
+    
     var body: some View {
         VStack(spacing: 0) { // Vertical stack with no spacing between sections.
-            // Header with Background Image and Close Button
+            // MARK: - Header Section
             ZStack { // Layers the background image and text content.
                 // Background Image with Blur and Dark Overlay
                 Image("healthy") // Placeholder for a background image (must be added to assets).
@@ -36,12 +42,12 @@ struct LoginView: View {
             }
             .frame(height: 200) // Fixed height for the header section.
 
-            // Login Form Section
+            // MARK: - Login Form Section
             VStack(spacing: 16) { // Vertical stack with spacing between elements.
                 VStack(spacing: 16) {
-                    // Email input field using a custom RoundedTextField.
+                    // Email input field using the shared RoundedTextField from Model.
                     RoundedTextField(placeholder: "Enter your email", text: $email, isEmail: true)
-                    // Password input field using a custom RoundedSecureField.
+                    // Password input field using the shared RoundedSecureField from Model.
                     RoundedSecureField(placeholder: "Enter your password", text: $password)
                 }
                 .padding(.horizontal) // Adds horizontal padding to the input fields.
@@ -55,7 +61,7 @@ struct LoginView: View {
                 }
                 Spacer() // Pushes the buttons to the bottom of the form section.
 
-                // Buttons Section
+                // MARK: - Buttons Section
                 VStack(spacing: 10) { // Vertical stack for the buttons.
                     Button(action: loginUser) { // Login button.
                         Text("Login") // Button label.
@@ -85,13 +91,15 @@ struct LoginView: View {
             .padding(.top, 20) // Adds space above the form section.
             .background( // Applies a styled background to the form section.
                 Color.white
-                    .clipShape(CustomCorners(corners: [.topLeft, .topRight], radius: 30)) // Rounds the top corners.
+                    .clipShape(CustomCorners(corners: [.topLeft, .topRight], radius: 30)) // Rounds the top corners using CustomCorners from Model.
             )
         }
         .background(Color.white.edgesIgnoringSafeArea(.all)) // Ensures a white background across the entire view.
     }
 
-    // Handles user login using Firebase Authentication.
+    // MARK: - Helper Methods
+    
+    /// Handles user login using Firebase Authentication.
     private func loginUser() {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error { // Checks for authentication errors.
@@ -105,7 +113,8 @@ struct LoginView: View {
         }
     }
 
-    // Retrieves user data from Firestore after successful login.
+    /// Retrieves user data from Firestore after successful login.
+    /// - Parameter user: The authenticated Firebase user.
     private func fetchUserData(user: FirebaseAuth.User) {
         let db = Firestore.firestore() // Initializes the Firestore database instance.
         // Fetches the user document from Firestore using the user's UID.
@@ -113,6 +122,7 @@ struct LoginView: View {
             if let document = document, document.exists { // Checks if the document exists.
                 if let data = document.data() { // Retrieves the document data.
                     print("User data: \(data)") // Logs the user data for debugging.
+                    presentationMode.wrappedValue.dismiss() // Dismisses the view on successful login.
                 }
             } else { // Handles missing user data.
                 loginError = "User data not found." // Sets an error message.
@@ -120,7 +130,7 @@ struct LoginView: View {
         }
     }
 
-    // Clears all input fields and error messages.
+    /// Clears all input fields and error messages.
     private func clearFields() {
         email = "" // Resets email field.
         password = "" // Resets password field.

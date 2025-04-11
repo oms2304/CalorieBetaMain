@@ -1,183 +1,381 @@
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
 
-// This view provides an AI-powered chatbot interface for users to request healthy recipes.
-// It integrates with the OpenAI API and persists chat history using UserDefaults.
 struct AIChatbotView: View {
-    // State variables to manage the chat interface:
-    @State private var userMessage = "" // The text input by the user for the chatbot.
-    @State private var chatMessages: [ChatMessage] = loadChatHistory() // The list of chat messages, loaded from storage.
-    @State private var isLoading = false // Tracks whether a response is being fetched to disable the send button.
-    @Binding var selectedTab: Int // Binding to switch tabs (e.g., back to HomeView).
+    @State private var userMessage = ""
+    @State private var chatMessages: [ChatMessage] = loadChatHistory()
+    @State private var isLoading = false
+    @Binding var selectedTab: Int
+    @EnvironmentObject var goalSettings: GoalSettings
+    @EnvironmentObject var dailyLogService: DailyLogService
+    @Environment(\.colorScheme) var colorScheme
+    @State private var showAlert = false
+    @State private var alertMessage = ""
 
-    // The main body of the view, organized in a vertical stack.
-    var body: some View {
-        VStack {
-            // Scrollable area to display the chat history.
+    private var remainingCalories: Double {
+        let totalCalories = dailyLogService.currentDailyLog?.totalCalories() ?? 0
+        let calorieGoal = goalSettings.calories ?? 2000
+        return max(0, calorieGoal - totalCalories)
+    }
+
+    private var remainingProtein: Double {
+        let totalProtein = dailyLogService.currentDailyLog?.totalMacros().protein ?? 0
+        return max(0, goalSettings.protein - totalProtein)
+    }
+
+    private var remainingFats: Double {
+        let totalFats = dailyLogService.currentDailyLog?.totalMacros().fats ?? 0
+        return max(0, goalSettings.fats - totalFats)
+    }
+
+    private var remainingCarbs: Double {
+        let totalCarbs = dailyLogService.currentDailyLog?.totalMacros().carbs ?? 0
+        return max(0, goalSettings.carbs - totalCarbs)
+    }
+
+    private var remainingGoalsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Remaining Goals for Today")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
+            Text("Calories: \(String(format: "%.0f", remainingCalories)) kcal")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            Text("Protein: \(String(format: "%.0f", remainingProtein)) g")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            Text("Fats: \(String(format: "%.0f", remainingFats)) g")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            Text("Carbs: \(String(format: "%.0f", remainingCarbs)) g")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
+        .padding()
+        .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
+        .cornerRadius(15)
+        .shadow(radius: 2)
+    }
+
+    private var chatHistorySection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Chat History")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
             ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    // Loops through each message and displays it in a chat bubble.
-                    ForEach(chatMessages) { message in
-                        ChatBubble(message: message)
+                ScrollViewReader { proxy in
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(chatMessages) { message in
+                            ChatBubble(
+                                message: message,
+                                onLogRecipe: { recipeText in
+                                    logRecipe(recipeText: recipeText)
+                                },
+                                showAlert: $showAlert,
+                                alertMessage: $alertMessage
+                            )
+                            .id(message.id)
+                        }
+                    }
+                    .onChange(of: chatMessages) { _ in
+                        if let lastMessageId = chatMessages.last?.id {
+                            withAnimation {
+                                proxy.scrollTo(lastMessageId, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .onAppear {
+                        if let lastMessageId = chatMessages.last?.id {
+                            proxy.scrollTo(lastMessageId, anchor: .bottom)
+                        }
                     }
                 }
             }
-            .padding() // Adds padding around the scroll view.
+        }
+        .padding()
+        .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
+        .cornerRadius(15)
+        .shadow(radius: 2)
+    }
 
-            // Horizontal stack for the input field and send button.
+    private var inputSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TextField("Ask for a healthy recipe...", text: $userMessage) // Input field for user messages.
-                    .textFieldStyle(RoundedBorderTextFieldStyle()) // Applies a rounded border style.
-                    .padding() // Adds internal padding.
-                    .submitLabel(.done) // Sets the keyboard submit button to "Done".
+                TextField("Ask for a healthy recipe...", text: $userMessage)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                    .submitLabel(.done)
                     .onSubmit {
-                        sendMessage() // Triggers message sending when "Done" is pressed.
+                        sendMessage()
                     }
 
-                Button(action: sendMessage) { // Button to send the message manually.
-                    Image(systemName: "paperplane.fill") // Paper plane icon for sending.
-                        .font(.title2) // Larger icon size.
-                        .padding() // Adds padding around the icon.
+                Button(action: sendMessage) {
+                    Image(systemName: "paperplane.fill")
+                        .font(.title2)
+                        .padding()
+                        .foregroundColor(.white)
                 }
-                .disabled(isLoading || userMessage.isEmpty) // Disables the button during loading or if empty.
+                .disabled(isLoading || userMessage.isEmpty)
+                .background(Color(red: 144/255, green: 190/255, blue: 109/255))
+                .clipShape(Circle())
             }
-            .padding() // Adds padding around the input area.
+            .padding()
+            .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
+            .cornerRadius(15)
+            .shadow(radius: 2)
 
             Button(action: {
-                selectedTab = 0 // Switches back to the Home tab.
-                hideKeyboard() // Hides the keyboard.
-                saveChatHistory() // Saves the current chat history.
+                selectedTab = 0
+                hideKeyboard()
+                saveChatHistory()
             }) {
-                Text("Done") // Button to finish the chat.
-                    .foregroundColor(.blue) // Blue text color.
-                    .padding() // Adds internal padding.
-                    .background(Color.gray.opacity(0.2)) // Light gray background.
-                    .cornerRadius(8) // Rounded corners.
+                Text("Done")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color(red: 144/255, green: 190/255, blue: 109/255))
+                    .cornerRadius(25)
             }
-            .padding(.bottom, 10) // Adds bottom padding.
+            .padding(.horizontal)
         }
-        .navigationTitle("AI Recipe Bot") // Sets the navigation bar title.
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                remainingGoalsSection
+                chatHistorySection
+                inputSection
+            }
+            .padding(.vertical)
+        }
+        .background(colorScheme == .dark ? Color(.systemBackground) : Color.white)
+        .navigationTitle("AI Recipe Bot")
         .onTapGesture {
-            hideKeyboard() // Hides the keyboard when tapping outside the input.
+            hideKeyboard()
+        }
+        .onAppear {
+            if let userID = Auth.auth().currentUser?.uid {
+                dailyLogService.fetchOrCreateTodayLog(for: userID) { result in
+                    switch result {
+                    case .success(let log):
+                        dailyLogService.currentDailyLog = log
+                    case .failure(let error):
+                        print("❌ Error fetching daily log on appear: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Notification"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 
-    // Sends the user's message to the chatbot and appends the response.
     func sendMessage() {
-        guard !userMessage.isEmpty else { return } // Exits if the message is empty.
+        guard !userMessage.isEmpty else { return }
 
-        let userChatMessage = ChatMessage(id: UUID(), text: userMessage, isUser: true) // Creates a user message.
-        chatMessages.append(userChatMessage) // Adds the user message to the chat.
+        let userChatMessage = ChatMessage(id: UUID(), text: userMessage, isUser: true)
+        chatMessages.append(userChatMessage)
 
-        userMessage = "" // Clears the input field.
-        isLoading = true // Starts the loading state.
+        userMessage = ""
+        isLoading = true
 
-        // Fetches a response from the OpenAI API.
         fetchGPT3Response(for: userChatMessage.text) { aiResponseText in
-            let aiChatMessage = ChatMessage(id: UUID(), text: aiResponseText, isUser: false) // Creates an AI response.
-            chatMessages.append(aiChatMessage) // Adds the AI response to the chat.
-            isLoading = false // Stops the loading state.
+            let aiChatMessage = ChatMessage(id: UUID(), text: aiResponseText, isUser: false)
+            chatMessages.append(aiChatMessage)
+            isLoading = false
         }
     }
 
-    // Fetches a response from the OpenAI GPT-3.5 API based on the user's message.
     func fetchGPT3Response(for message: String, completion: @escaping (String) -> Void) {
-        let url = URL(string: "https://api.openai.com/v1/chat/completions")! // API endpoint URL.
+        let apiKey = "add_api_key"
+        let url = URL(string: "https://api.openai.com/v1/chat/completions")!
 
-        let apiKey = "add_api_key" // API key (should be stored securely in production).
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        var request = URLRequest(url: url) // Initializes the HTTP request.
-        request.httpMethod = "POST" // Sets the request method to POST.
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization") // Adds authentication.
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type") // Sets the content type.
+        let systemPrompt = """
+        You are a helpful AI recipe bot for a fitness app called MyFitPlate. Provide healthy, easy-to-make recipes based on the user's request. Always use the word "recipe" in your response when providing a recipe (e.g., "Here's a healthy recipe for dinner"). Include ingredients and instructions, and keep the tone friendly and encouraging. If the user asks for something unhealthy, suggest a healthier alternative.
 
-        // Defines the request body with the model, message, and parameters.
+        The user has the following remaining nutritional goals for the day:
+        - Calories: \(String(format: "%.0f", remainingCalories)) kcal
+        - Protein: \(String(format: "%.0f", remainingProtein)) g
+        - Fats: \(String(format: "%.0f", remainingFats)) g
+        - Carbs: \(String(format: "%.0f", remainingCarbs)) g
+
+        If the user specifies a calorie target in their request, prioritize meeting that calorie target as closely as possible. Recognize calorie targets in formats like "1k calorie recipe" (which means 1000 calories), "500 calorie meal", "a recipe for 1200 calories", or similar phrases. To meet the calorie target, scale the recipe by adjusting serving sizes, increasing ingredient quantities, or adding calorie-dense ingredients like nuts, oils, or spreads (e.g., peanut butter, avocado). For example, if the user requests a 1000-calorie pancake recipe, you might increase the batter quantity, add toppings like peanut butter or maple syrup, or adjust the serving size to meet the target.
+        
+        If the calorie target is significantly higher than the base recipe, calculate the total calories of the base recipe, determine a scaling factor (target calories / base calories), and multiply all ingredient quantities by this factor to meet the target. For example, if the base recipe is 1500 calories and the target is 2400 calories, scale all ingredients by a factor of 2400 / 1500 = 1.6.
+
+        If the requested calorie target exceeds the user's remaining calories, include a note in your response indicating that the recipe exceeds their remaining daily goals, but still provide the recipe as requested. If no calorie target is specified, suggest a recipe that fits within the user's remaining goals as closely as possible.
+        
+
+        For debugging purposes, include a note in your response explaining how you interpreted the user's calorie target (e.g., "Interpreted calorie target: 1000 calories from '1k calorie recipe'").
+
+        If the user doesn't specify a meal type, suggest something appropriate for the next meal of the day based on the current time (e.g., breakfast if morning, lunch if midday, dinner if evening). At the end of the recipe, include a nutritional breakdown in the exact format below, with each value on a new line:
+        Nutritional Breakdown:
+        Calories: X kcal
+        Protein: Y g
+        Fats: Z g
+        Carbs: W g
+        Replace X, Y, Z, and W with the numerical values (e.g., Calories: 350 kcal). Do not include any additional text or units after the numbers.
+        """
+
         let requestBody: [String: Any] = [
-            "model": "gpt-3.5-turbo", // Specifies the GPT-3.5 model.
+            "model": "gpt-3.5-turbo",
             "messages": [
-                ["role": "system", "content": "You are a helpful assistant that provides healthy and nutritious recipes."], // System instruction.
-                ["role": "user", "content": message] // User’s message.
+                ["role": "system", "content": systemPrompt],
+                ["role": "user", "content": message]
             ],
-            "max_tokens": 1000, // Limits the response length.
-            "temperature": 0.7 // Controls randomness (0.7 for balanced responses).
+            "max_tokens": 1000,
+            "temperature": 0.7
         ]
 
-        // Converts the request body to JSON data.
-        guard let bodyData = try? JSONSerialization.data(withJSONObject: requestBody) else {
-            print("Error serializing JSON for GPT-3.5 request.")
-            completion("Sorry, something went wrong when preparing the request.")
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: requestBody, options: []) else {
+            completion("Error: Failed to serialize request body.")
+            return
+        }
+        request.httpBody = httpBody
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    completion("Error: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let data = data else {
+                    completion("Error: No data received from the API.")
+                    return
+                }
+
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                       let choices = json["choices"] as? [[String: Any]],
+                       let firstChoice = choices.first,
+                       let messageDict = firstChoice["message"] as? [String: Any],
+                       let content = messageDict["content"] as? String {
+                        completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
+                    } else {
+                        completion("Error: Invalid response format from the API.")
+                    }
+                } catch {
+                    completion("Error: Failed to parse API response - \(error.localizedDescription)")
+                }
+            }
+        }
+        task.resume()
+    }
+
+    func logRecipe(recipeText: String) {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            print("❌ No user ID found for logging recipe.")
+            alertMessage = "Unable to log recipe: No user is logged in."
+            showAlert = true
             return
         }
 
-        request.httpBody = bodyData // Sets the request body.
+        print("📝 Recipe Text:\n\(recipeText)")
 
-        print("Sending request to GPT-3.5: \(String(data: bodyData, encoding: .utf8)!)") // Logs the request for debugging.
+        let nutritionalBreakdown = parseNutritionalBreakdown(from: recipeText)
+        guard let calories = nutritionalBreakdown["calories"],
+              let protein = nutritionalBreakdown["protein"],
+              let fats = nutritionalBreakdown["fats"],
+              let carbs = nutritionalBreakdown["carbs"] else {
+            print("❌ Failed to parse nutritional breakdown from recipe.")
+            alertMessage = "Unable to log recipe: Missing nutritional information."
+            showAlert = true
+            return
+        }
 
-        // Performs the API request asynchronously.
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("Error calling GPT-3.5 API: \(error.localizedDescription)") // Logs any network errors.
-                DispatchQueue.main.async {
-                    completion("Sorry, I couldn't fetch a recipe at the moment. Please try again.")
-                }
-                return
-            }
+        let recipeName = recipeText.components(separatedBy: "\n").first ?? "Custom Recipe"
 
-            guard let data = data else {
-                print("No data returned from GPT-3.5 API") // Logs if no data is received.
-                DispatchQueue.main.async {
-                    completion("Sorry, no recipe available at the moment.")
-                }
-                return
-            }
+        let recipeFoodItem = FoodItem(
+            id: UUID().uuidString,
+            name: recipeName,
+            calories: calories,
+            protein: protein,
+            carbs: carbs,
+            fats: fats,
+            servingSize: "1 serving",
+            servingWeight: 0.0,
+            timestamp: Date()
+        )
 
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("GPT-3.5 Response: \(responseString)") // Logs the raw response.
-            }
-
-            do {
-                // Parses the JSON response from the API.
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    print("Parsed JSON: \(json)") // Logs the parsed JSON.
-
-                    // Extracts the response text from the JSON structure.
-                    if let choices = json["choices"] as? [[String: Any]],
-                       let message = choices.first?["message"] as? [String: Any],
-                       let text = message["content"] as? String {
-                        DispatchQueue.main.async {
-                            completion(text.trimmingCharacters(in: .whitespacesAndNewlines)) // Returns the cleaned response.
-                        }
-                    } else {
-                        print("Invalid or missing 'choices' in JSON response") // Logs if the response is malformed.
-                        DispatchQueue.main.async {
-                            completion("Sorry, I couldn't understand that. Try asking again.")
-                        }
-                    }
-                } else {
-                    print("Invalid JSON structure") // Logs if JSON parsing fails.
-                    DispatchQueue.main.async {
-                        completion("Sorry, I couldn't process the response. Try again.")
-                    }
-                }
-            } catch {
-                print("Error parsing GPT-3.5 response: \(error.localizedDescription)") // Logs parsing errors.
-                DispatchQueue.main.async {
-                    completion("Sorry, I couldn't understand that. Please try again.")
-                }
-            }
-        }.resume() // Starts the network task.
+        let mealType = determineMealType()
+        dailyLogService.addMealToCurrentLog(for: userID, mealName: mealType, foodItems: [recipeFoodItem], date: Date())
     }
 
-    // Hides the keyboard when called (useful for dismissing it manually).
+    private func parseNutritionalBreakdown(from recipeText: String) -> [String: Double] {
+        var breakdown: [String: Double] = [:]
+        let lines = recipeText.components(separatedBy: "\n")
+
+        var breakdownStarted = false
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            if trimmedLine == "Nutritional Breakdown:" {
+                breakdownStarted = true
+                continue
+            }
+            
+            if breakdownStarted {
+                let components = trimmedLine.components(separatedBy: ": ")
+                if components.count == 2 {
+                    let valueString = components[1]
+                        .components(separatedBy: " ")
+                        .first ?? "0"
+                    if let value = Double(valueString) {
+                        if trimmedLine.lowercased().contains("calories") {
+                            breakdown["calories"] = value
+                        } else if trimmedLine.lowercased().contains("protein") {
+                            breakdown["protein"] = value
+                        } else if trimmedLine.lowercased().contains("fats") {
+                            breakdown["fats"] = value
+                        } else if trimmedLine.lowercased().contains("carbs") {
+                            breakdown["carbs"] = value
+                        }
+                    }
+                }
+            }
+        }
+        
+        print("🔍 Parsed Nutritional Breakdown: \(breakdown)")
+        return breakdown
+    }
+
+    private func determineMealType() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 0..<11:
+            return "Breakfast"
+        case 11..<16:
+            return "Lunch"
+        case 16..<21:
+            return "Dinner"
+        default:
+            return "Snack"
+        }
+    }
+
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
-    // Saves the current chat history to UserDefaults, limiting to the last 8 messages.
     private func saveChatHistory() {
-        let maxMessages = 8 // Maximum number of messages to retain.
+        let maxMessages = 8
         if chatMessages.count > maxMessages {
-            let trimmedMessages = Array(chatMessages.suffix(maxMessages)) // Keeps the last 8 messages.
+            let trimmedMessages = Array(chatMessages.suffix(maxMessages))
             UserDefaults.standard.set(try? JSONEncoder().encode(trimmedMessages), forKey: "chatHistory")
         } else {
             UserDefaults.standard.set(try? JSONEncoder().encode(chatMessages), forKey: "chatHistory")
@@ -185,42 +383,94 @@ struct AIChatbotView: View {
     }
 }
 
-// Loads the chat history from UserDefaults when the view initializes.
 func loadChatHistory() -> [ChatMessage] {
-    if let data = UserDefaults.standard.data(forKey: "chatHistory"), // Retrieves stored data.
+    if let data = UserDefaults.standard.data(forKey: "chatHistory"),
        let messages = try? JSONDecoder().decode([ChatMessage].self, from: data) {
-        return messages // Returns the decoded messages if successful.
+        return messages
     }
-    return [] // Returns an empty array if no history or decoding fails.
+    return []
 }
 
-// A struct to represent a single chat message, conforming to Identifiable and Codable.
-struct ChatMessage: Identifiable, Codable {
-    let id: UUID // Unique identifier for each message.
-    let text: String // The message content.
-    let isUser: Bool // Indicates if the message is from the user or AI.
+struct ChatMessage: Identifiable, Codable, Equatable {
+    let id: UUID
+    let text: String
+    let isUser: Bool
+
+    static func == (lhs: ChatMessage, rhs: ChatMessage) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.text == rhs.text &&
+               lhs.isUser == rhs.isUser
+    }
 }
 
-// A view to display a single chat message in a bubble style.
 struct ChatBubble: View {
-    let message: ChatMessage // The message to display.
+    let message: ChatMessage
+    let onLogRecipe: (String) -> Void
+    @Environment(\.colorScheme) var colorScheme
+    @Binding var showAlert: Bool
+    @Binding var alertMessage: String
+
+    private let containsRecipeKeyword: Bool
+    private let containsNutritionalBreakdown: Bool
+    private let shouldShowLogButton: Bool
+
+    init(message: ChatMessage, onLogRecipe: @escaping (String) -> Void, showAlert: Binding<Bool>, alertMessage: Binding<String>) {
+        self.message = message
+        self.onLogRecipe = onLogRecipe
+        self._showAlert = showAlert
+        self._alertMessage = alertMessage
+        self.containsRecipeKeyword = message.text.lowercased().contains("recipe")
+        self.containsNutritionalBreakdown = message.text.contains("Nutritional Breakdown:")
+        self.shouldShowLogButton = !message.isUser && (containsRecipeKeyword || containsNutritionalBreakdown)
+    }
 
     var body: some View {
-        HStack {
-            if message.isUser {
-                Spacer() // Pushes the user message to the right.
-            }
-            Text(message.text) // Displays the message text.
-                .padding() // Adds internal padding.
-                .background(message.isUser ? Color.blue : Color.gray.opacity(0.2)) // Blue for user, light gray for AI.
-                .cornerRadius(12) // Rounded corners for the bubble.
-                .foregroundColor(message.isUser ? .white : .black) // White text for user, black for AI.
-                .frame(maxWidth: 300, alignment: message.isUser ? .trailing : .leading) // Limits width and aligns text.
+        VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
+            HStack {
+                if message.isUser {
+                    Spacer()
+                }
+                Text(message.text)
+                    .padding()
+                    .background(message.isUser ? Color(red: 144/255, green: 190/255, blue: 109/255) : Color.gray.opacity(0.2))
+                    .cornerRadius(12)
+                    .foregroundColor(message.isUser ? .white : .black)
+                    .frame(maxWidth: 300, alignment: message.isUser ? .trailing : .leading)
 
-            if !message.isUser {
-                Spacer() // Pushes the AI message to the left.
+                if !message.isUser {
+                    Spacer()
+                }
+            }
+            .padding(message.isUser ? .leading : .trailing, 40)
+
+            if shouldShowLogButton {
+                Button(action: {
+                    onLogRecipe(message.text)
+                    let haptic = UINotificationFeedbackGenerator()
+                    haptic.notificationOccurred(.success)
+                    alertMessage = "Recipe successfully logged!"
+                    showAlert = true
+                }) {
+                    Text("Log Recipe")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color(red: 144/255, green: 190/255, blue: 109/255))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding(.horizontal, 40)
             }
         }
-        .padding(message.isUser ? .leading : .trailing, 40) // Adds extra padding on the opposite side.
+        .onAppear {
+            logDebugInfo(containsRecipeKeyword: containsRecipeKeyword, containsNutritionalBreakdown: containsNutritionalBreakdown, shouldShowLogButton: shouldShowLogButton)
+        }
+    }
+
+    private func logDebugInfo(containsRecipeKeyword: Bool, containsNutritionalBreakdown: Bool, shouldShowLogButton: Bool) {
+        if !message.isUser {
+            print("🔍 ChatBubble - Message: \(message.text.prefix(50))... | Contains 'recipe': \(containsRecipeKeyword) | Contains 'Nutritional Breakdown:': \(containsNutritionalBreakdown) | Should show Log Recipe button: \(shouldShowLogButton)")
+        }
     }
 }

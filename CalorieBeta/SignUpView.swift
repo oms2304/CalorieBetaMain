@@ -2,24 +2,34 @@ import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 
-// This view provides a sign-up interface for users to create a new account using email, password,
-// username, and confirm password, integrating with Firebase Authentication and Firestore.
+/// A view that provides a sign-up interface for users to create a new account.
+/// After successful sign-up, it presents an onboarding survey for new users to set their goals.
 struct SignUpView: View {
-    // State variables to manage user input and UI state.
-    @State private var email = "" // Stores the email input.
-    @State private var password = "" // Stores the password input.
-    @State private var confirmPassword = "" // Stores the confirm password input.
-    @State private var username = "" // Stores the username input.
-    @State private var signUpError = "" // Stores any error message to display.
-    // Environment variable to control dismissal of the view.
+    // MARK: - State Properties
+    
+    /// State variables to manage user input for the sign-up form.
+    @State private var email = "" // User's email address.
+    @State private var password = "" // User's password.
+    @State private var confirmPassword = "" // Confirmation of the password.
+    @State private var username = "" // User's chosen username.
+    @State private var signUpError = "" // Error message to display if sign-up fails.
+    @State private var showSurvey = false // Controls the presentation of the onboarding survey.
+    
+    // MARK: - Environment Properties
+    
+    /// Environment variable to control dismissal of the view.
     @Environment(\.presentationMode) var presentationMode
+    
+    /// Environment object to access and modify user goals, used by the survey.
+    @EnvironmentObject var goalSettings: GoalSettings
 
-    // The main body of the view, organized in a vertical stack.
+    // MARK: - Body
+    
     var body: some View {
         VStack(spacing: 0) { // Vertical stack with no spacing between sections.
-            // Header with Background Image and Close Button
+            // MARK: - Header Section
             ZStack { // Layers the background image, text, and close button.
-                // Background Image with Blur and Dark Overlay
+                // Background Image with Dark Overlay
                 Image("salad") // Placeholder for a background image (must be added to assets).
                     .resizable() // Allows the image to be resized.
                     .scaledToFill() // Fills the frame while maintaining aspect ratio.
@@ -47,16 +57,16 @@ struct SignUpView: View {
             }
             .frame(height: 200) // Fixed height for the header section.
 
-            // Join Now and Form Section
+            // MARK: - Join Now and Form Section
             VStack(spacing: 16) { // Vertical stack with spacing between elements.
                 VStack(spacing: 16) {
-                    // Username input field using a custom RoundedTextField.
+                    // Username input field using the shared RoundedTextField from Model.
                     RoundedTextField(placeholder: "Username", text: $username)
-                    // Email input field using a custom RoundedTextField.
+                    // Email input field using the shared RoundedTextField from Model.
                     RoundedTextField(placeholder: "Email", text: $email, isEmail: true)
-                    // Password input field using a custom RoundedSecureField.
+                    // Password input field using the shared RoundedSecureField from Model.
                     RoundedSecureField(placeholder: "Password", text: $password)
-                    // Confirm password input field using a custom RoundedSecureField.
+                    // Confirm password input field using the shared RoundedSecureField from Model.
                     RoundedSecureField(placeholder: "Confirm Password", text: $confirmPassword)
                 }
                 .padding(.horizontal) // Adds horizontal padding to the input fields.
@@ -86,122 +96,84 @@ struct SignUpView: View {
             .padding(.top, 20) // Adds space above the form section.
             .background( // Applies a styled background to the form section.
                 Color.white
-                    .clipShape(CustomCorners(corners: [.topLeft, .topRight], radius: 30)) // Rounds the top corners.
+                    .clipShape(CustomCorners(corners: [.topLeft, .topRight], radius: 30)) // Rounds the top corners using CustomCorners from Model.
             )
         }
         .background(Color.white.edgesIgnoringSafeArea(.all)) // Ensures a white background across the entire view.
+        .sheet(isPresented: $showSurvey) {
+            // Present the onboarding survey as a sheet after successful sign-up.
+            OnboardingSurveyView()
+                .environmentObject(goalSettings)
+        }
     }
 
-    // Handles user sign-up using Firebase Authentication and saves user data to Firestore.
+    // MARK: - Helper Methods
+    
+    /// Handles user sign-up using Firebase Authentication and saves user data to Firestore.
     private func signUpUser() {
-        guard !username.isEmpty else { // Validates that username is provided.
-            signUpError = "Username is required" // Sets error if username is empty.
+        // Validate username.
+        guard !username.isEmpty else {
+            signUpError = "Username is required"
             return
         }
 
-        guard password == confirmPassword else { // Validates password match.
-            signUpError = "Passwords do not match" // Sets error if passwords differ.
+        // Validate password match.
+        guard password == confirmPassword else {
+            signUpError = "Passwords do not match"
             return
         }
 
+        // Create a new user with Firebase Authentication.
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-            if let error = error { // Checks for authentication errors.
-                signUpError = error.localizedDescription // Sets the error message to display.
+            if let error = error {
+                signUpError = error.localizedDescription
                 return
             }
 
-            if let user = authResult?.user { // Ensures a user was created.
-                saveUserData(user: user) // Saves user data to Firestore.
+            if let user = authResult?.user {
+                saveUserData(user: user)
             }
         }
     }
 
-    // Saves user data to Firestore, including initial goals and calorie history.
+    /// Saves user data to Firestore, including initial goals and calorie history.
+    /// Sets the isFirstLogin flag to true to trigger the onboarding survey.
+    /// - Parameter user: The authenticated Firebase user.
     private func saveUserData(user: FirebaseAuth.User) {
-        let db = Firestore.firestore() // Initializes the Firestore database instance.
-        let userData: [String: Any] = [ // Prepares user data dictionary.
-            "email": user.email ?? "", // Stores the user's email (defaults to empty string if nil).
-            "userID": user.uid, // Stores the unique user ID.
-            "username": username, // Stores the entered username.
-            "goals": [ // Initializes default nutritional goals.
-                "calories": 2000, // Default calorie goal.
-                "protein": 150, // Default protein goal in grams.
-                "fats": 70, // Default fat goal in grams.
-                "carbs": 250 // Default carbohydrate goal in grams.
+        let db = Firestore.firestore()
+        let userData: [String: Any] = [
+            "email": user.email ?? "",
+            "userID": user.uid,
+            "username": username,
+            "goals": [
+                "calories": 2000, // Default value, will be overwritten by survey.
+                "protein": 150,
+                "fats": 70,
+                "carbs": 250
             ],
-            "weight": 150.0 // Default weight in pounds (can be updated later).
+            "weight": 150.0,
+            "isFirstLogin": true // Flag to indicate this is the user's first login.
         ]
 
-        // Saves user data to the "users" collection with the user's UID as the document ID.
+        // Save user data to Firestore.
         db.collection("users").document(user.uid).setData(userData) { error in
-            if let error = error { // Checks for Firestore write errors.
-                print("Error saving user data: \(error.localizedDescription)") // Logs the error.
+            if let error = error {
+                print("Error saving user data: \(error.localizedDescription)")
             } else {
-                // Initializes an empty calorie history entry for the user.
+                // Initialize calorie history for the user.
                 db.collection("users").document(user.uid).collection("calorieHistory").addDocument(data: [
-                    "date": Timestamp(date: Date()), // Current date as a timestamp.
-                    "calories": 0.0 // Initial calorie value (to be updated with logs).
+                    "date": Timestamp(date: Date()),
+                    "calories": 0.0
                 ]) { historyError in
-                    if let historyError = historyError { // Checks for history write errors.
-                        print("Error initializing calorie history: \(historyError.localizedDescription)") // Logs the error.
+                    if let historyError = historyError {
+                        print("Error initializing calorie history: \(historyError.localizedDescription)")
                     } else {
-                        print("Calorie history initialized for user \(user.uid).") // Logs success.
+                        print("Calorie history initialized for user \(user.uid).")
+                        // Show the survey after successful sign-up and data initialization.
+                        self.showSurvey = true
                     }
                 }
             }
         }
-    }
-}
-
-// Custom Shape for Rounded Corners
-// Defines a custom shape to create rounded corners for specific edges of a view.
-struct CustomCorners: Shape {
-    var corners: UIRectCorner // Specifies which corners to round.
-    var radius: CGFloat // Radius of the rounded corners.
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect, // Defines the rectangle to round.
-            byRoundingCorners: corners, // Applies rounding to specified corners.
-            cornerRadii: CGSize(width: radius, height: radius) // Sets the radius size.
-        )
-        return Path(path.cgPath) // Converts to a SwiftUI Path.
-    }
-}
-
-// Reusable Components
-// A custom text field with rounded corners and a border.
-struct RoundedTextField: View {
-    var placeholder: String // Placeholder text to display.
-    @Binding var text: String // Binding to the text value.
-    var isEmail: Bool = false // Flag to determine keyboard type.
-
-    var body: some View {
-        TextField(placeholder, text: $text) // Standard text field.
-            .keyboardType(isEmail ? .emailAddress : .default) // Sets keyboard type based on isEmail.
-            .padding() // Adds internal padding.
-            .background(Color(.white)) // White background.
-            .cornerRadius(30) // Rounds the corners.
-            .overlay( // Adds a border.
-                RoundedRectangle(cornerRadius: 30)
-                    .stroke(Color.black, lineWidth: 1) // Black border with 1pt width.
-            )
-    }
-}
-
-// A custom secure text field (e.g., for passwords) with rounded corners and a border.
-struct RoundedSecureField: View {
-    var placeholder: String // Placeholder text to display.
-    @Binding var text: String // Binding to the text value.
-
-    var body: some View {
-        SecureField(placeholder, text: $text) // Secure text field for passwords.
-            .padding() // Adds internal padding.
-            .background(Color(.white)) // White background.
-            .cornerRadius(30) // Rounds the corners.
-            .overlay( // Adds a border.
-                RoundedRectangle(cornerRadius: 30)
-                    .stroke(Color.black, lineWidth: 1) // Black border with 1pt width.
-            )
     }
 }

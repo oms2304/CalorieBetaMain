@@ -5,122 +5,191 @@ import FirebaseAuth
 // The main application entry point, defining the app structure and initializing services.
 @main
 struct CalorieBetaApp: App {
-    // State objects to manage app-wide data, shared across views via environment.
-    @StateObject var goalSettings = GoalSettings() // Manages user nutritional goals.
-    @StateObject var dailyLogService = DailyLogService() // Handles daily food log operations.
-    @StateObject var appState = AppState() // Tracks user authentication state.
-    @StateObject var groupService = GroupService() // Manages community group data.
+    // MARK: - State Objects
+    
+    /// Manages user nutritional goals.
+    @StateObject var goalSettings = GoalSettings()
+    
+    /// Handles daily food log operations.
+    @StateObject var dailyLogService = DailyLogService()
+    
+    /// Tracks user authentication state and dark mode preference.
+    @StateObject var appState = AppState()
+    
+    /// Manages community group data.
+    @StateObject var groupService = GroupService()
 
-    // Initializes Firebase services when the app starts.
+    // MARK: - Initialization
+    
+    /// Initializes Firebase services when the app starts.
     init() {
         FirebaseApp.configure() // Sets up Firebase with the default configuration.
     }
 
-    // Defines the app's window scene with the root content view.
+    // MARK: - Body
+    
+    /// Defines the app's window scene with the root content view.
     var body: some Scene {
         WindowGroup {
             ContentView() // The main content view of the app.
                 .environmentObject(goalSettings) // Injects goal settings into the view hierarchy.
                 .environmentObject(dailyLogService) // Injects daily log service.
-                .environmentObject(appState) // Injects app state for authentication.
+                .environmentObject(appState) // Injects app state for authentication and dark mode.
                 .environmentObject(groupService) // Injects group service for community features.
+                .preferredColorScheme(appState.isDarkModeEnabled ? .dark : .light) // Applies the user's dark mode preference.
         }
     }
 }
 
 // The root view of the app, controlling navigation based on authentication and loading state.
+// Also handles presenting the onboarding survey for first-time users.
 struct ContentView: View {
-    // Environment objects to access shared state and services.
-    @EnvironmentObject var appState: AppState // Accesses the app's authentication state.
-    @EnvironmentObject var goalSettings: GoalSettings // Accesses user goals.
-    @EnvironmentObject var dailyLogService: DailyLogService // Accesses daily log data.
+    // MARK: - Environment Properties
+    
+    /// Environment object to access the app's authentication state and dark mode preference.
+    @EnvironmentObject var appState: AppState
+    
+    /// Environment object to access and modify user goals.
+    @EnvironmentObject var goalSettings: GoalSettings
+    
+    /// Environment object to access daily log data.
+    @EnvironmentObject var dailyLogService: DailyLogService
 
-    // State variables to manage UI and navigation.
-    @State private var isLoading = true // Tracks if initial data is being loaded.
-    @State private var scannedFoodItem: FoodItem? // Stores the food item detected by the scanner.
-    @State private var showScanner = false // Controls visibility of the barcode scanner.
-    @State private var showFoodDetail = false // Controls visibility of the food detail view.
+    // MARK: - State Properties
+    
+    /// Tracks if initial data is being loaded.
+    @State private var isLoading = true
+    
+    /// Stores the food item detected by the barcode scanner.
+    @State private var scannedFoodItem: FoodItem?
+    
+    /// Controls visibility of the barcode scanner.
+    @State private var showScanner = false
+    
+    /// Controls visibility of the food detail view.
+    @State private var showFoodDetail = false
+    
+    /// Controls visibility of the onboarding survey for first-time users.
+    @State private var showSurvey = false
 
-    // The main body of the view, using a Group to conditionally render content.
+    // MARK: - Body
+    
     var body: some View {
-        Group { // Allows conditional rendering of different views.
-            if isLoading { // Shows loading state while data is fetched.
-                LandingPageView() // Displays a landing page during initial load.
+        Group {
+            if isLoading {
+                // Show a landing page while initial data is being loaded.
+                LandingPageView()
                     .onAppear {
-                        loadInitialData() // Loads data when the view appears.
+                        loadInitialData()
                     }
-            } else if appState.isUserLoggedIn { // Shows main app content for logged-in users.
-                MainTabView() // Displays the main tabbed interface.
-                    .onAppear(perform: loadUserData) // Refreshes user data on appearance.
-            } else { // G3: Shows WelcomeView instead of LoginView for unauthenticated users.
-                WelcomeView() // G3: Displays the new welcome screen with login and sign-up options.
-                    .onAppear(perform: checkLoginStatus) // Checks login status on appearance.
+            } else if appState.isUserLoggedIn {
+                if showSurvey {
+                    // Show the onboarding survey if this is the user's first login.
+                    OnboardingSurveyView()
+                        .environmentObject(goalSettings)
+                } else {
+                    // Show the main app interface for logged-in users.
+                    MainTabView()
+                        .onAppear(perform: loadUserData)
+                }
+            } else {
+                // Show the welcome screen for unauthenticated users.
+                WelcomeView()
+                    .onAppear(perform: checkLoginStatus)
             }
         }
-        .sheet(isPresented: $showScanner) { // Presents the barcode scanner as a sheet.
-            BarcodeScannerView { foodItem in // Passes detected food item to the closure.
+        .sheet(isPresented: $showScanner) {
+            // Present the barcode scanner as a sheet.
+            BarcodeScannerView { foodItem in
                 DispatchQueue.main.async {
-                    scannedFoodItem = foodItem // Stores the scanned food item.
-                    showScanner = false // Closes the scanner.
-                    showFoodDetail = true // Opens the food detail view.
+                    scannedFoodItem = foodItem
+                    showScanner = false
+                    showFoodDetail = true
                 }
             }
         }
-        .background( // Uses a hidden NavigationLink for programmatic navigation.
+        .background(
+            // Hidden NavigationLink for programmatic navigation to FoodDetailView.
             NavigationLink(
-                destination: scannedFoodItem.map { FoodDetailView(foodItem: $0, dailyLog: .constant(nil), onLogUpdated: { _ in }) }, // Navigates to food detail view with the scanned item.
-                isActive: $showFoodDetail // Controls navigation activation.
+                destination: scannedFoodItem.map { FoodDetailView(foodItem: $0, dailyLog: .constant(nil), onLogUpdated: { _ in }) },
+                isActive: $showFoodDetail
             ) {
-                EmptyView() // Placeholder to hide the link.
+                EmptyView()
             }
-            .hidden() // Hides the link from the UI.
+            .hidden()
         )
     }
 
-    // Checks the current authentication status when the view appears.
+    // MARK: - Helper Methods
+    
+    /// Checks the current authentication status when the view appears.
     private func checkLoginStatus() {
-        if let currentUser = Auth.auth().currentUser { // Checks if a user is already logged in.
-            print("✅ User is already logged in: \(currentUser.uid)") // Logs successful check.
-            appState.isUserLoggedIn = true // Updates app state.
-            isLoading = false // Ends loading state.
-        } else { // Handles unauthenticated state.
-            print("❌ No user logged in") // Logs unauthenticated state.
-            appState.isUserLoggedIn = false // Updates app state.
-            isLoading = false // Ends loading state.
+        if let currentUser = Auth.auth().currentUser {
+            print("✅ User is already logged in: \(currentUser.uid)")
+            appState.isUserLoggedIn = true
+            checkFirstLogin(userID: currentUser.uid)
+            isLoading = false
+        } else {
+            print("❌ No user logged in")
+            appState.isUserLoggedIn = false
+            isLoading = false
         }
     }
 
-    // Loads initial data when the app starts, running on a background thread if needed.
+    /// Checks if this is the user's first login by looking for the isFirstLogin flag in Firestore.
+    /// If true, the onboarding survey is presented.
+    /// - Parameter userID: The ID of the authenticated user.
+    private func checkFirstLogin(userID: String) {
+        let db = Firestore.firestore()
+        db.collection("users").document(userID).getDocument { document, error in
+            if let document = document, document.exists, let data = document.data() {
+                if let isFirstLogin = data["isFirstLogin"] as? Bool, isFirstLogin {
+                    DispatchQueue.main.async {
+                        self.showSurvey = true
+                    }
+                }
+            } else {
+                print("❌ Error checking first login: \(error?.localizedDescription ?? "Unknown error")")
+            }
+        }
+    }
+
+    /// Loads initial data when the app starts, running on a background thread if needed.
     private func loadInitialData() {
-        if appState.isUserLoggedIn { // Only loads data if a user is logged in.
-            DispatchQueue.global(qos: .background).async { // Runs on a background thread.
-                loadUserData() // Fetches user-specific data.
+        if appState.isUserLoggedIn {
+            DispatchQueue.global(qos: .background).async {
+                loadUserData()
             }
         } else {
-            isLoading = false // Ends loading if no user is logged in.
+            isLoading = false
         }
     }
 
-    // Loads user data (goals and daily log) from Firestore.
+    /// Loads user data (goals and daily log) from Firestore.
     private func loadUserData() {
-        guard let userID = Auth.auth().currentUser?.uid else { // Ensures a user ID is available.
-            print("No user ID found, user not logged in") // Logs error if no user.
-            isLoading = false // Ends loading state.
+        guard let userID = Auth.auth().currentUser?.uid else {
+            print("No user ID found, user not logged in")
+            isLoading = false
             return
         }
-        print("📥 Fetching data for User ID: \(userID) at \(Date())") // Logs data fetch start.
+        print("📥 Fetching data for User ID: \(userID) at \(Date())")
 
-        goalSettings.loadUserGoals(userID: userID) // Loads user goals from Firestore.
-        dailyLogService.fetchOrCreateTodayLog(for: userID) { result in // Fetches or creates today's log.
-            DispatchQueue.main.async { // Ensures UI updates on the main thread.
+        // Load user goals and check for first login after loading.
+        goalSettings.loadUserGoals(userID: userID) {
+            self.checkFirstLogin(userID: userID)
+        }
+        
+        // Load or create today's log.
+        dailyLogService.fetchOrCreateTodayLog(for: userID) { result in
+            DispatchQueue.main.async {
                 switch result {
-                case .success(let log): // Handles successful log retrieval.
-                    print("✅ Loaded today's log: \(log) at \(Date())") // Logs success.
-                    dailyLogService.currentDailyLog = log // Updates the service with the log.
-                    isLoading = false // Ends loading state.
-                case .failure(let error): // Handles errors.
-                    print("❌ Error loading user logs: \(error.localizedDescription) at \(Date())") // Logs error.
-                    isLoading = false // Ends loading state.
+                case .success(let log):
+                    print("✅ Loaded today's log: \(log) at \(Date())")
+                    dailyLogService.currentDailyLog = log
+                    isLoading = false
+                case .failure(let error):
+                    print("❌ Error loading user logs: \(error.localizedDescription) at \(Date())")
+                    isLoading = false
                 }
             }
         }

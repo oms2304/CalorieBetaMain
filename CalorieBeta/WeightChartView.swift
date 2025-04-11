@@ -44,8 +44,8 @@ struct WeightChartView: UIViewRepresentable {
 
         // Creates a dataset for the line chart with the collected entries.
         let lineDataSet = LineChartDataSet(entries: dataEntries, label: "Weight Over Time")
-        lineDataSet.colors = [NSUIColor.blue] // Sets the line color to blue.
-        lineDataSet.circleColors = [NSUIColor.red] // Sets data point circle colors to red.
+        lineDataSet.colors = [NSUIColor(red: 67/255, green: 173/255, blue: 111/255, alpha: 1)] // Changed to #43AD6F for the line color.
+        lineDataSet.circleColors = [NSUIColor(red: 67/255, green: 173/255, blue: 111/255, alpha: 1)] // Changed to #43AD6F for data point circle colors.
         lineDataSet.circleRadius = 4 // Sets the radius of data point circles.
         lineDataSet.lineWidth = 2 // Sets the thickness of the line.
         lineDataSet.valueFont = .systemFont(ofSize: 12) // Sets the font for data point labels.

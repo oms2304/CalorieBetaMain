@@ -8,6 +8,8 @@ struct FoodDetailView: View {
     var foodItem: FoodItem
     // A binding to the daily log, allowing updates to be reflected in the parent view.
     @Binding var dailyLog: DailyLog?
+    // The date for which the log is being updated, defaults to today if not specified.
+    var date: Date
     // A closure to notify the parent view when the log is updated.
     var onLogUpdated: (DailyLog) -> Void
 
@@ -23,9 +25,10 @@ struct FoodDetailView: View {
     @Environment(\.presentationMode) var presentationMode // Used to dismiss the view via navigation.
 
     // Initializer to set up the view with the food item and initialize state variables.
-    init(foodItem: FoodItem, dailyLog: Binding<DailyLog?>, onLogUpdated: @escaping (DailyLog) -> Void) {
+    init(foodItem: FoodItem, dailyLog: Binding<DailyLog?>, date: Date = Date(), onLogUpdated: @escaping (DailyLog) -> Void) {
         self.foodItem = foodItem
         self._dailyLog = dailyLog
+        self.date = date
         self.onLogUpdated = onLogUpdated
 
         // Initializes state with the food item's serving weight and unit.
@@ -166,42 +169,46 @@ struct FoodDetailView: View {
                 // Button to add or update the food item in the log.
                 Button(action: {
                     if var log = dailyLog {
-                        // Checks if the food item is already in the log to determine action.
+                        // Check if the food item is already in the log to determine action.
                         let isUpdating = log.meals.contains { meal in
                             meal.foodItems.contains { $0.id == foodItem.id }
                         }
 
                         if isUpdating {
-                            // Removes the old version of the food item if updating.
+                            // Remove the old version of the food item if updating.
                             for i in log.meals.indices {
                                 log.meals[i].foodItems.removeAll { $0.id == foodItem.id }
                             }
+                            // Delete the old food item from the log for the specified date.
+                            if let userID = Auth.auth().currentUser?.uid {
+                                dailyLogService.deleteFoodFromCurrentLog(for: userID, foodItemID: foodItem.id, date: date)
+                            }
                         }
 
-                        // Adds the adjusted food item to the log.
+                        // Add the adjusted food item to the log for the specified date.
                         if let userID = Auth.auth().currentUser?.uid {
-                            dailyLogService.addFoodToCurrentLog(for: userID, foodItem: adjustedNutrients)
-                            onLogUpdated(log) // Notifies the parent of the update.
+                            dailyLogService.addFoodToCurrentLog(for: userID, foodItem: adjustedNutrients, date: date)
+                            onLogUpdated(log) // Notify the parent of the update.
                         }
                     }
-                    // Dismisses the view, handling nested navigation if present.
+                    // Dismiss the view, handling nested navigation if present.
                     presentationMode.wrappedValue.dismiss() // Dismisses via navigation.
                     dismiss() // Dismisses the sheet if opened from FoodSearchView.
                 }) {
-                    // Dynamically sets button text based on whether it’s an update or addition.
+                    // Dynamically set button text based on whether it’s an update or addition.
                     Text(dailyLog?.meals.contains { $0.foodItems.contains { $0.id == foodItem.id } } == true ? "Update Log" : "Add to Log")
                         .font(.headline) // Bold, larger font.
                         .foregroundColor(.white) // White text.
-                        .padding() // Adds internal padding.
-                        .frame(maxWidth: .infinity) // Expands to full width.
+                        .padding() // Add internal padding.
+                        .frame(maxWidth: .infinity) // Expand to full width.
                         .background(Color.blue) // Blue background.
                         .cornerRadius(12) // Rounded corners.
                 }
                 .padding(.horizontal) // Horizontal padding from edges.
             }
-            .padding(.bottom, 20) // Adds bottom padding for the scroll view.
+            .padding(.bottom, 20) // Add bottom padding for the scroll view.
         }
-        .navigationTitle("Edit Food") // Sets the navigation title.
-        .navigationBarTitleDisplayMode(.inline) // Centers the title.
+        .navigationTitle("Edit Food") // Set the navigation title.
+        .navigationBarTitleDisplayMode(.inline) // Center the title.
     }
 }
