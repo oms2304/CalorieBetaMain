@@ -7,290 +7,213 @@ import FirebaseAuth
 // notify views of changes.
 class GoalSettings: ObservableObject {
     // Published properties to track and update user goals, observable by SwiftUI views:
-    @Published var calories: Double? // Optional calorie goal, calculated or set manually.
-    @Published var protein: Double = 150 // Default protein goal in grams.
-    @Published var fats: Double = 70 // Default fat goal in grams.
-    @Published var carbs: Double = 250 // Default carbohydrate goal in grams.
-    @Published var weight: Double = 150.0 // Default weight in pounds.
-    @Published var height: Double = 170.0 // Default height in centimeters.
-    @Published var weightHistory: [(date: Date, weight: Double)] = [] // History of weight entries.
-    @Published var isUpdatingGoal: Bool = false // Tracks if a goal update is in progress.
-    @Published var proteinPercentage: Double = 30.0 // Percentage of calories from protein.
-    @Published var carbsPercentage: Double = 50.0 // Percentage of calories from carbs.
-    @Published var fatsPercentage: Double = 20.0 // Percentage of calories from fats.
-    @Published var activityLevel: Double = 1.2 // Activity multiplier (e.g., 1.2 for sedentary).
-    @Published var age: Int = 25 // Default user age in years.
-    @Published var gender: String = "Male" // Default gender.
-    @Published var goal: String = "Maintain" // User’s goal (e.g., "Lose", "Maintain", "Gain").
-    @Published var showingBubbles: Bool = true // Default to bubbles
-    @Published var targetWeight: Double? // Target Weight in pounds, to be set by the user.
+    @Published var calories: Double?
+    @Published var protein: Double = 150
+    @Published var fats: Double = 70
+    @Published var carbs: Double = 250
+    @Published var weight: Double = 150.0 // Current weight
+    @Published var height: Double = 170.0
+    @Published var weightHistory: [(id: String, date: Date, weight: Double)] = []
+    @Published var isUpdatingGoal: Bool = false
+    @Published var proteinPercentage: Double = 30.0
+    @Published var carbsPercentage: Double = 50.0
+    @Published var fatsPercentage: Double = 20.0
+    @Published var activityLevel: Double = 1.2
+    @Published var age: Int = 25
+    @Published var gender: String = "Male"
+    @Published var goal: String = "Maintain"
+    @Published var showingBubbles: Bool = true
+    @Published var targetWeight: Double?
+    @Published var waterGoal: Double = 64.0
 
     // Private properties for Firebase and state management:
-    private let db = Firestore.firestore() // Firestore database instance.
-    private var isFetchingGoals = false // Prevents multiple simultaneous fetch requests.
-    private var isGoalsLoaded = false // Tracks if goals have been loaded.
+    private let db = Firestore.firestore()
+    private var isFetchingGoals = false
+    private var isGoalsLoaded = false
 
-    // Updates the macronutrient goals based on the calorie goal and percentages.
+    // ... (updateMacros, recalculateCalorieGoal, loadUserGoals, saveUserGoals remain the same) ...
     func updateMacros() {
-        guard let calorieGoal = calories else { return } // Exits if no calorie goal is set.
-
+        guard let calorieGoal = calories else { return }
         let totalPercentage = proteinPercentage + carbsPercentage + fatsPercentage
         guard totalPercentage == 100 else {
-            print("❌ Macronutrient percentages do not sum to 100%") // Logs an error if percentages are invalid.
+            print("❌ Macronutrient percentages do not sum to 100%")
             return
         }
-
-        // Calculates macronutrient calories and converts to grams (1g protein/carb = 4kcal, 1g fat = 9kcal).
         let proteinCalories = (proteinPercentage / 100) * calorieGoal
         let carbsCalories = (carbsPercentage / 100) * calorieGoal
         let fatsCalories = (fatsPercentage / 100) * calorieGoal
-
         self.protein = proteinCalories / 4
         self.carbs = carbsCalories / 4
         self.fats = fatsCalories / 9
-
-        print("✅ Updated Macros: \(self.protein)g Protein, \(self.carbs)g Carbs, \(self.fats)g Fats") // Logs the update.
+        print("✅ Updated Macros: \(self.protein)g Protein, \(self.carbs)g Carbs, \(self.fats)g Fats")
     }
 
-    // Recalculates the calorie goal based on BMR, activity level, and user goal.
     func recalculateCalorieGoal() {
-        let weightInKg = weight * 0.453592 // Converts weight from pounds to kilograms.
-        let heightInCm = height // Height is already in centimeters.
-        
-
-        // Calculates Basal Metabolic Rate (BMR) using the Mifflin-St Jeor equation.
+        let weightInKg = weight * 0.453592
+        let heightInCm = height
         let bmr: Double
-        if gender == "Male" {
-            bmr = 10 * weightInKg + 6.25 * heightInCm - 5 * Double(age) + 5
-        } else {
-            bmr = 10 * weightInKg + 6.25 * heightInCm - 5 * Double(age) - 161
-        }
-
-        var calories = bmr * activityLevel // Adjusts BMR with activity level.
+        if gender == "Male" { bmr = 10 * weightInKg + 6.25 * heightInCm - 5 * Double(age) + 5 }
+        else { bmr = 10 * weightInKg + 6.25 * heightInCm - 5 * Double(age) - 161 }
+        var calories = bmr * activityLevel
         switch goal {
-        case "Lose":
-            calories -= 500 // Reduces calories by 500 for weight loss.
-        case "Gain":
-            calories += 500 // Increases calories by 500 for weight gain.
-        default:
-            break // No adjustment for "Maintain".
+            case "Lose": calories -= 500
+            case "Gain": calories += 500
+            default: break
         }
-        
         if let targetWeight = targetWeight {
-            let weightDifference = weight - targetWeight // would be positive if weight was lost, negative if weight was gained.
-            if weightDifference > 0 {
-                calories -= 250
-
-            }else if weightDifference < 0 {
-                calories += 250
-            }
+            let weightDifference = weight - targetWeight
+            if weightDifference > 0 { calories -= 250 }
+            else if weightDifference < 0 { calories += 250 }
         }
         print("Calories: \(calories)")
-
-        self.calories = max(calories, 0) // Ensures calories are not negative.
-        updateMacros() // Updates macronutrients based on the new calorie goal.
-        
+        self.calories = max(calories, 0)
+        updateMacros()
     }
 
-    // Loads user goals from Firestore for a given user ID.
-    func loadUserGoals(userID: String, completion: @escaping () -> Void = {}) {
-        guard !isFetchingGoals else { return } // Prevents redundant fetches.
-        isFetchingGoals = true
+     func loadUserGoals(userID: String, completion: @escaping () -> Void = {}) {
+         guard !isFetchingGoals else { return }
+         isFetchingGoals = true
+         db.collection("users").document(userID).getDocument { [weak self] document, error in
+             defer { self?.isFetchingGoals = false; self?.isGoalsLoaded = true; completion() }
+             guard let self = self else { return }
+             if let document = document, document.exists, let data = document.data() {
+                 DispatchQueue.main.async {
+                     if let goals = data["goals"] as? [String: Any] {
+                         self.calories = goals["calories"] as? Double ?? self.calories
+                         self.protein = goals["protein"] as? Double ?? self.protein
+                         self.fats = goals["fats"] as? Double ?? self.fats
+                         self.carbs = goals["carbs"] as? Double ?? self.carbs
+                         self.proteinPercentage = goals["proteinPercentage"] as? Double ?? self.proteinPercentage
+                         self.carbsPercentage = goals["carbsPercentage"] as? Double ?? self.carbsPercentage
+                         self.fatsPercentage = goals["fatsPercentage"] as? Double ?? self.fatsPercentage
+                         self.activityLevel = goals["activityLevel"] as? Double ?? self.activityLevel
+                         self.age = goals["age"] as? Int ?? self.age
+                         self.gender = goals["gender"] as? String ?? self.gender
+                         self.goal = goals["goal"] as? String ?? self.goal
+                         self.targetWeight = goals["targetWeight"] as? Double
+                         self.waterGoal = (goals["waterGoal"] as? Double) ?? 64.0
+                     }
+                     self.weight = data["weight"] as? Double ?? self.weight
+                     self.height = data["height"] as? Double ?? self.height
+                     self.recalculateCalorieGoal()
+                     print("✅ Loaded user goals: \(self.calories ?? 0) calories")
+                 }
+             } else {
+                 print("❌ Error fetching user goals: \(error?.localizedDescription ?? "Unknown error")")
+             }
+         }
+     }
 
-        // Fetches the user document from Firestore.
-        db.collection("users").document(userID).getDocument { [weak self] document, error in
-            // Ensures cleanup and callback execution regardless of success or failure.
-            defer {
-                self?.isFetchingGoals = false
-                self?.isGoalsLoaded = true
-                completion()
-            }
-            guard let self = self else { return } // Avoids retain cycles with weak self.
+     func saveUserGoals(userID: String) {
+         self.isUpdatingGoal = true
+         self.updateMacros()
+         let goalData = [ "calories": calories ?? 2000, "protein": protein, "fats": fats, "carbs": carbs, "proteinPercentage": proteinPercentage, "carbsPercentage": carbsPercentage, "fatsPercentage": fatsPercentage, "activityLevel": activityLevel, "age": age, "gender": gender, "goal": goal, "targetWeight" : targetWeight ?? NSNull() ] as [String: Any]
+         let userData = [ "goals": goalData, "weight": weight, "height": height ] as [String: Any]
+         db.collection("users").document(userID).setData(userData, merge: true) { [weak self] error in
+             guard let self = self else { return }
+             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.isUpdatingGoal = false }
+             if let error = error { print("❌ Error saving user goals: \(error.localizedDescription)") }
+             else { DispatchQueue.main.async { print("✅ User goals saved successfully.") } }
+         }
+     }
 
-            if let document = document, document.exists, let data = document.data() {
-                DispatchQueue.main.async {
-                    // Updates properties with data from Firestore, using defaults if missing.
-                    if let goals = data["goals"] as? [String: Any] {
-                        self.calories = goals["calories"] as? Double ?? self.calories
-                        self.protein = goals["protein"] as? Double ?? self.protein
-                        self.fats = goals["fats"] as? Double ?? self.fats
-                        self.carbs = goals["carbs"] as? Double ?? self.carbs
-                        self.proteinPercentage = goals["proteinPercentage"] as? Double ?? self.proteinPercentage
-                        self.carbsPercentage = goals["carbsPercentage"] as? Double ?? self.carbsPercentage
-                        self.fatsPercentage = goals["fatsPercentage"] as? Double ?? self.fatsPercentage
-                        self.activityLevel = goals["activityLevel"] as? Double ?? self.activityLevel
-                        self.age = goals["age"] as? Int ?? self.age
-                        self.gender = goals["gender"] as? String ?? self.gender
-                        self.goal = goals["goal"] as? String ?? self.goal
-                        self.targetWeight = goals["targetWeight"] as? Double
-                    }
-
-                    self.weight = data["weight"] as? Double ?? self.weight
-                    self.height = data["height"] as? Double ?? self.height
-                    
-                    self.targetWeight = 140.0
-                    self.weight = 150.0
-                    
-                    self.recalculateCalorieGoal() // Recalculates goals based on loaded data.
-                    print("✅ Loaded user goals: \(self.calories ?? 0) calories") // Logs success.
-                }
-                
-            } else {
-                print("❌ Error fetching user goals: \(error?.localizedDescription ?? "Unknown error")") // Logs any errors.
-            }
-        }
-    }
-
-    // Saves user goals to Firestore for a given user ID.
-    func saveUserGoals(userID: String) {
-        self.isUpdatingGoal = true // Indicates an update is in progress.
-
-        self.updateMacros() // Updates macros before saving.
-
-        // Prepares the goal data to save.
-        let goalData = [
-            "calories": calories ?? 2000, // Default to 2000 if nil.
-            "protein": protein,
-            "fats": fats,
-            "carbs": carbs,
-            "proteinPercentage": proteinPercentage,
-            "carbsPercentage": carbsPercentage,
-            "fatsPercentage": fatsPercentage,
-            "activityLevel": activityLevel,
-            "age": age,
-            "gender": gender,
-            "goal": goal,
-            "targetWeight" : targetWeight ?? NSNull() // NSNUll for nill values in firestore
-        ] as [String: Any]
-
-        let userData = [
-            "goals": goalData,
-            "weight": weight,
-            "height": height
-        ] as [String: Any]
-
-        // Saves the data to Firestore, merging with existing data.
-        db.collection("users").document(userID).setData(userData, merge: true) { [weak self] error in
-            guard let self = self else { return } // Avoids retain cycles.
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.isUpdatingGoal = false // Resets the update flag after a delay.
-            }
-
-            if let error = error {
-                print("❌ Error saving user goals: \(error.localizedDescription)") // Logs any errors.
-            } else {
-                DispatchQueue.main.async {
-                    print("✅ User goals saved successfully.") // Logs success.
-                }
-            }
-        }
-    }
-
-    // Loads the user's weight history from Firestore.
     func loadWeightHistory() {
-        guard let userID = Auth.auth().currentUser?.uid else { return } // Ensures a user is logged in.
-
-        // Fetches weight history, ordered chronologically.
+        guard let userID = Auth.auth().currentUser?.uid else { return }
         db.collection("users").document(userID).collection("weightHistory")
             .order(by: "timestamp", descending: false)
             .getDocuments { snapshot, error in
-                if let error = error {
-                    print("❌ Error fetching weight history: \(error.localizedDescription)") // Logs any errors.
-                    return
-                }
-
+                if let error = error { print("❌ Error fetching weight history: \(error.localizedDescription)"); return }
                 DispatchQueue.main.async {
-                    // Maps Firestore documents to weight history tuples.
                     self.weightHistory = snapshot?.documents.compactMap { doc in
-                        if let weight = doc.data()["weight"] as? Double,
-                           let timestamp = doc.data()["timestamp"] as? Timestamp {
-                            return (timestamp.dateValue(), weight) // Returns (date, weight) tuple.
+                        let data = doc.data()
+                        if let weight = data["weight"] as? Double, let timestamp = data["timestamp"] as? Timestamp {
+                            return (id: doc.documentID, date: timestamp.dateValue(), weight: weight)
                         }
-                        return nil // Ignores invalid entries.
+                        return nil
                     } ?? []
+                     self.weightHistory.sort { $0.date < $1.date }
+                     print("✅ Loaded weight history count: \(self.weightHistory.count)")
                 }
             }
     }
 
-    // Updates the user's weight and saves it to Firestore with a timestamp.
     func updateUserWeight(_ newWeight: Double) {
-        guard let userID = Auth.auth().currentUser?.uid else { return } // Ensures a user is logged in.
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        let oldWeight = weight
+        weight = newWeight
+        recalculateCalorieGoal()
+        let weightData: [String: Any] = [ "weight": newWeight, "timestamp": Timestamp(date: Date()) ]
+        db.collection("users").document(userID).setData(["weight": newWeight], merge: true) { error in if let error = error { print("❌ Error updating current weight: \(error.localizedDescription)") } else { print("✅ Updated current weight successfully.") } }
+        var ref: DocumentReference? = nil
+        ref = db.collection("users").document(userID).collection("weightHistory")
+            .addDocument(data: weightData) { [weak self] error in
+                guard let self = self else { return }
+                if let error = error { print("❌ Error saving new weight history entry: \(error.localizedDescription)") }
+                else { if let newID = ref?.documentID { DispatchQueue.main.async { self.weightHistory.append((id: newID, date: Date(), weight: newWeight)); self.weightHistory.sort { $0.date < $1.date }; print("✅ New weight history entry added successfully locally and remotely.") } } }
+            }
+        saveUserGoals(userID: userID)
+    }
 
-        weight = newWeight // Updates the current weight.
-        recalculateCalorieGoal() // Recalculates goals based on new weight.
-
-        let weightData: [String: Any] = [
-            "weight": newWeight, // New weight value.
-            "timestamp": Timestamp(date: Date()) // Current timestamp.
-        ]
-
-        // Updates the user's weight in the main document.
-        db.collection("users").document(userID).setData(["weight": newWeight], merge: true)
-
-        // Adds the weight to the history collection.
-        db.collection("users").document(userID).collection("weightHistory")
-            .addDocument(data: weightData) { error in
+    func deleteWeightEntry(entryID: String, completion: @escaping (Error?) -> Void) {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            completion(NSError(domain: "GoalSettings", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
+            return
+        }
+        db.collection("users").document(userID).collection("weightHistory").document(entryID).delete { [weak self] error in
+            guard let self = self else { completion(error); return }
+            DispatchQueue.main.async {
                 if let error = error {
-                    print("❌ Error saving weight history: \(error.localizedDescription)") // Logs any errors.
+                    print("❌ Error deleting weight entry \(entryID): \(error.localizedDescription)")
+                    completion(error)
                 } else {
-                    print("✅ Weight history updated successfully.") // Logs success.
+                    self.weightHistory.removeAll { $0.id == entryID }
+                    print("✅ Deleted weight entry \(entryID) successfully.")
+                    completion(nil)
                 }
             }
-
-        saveUserGoals(userID: userID) // Saves all updated goals.
-    }
-
-    // Converts the height from centimeters to feet and inches.
-    func getHeightInFeetAndInches() -> (feet: Int, inches: Int) {
-        let totalInches = Int(height / 2.54) // Converts cm to inches (1 cm = 0.393701 inches).
-        let feet = totalInches / 12 // Calculates the number of feet.
-        let inches = totalInches % 12 // Calculates the remaining inches.
-        return (feet, inches)
-    }
-
-    // Sets the height from feet and inches, converting to centimeters.
-    func setHeight(feet: Int, inches: Int) {
-        let totalInches = (feet * 12) + inches // Combines feet and inches into total inches.
-        height = Double(totalInches) * 2.54 // Converts inches to centimeters.
-    }
-    
-    func calculateWeightProgress() -> Double? {
-        guard let targetWeight = targetWeight, !weightHistory.isEmpty
-        else {
-            return nil
         }
+    }
+
+    func getHeightInFeetAndInches() -> (feet: Int, inches: Int) {
+        let totalInches = Int(height / 2.54); let feet = totalInches / 12; let inches = totalInches % 12; return (feet, inches)
+    }
+    func setHeight(feet: Int, inches: Int) { let totalInches = (feet * 12) + inches; height = Double(totalInches) * 2.54 }
+    func calculateWeightProgress() -> Double? {
+        guard let targetWeight = targetWeight, !weightHistory.isEmpty else { return nil }
         let initialWeight = weightHistory.first?.weight ?? weight
-        
         let currentWeight = weight
         let totalChangeNeeded = initialWeight - targetWeight
         let changeSoFar = initialWeight - currentWeight
-        
-        guard totalChangeNeeded != 0 else { return 0 }
+        guard totalChangeNeeded != 0 else { return currentWeight == targetWeight ? 100.0 : 0 }
         print("weight progress: \((changeSoFar / totalChangeNeeded) * 100)")
         return (changeSoFar / totalChangeNeeded) * 100
-        
     }
-    
+
+    // *** Corrected calculateWeeklyWeightChange ***
     func calculateWeeklyWeightChange() -> Double? {
-        guard weightHistory.count >= 2
-        else {
-            return nil
-        }
-        let fourWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -4, to: Date())!
-        let recentHistory = weightHistory.filter { $0.date >= fourWeeksAgo }
-        guard recentHistory.count >= 2
-        else {
-            return nil
-        }
-        let firstWeight = recentHistory.first!.weight // ! is needed as swift doesnt know if the recentHistory.first even exists
-        let lastWeight = recentHistory.last!.weight // ! is needed as swift doesnt know if the recentHistory.first even exists
-        let weeks = Double(recentHistory.count - 1) / 7.0
-        guard weeks > 0
-        else {
-            return 0
-        }
-        
-        return abs((lastWeight - firstWeight) / weeks) // returns mean changes per week.
+        guard weightHistory.count >= 2 else { return nil }
+
+        // *** FIX: Correctly declare endDate ***
+        let endDate = Date()
+        let startDate = Calendar.current.date(byAdding: .weekOfYear, value: -4, to: endDate)! // Use corrected endDate
+
+        let recentHistory = weightHistory.filter { $0.date >= startDate }.sorted { $0.date < $1.date }
+        guard recentHistory.count >= 2, let firstRecord = recentHistory.first, let lastRecord = recentHistory.last else { return nil }
+
+        let weightChange = lastRecord.weight - firstRecord.weight
+        // Calculate time difference in seconds (TimeInterval is Double)
+        let timeDifferenceInSeconds = lastRecord.date.timeIntervalSince(firstRecord.date)
+
+        // Define seconds in a week as Double
+        let secondsPerWeek: Double = 7 * 24 * 60 * 60
+
+        // Calculate weeks difference
+        guard secondsPerWeek > 0 else { return 0 } // Avoid division by zero just in case
+        let weeksDifference = timeDifferenceInSeconds / secondsPerWeek
+
+        guard weeksDifference > 0 else { return 0 } // Avoid division by zero if dates are identical
+
+        // *** FIX: Calculation now correctly uses Doubles ***
+        return weightChange / weeksDifference // Return change per week (Double)
     }
 }

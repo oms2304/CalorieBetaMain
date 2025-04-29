@@ -7,65 +7,115 @@ import FirebaseFirestore
 // This view controller manages the weight tracking interface using a SwiftUI chart embedded
 // in a UIKit environment, fetching and displaying weight history data from Firestore.
 class WeightTrackingViewController: UIViewController {
-    // Array to store weight history locally, consisting of date-weight pairs.
-    var weightHistory: [(date: Date, weight: Double)] = [] // ✅ Stores weight data locally for chart use.
+    // *** FIX: Update property type to include ID ***
+    var weightHistory: [(id: String, date: Date, weight: Double)] = [] // Stores weight data locally for chart use.
+    var currentWeight: Double = 150.0 // Default value, will be updated
 
     // Optional reference to the hosting controller for the SwiftUI chart to manage updates.
-    var hostingController: UIHostingController<WeightChartView>? // ✅ Retains reference to avoid reloading issues.
+    var hostingController: UIHostingController<WeightChartView>? // Retains reference to avoid reloading issues.
 
     override func viewDidLoad() {
         super.viewDidLoad() // Calls the superclass's initialization.
-        view.backgroundColor = .white // Sets a white background for the view.
+        view.backgroundColor = .systemBackground // Use system background
 
-        setupSwiftUIChart() // Initializes and adds the SwiftUI chart to the view.
-        loadWeightData() // Fetches weight data from Firestore. ✅ Ensures actual user data is loaded.
+        // Load data first
+        loadWeightData()
     }
 
     // Sets up the SwiftUI chart within the UIKit view controller.
     private func setupSwiftUIChart() {
-        // ✅ Ensures the chart updates dynamically by creating a hosting controller.
-        let chartView = UIHostingController(rootView: WeightChartView(weightHistory: weightHistory))
-        addChild(chartView) // Adds the hosting controller as a child.
-        chartView.view.frame = view.bounds // Matches the chart view to the parent view's bounds.
-        chartView.view.autoresizingMask = [.flexibleWidth, .flexibleHeight] // Allows resizing with the parent.
-        view.addSubview(chartView.view) // Adds the chart view to the hierarchy.
-        chartView.didMove(toParent: self) // Completes the child view controller setup.
+        guard hostingController == nil else {
+            updateChart()
+            return
+        }
 
-        hostingController = chartView // ✅ Stores the reference for later updates.
+        // Create the SwiftUI view with the correctly typed history
+        let chartViewContent = WeightChartView(weightHistory: self.weightHistory, currentWeight: self.currentWeight)
+        let chartHostingController = UIHostingController(rootView: chartViewContent)
+
+        addChild(chartHostingController)
+        chartHostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(chartHostingController.view)
+        chartHostingController.didMove(toParent: self)
+
+        NSLayoutConstraint.activate([
+            chartHostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            chartHostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            chartHostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            chartHostingController.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+
+        hostingController = chartHostingController
     }
 
-    // Fetches weight history data from Firestore for the authenticated user.
+    // Fetches weight history data AND current weight from Firestore.
     private func loadWeightData() {
-        guard let userID = Auth.auth().currentUser?.uid else { return } // Ensures a user is logged in.
-        let db = Firestore.firestore() // Initializes the Firestore database instance.
+        guard let userID = Auth.auth().currentUser?.uid else {
+            print("❌ User not logged in in WeightTrackingViewController")
+            return
+        }
+        let db = Firestore.firestore()
+        let group = DispatchGroup()
 
-        // Queries the weight history collection, ordered by timestamp.
+        // Fetch Current Weight
+        group.enter()
+        db.collection("users").document(userID).getDocument { document, error in
+            defer { group.leave() }
+            if let document = document, document.exists, let weight = document.data()?["weight"] as? Double {
+                self.currentWeight = weight
+                print("✅ Fetched current weight: \(self.currentWeight)")
+            } else if let error = error {
+                 print("❌ Error fetching current weight: \(error.localizedDescription)")
+            } else {
+                print("⚠️ Could not find current weight, using default: \(self.currentWeight)")
+            }
+        }
+
+        // Fetch Weight History
+        group.enter()
         db.collection("users").document(userID).collection("weightHistory")
-            .order(by: "timestamp", descending: false) // Sorts by timestamp in ascending order.
+            .order(by: "timestamp", descending: false)
             .getDocuments { snapshot, error in
-                if let error = error { // Checks for Firestore query errors.
-                    print("❌ Error fetching weight history: \(error.localizedDescription)") // Logs the error.
+                defer { group.leave() }
+                if let error = error {
+                    print("❌ Error fetching weight history: \(error.localizedDescription)")
                     return
                 }
 
-                // Maps Firestore documents to weight history tuples, handling optional data.
+                // *** Ensure mapping includes the ID and matches the property type ***
                 self.weightHistory = snapshot?.documents.compactMap { doc in
-                    if let weight = doc.data()["weight"] as? Double, // Extracts weight as Double.
-                       let timestamp = doc.data()["timestamp"] as? Timestamp { // Extracts timestamp.
-                        return (timestamp.dateValue(), weight) // Returns a tuple of date and weight.
+                    let data = doc.data()
+                    if let weight = data["weight"] as? Double,
+                       let timestamp = data["timestamp"] as? Timestamp {
+                        // Create tuple with id, date, weight
+                        return (id: doc.documentID, date: timestamp.dateValue(), weight: weight)
                     }
-                    return nil // Returns nil for invalid data to filter out.
-                } ?? [] // Defaults to empty array if snapshot is nil.
-
-                DispatchQueue.main.async { // Ensures UI updates on the main thread.
-                    self.updateChart() // Updates the chart with the new data.
-                }
+                    return nil
+                } ?? []
+                // Ensure sorting if needed (Firestore order is primary)
+                self.weightHistory.sort { $0.date < $1.date }
+                print("✅ Fetched weight history count: \(self.weightHistory.count)")
             }
+
+        // Update UI after both fetches complete
+        group.notify(queue: .main) {
+             print("🔄 Both weight fetches completed. Setting up/updating chart.")
+             if self.hostingController == nil {
+                 self.setupSwiftUIChart()
+             } else {
+                 self.updateChart()
+             }
+        }
     }
 
     // Updates the SwiftUI chart with the latest weight history data.
     private func updateChart() {
-        // ✅ Ensures the chart updates dynamically when weight data changes.
-        hostingController?.rootView = WeightChartView(weightHistory: weightHistory) // Replaces the root view with updated data.
+        guard let hostingController = hostingController else {
+            print("⚠️ Attempted to update chart, but hostingController is nil.")
+            return
+        }
+        // Pass the correctly typed history
+        hostingController.rootView = WeightChartView(weightHistory: self.weightHistory, currentWeight: self.currentWeight)
+        print("✅ Updated chart with \(weightHistory.count) history points and current weight \(currentWeight)")
     }
 }

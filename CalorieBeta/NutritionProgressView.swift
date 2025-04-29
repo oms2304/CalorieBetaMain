@@ -1,17 +1,15 @@
 import SwiftUI
 import Charts
+import FirebaseAuth
 
-// Displays the user's nutritional progress (calories and macros) compared to their goals.
-// Supports two views: bubbles and horizontal bar chart, toggleable via swipe or tap on the dot indicator.
 struct NutritionProgressView: View {
-    // Daily log containing the user's food intake data.
     var dailyLog: DailyLog
-    // Observed object for accessing and updating goal settings (e.g., calorie goals).
+    
     @ObservedObject var goal: GoalSettings
-    // Detects the current color scheme (light or dark) to adapt UI elements.
+    @EnvironmentObject var goalSettings: GoalSettings
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var dailyLogService: DailyLogService
 
-    // State for handling swipe gestures to toggle between views.
     @GestureState private var dragOffset: CGFloat = 0
     private let swipeThreshold: CGFloat = 50
 
@@ -22,46 +20,117 @@ struct NutritionProgressView: View {
         let fats = max(0, totalMacros.fats)
         let carbs = max(0, totalMacros.carbs)
 
-        let caloriesGoal = goal.calories ?? 0
-        let proteinGoal = goal.protein
-        let fatsGoal = goal.fats
-        let carbsGoal = goal.carbs
+        // Use max(goal, 1) to prevent division by zero if a goal is accidentally 0
+        let caloriesGoal = max(goal.calories ?? 1, 1)
+        let proteinGoal = max(goal.protein, 1)
+        let fatsGoal = max(goal.fats, 1)
+        let carbsGoal = max(goal.carbs, 1)
 
-        let caloriesPercentage = (caloriesGoal > 0) ? min(totalCalories / max(caloriesGoal, 1), 1.0) : 0
-        let proteinPercentage = (proteinGoal > 0) ? min(protein / max(proteinGoal, 1), 1.0) : 0
-        let fatsPercentage = (fatsGoal > 0) ? min(fats / max(fatsGoal, 1), 1.0) : 0
-        let carbsPercentage = (carbsGoal > 0) ? min(carbs / max(carbsGoal, 1), 1.0) : 0
+        let caloriesPercentage = min(totalCalories / caloriesGoal, 1.0)
+        let proteinPercentage = min(protein / proteinGoal, 1.0)
+        let fatsPercentage = min(fats / fatsGoal, 1.0)
+        let carbsPercentage = min(carbs / carbsGoal, 1.0)
 
-        ZStack {
-            if goal.showingBubbles {
-                bubblesView(
-                    calories: totalCalories, caloriesGoal: caloriesGoal, caloriesPercentage: caloriesPercentage,
-                    protein: protein, proteinGoal: proteinGoal, proteinPercentage: proteinPercentage,
-                    fats: fats, fatsGoal: fatsGoal, fatsPercentage: fatsPercentage,
-                    carbs: carbs, carbsGoal: carbsGoal, carbsPercentage: carbsPercentage
-                )
-            } else {
-                HorizontalBarChartView(dailyLog: dailyLog, goal: goal)
-            }
-        }
-        .frame(maxHeight: 180)
-        .padding(.horizontal, 8)
-        .offset(x: dragOffset)
-        .gesture(
-            DragGesture()
-                .updating($dragOffset) { value, state, _ in
-                    state = value.translation.width
+        let waterIntake = dailyLog.waterTracker?.totalOunces ?? 0.0
+        let waterGoal = max(dailyLog.waterTracker?.goalOunces ?? 64.0, 1.0) // Avoid division by zero
+        let waterPercentage = min(waterIntake / waterGoal, 1.0)
+
+        // Main VStack for the whole component
+        VStack(spacing: 16) {
+            // ZStack containing either bubbles or bar chart
+            ZStack {
+                if goal.showingBubbles {
+                    bubblesView(
+                        calories: totalCalories, caloriesGoal: caloriesGoal, caloriesPercentage: caloriesPercentage,
+                        protein: protein, proteinGoal: proteinGoal, proteinPercentage: proteinPercentage,
+                        fats: fats, fatsGoal: fatsGoal, fatsPercentage: fatsPercentage,
+                        carbs: carbs, carbsGoal: carbsGoal, carbsPercentage: carbsPercentage
+                    )
+                } else {
+                    HorizontalBarChartView(dailyLog: dailyLog, goal: goal)
                 }
-                .onEnded { value in
-                    if abs(value.translation.width) > swipeThreshold {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            goal.showingBubbles.toggle()
+            }
+            // *** Removed .frame(maxHeight: 180) to allow dynamic height ***
+            .padding(.horizontal, 8) // Keep horizontal padding if desired
+            .offset(x: dragOffset)
+            .gesture(
+                DragGesture()
+                    .updating($dragOffset) { value, state, _ in
+                        state = value.translation.width
+                    }
+                    .onEnded { value in
+                        if abs(value.translation.width) > swipeThreshold {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                goal.showingBubbles.toggle()
+                            }
                         }
                     }
-                }
-        )
+            )
+            Divider()
+            
+            WaterTrackingCardView(date: dailyLog.date)
+                .environmentObject(goalSettings)
+                .environmentObject(dailyLogService)
+
+            // VStack for Water Intake UI
+//            VStack(alignment: .leading, spacing: 8) {
+//                HStack {
+//                    Text("Water Intake")
+//                        .font(.caption)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(colorScheme == .dark ? .white : .black)
+//                    Spacer()
+//                    // Ensure waterGoal is displayed correctly even if default is used
+//                    Text("\(String(format: "%.0f", waterIntake))/\(String(format: "%.0f", dailyLog.waterTracker?.goalOunces ?? 64.0)) oz")
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
+//                }
+//
+//                // Calculate the width for the water progress bar dynamically
+//                GeometryReader { geometry in
+//                    ZStack(alignment: .leading) {
+//                        RoundedRectangle(cornerRadius: 5)
+//                            .frame(height: 10)
+//                            .foregroundColor(.gray.opacity(0.2))
+//
+//                        RoundedRectangle(cornerRadius: 5)
+//                             // Use geometry.size.width for dynamic width calculation
+//                            .frame(width: CGFloat(waterPercentage) * geometry.size.width, height: 10)
+//                            .foregroundColor(Color.blue)
+//                            .animation(.easeInOut, value: waterPercentage) // Animate progress change
+//                    }
+//                }
+//                .frame(height: 10) // Set height for GeometryReader container
+//
+//                // Button to add water
+//                Button(action: {
+//                    if let userID = Auth.auth().currentUser?.uid {
+//                        // Ensure we use the date from the current log being displayed
+//                        dailyLogService.addWaterToCurrentLog(for: userID, date: dailyLog.date)
+//                    }
+//                }) {
+//                    HStack {
+//                        Image(systemName: "drop.fill")
+//                            .foregroundColor(.white)
+//                        Text("Add 8 oz Glass")
+//                            .foregroundColor(.white)
+//                            .font(.caption)
+//                    }
+//                    .padding(.vertical, 6)
+//                    .padding(.horizontal, 12)
+//                    .background(Color.blue)
+//                    .cornerRadius(8)
+//                }
+//                // Center the button if desired
+//                // .frame(maxWidth: .infinity, alignment: .center)
+//            }
+            .padding(.horizontal) // Apply horizontal padding to the water section
+        }
+        // Apply padding to the entire NutritionProgressView if needed
+        // .padding()
     }
 
+    // Bubbles View Builder (remains the same)
     @ViewBuilder
     private func bubblesView(
         calories: Double, caloriesGoal: Double, caloriesPercentage: Double,
@@ -69,47 +138,50 @@ struct NutritionProgressView: View {
         fats: Double, fatsGoal: Double, fatsPercentage: Double,
         carbs: Double, carbsGoal: Double, carbsPercentage: Double
     ) -> some View {
-        HStack(spacing: 15) {
-            ProgressBubble(
-                value: calories,
-                goal: caloriesGoal,
-                percentage: caloriesPercentage,
-                label: "Calories",
-                unit: "cal",
-                color: .red
-            )
+         HStack(spacing: 15) {
+             ProgressBubble(
+                 value: calories,
+                 goal: caloriesGoal,
+                 percentage: caloriesPercentage,
+                 label: "Calories",
+                 unit: "cal",
+                 color: .red
+             )
 
-            ProgressBubble(
-                value: protein,
-                goal: proteinGoal,
-                percentage: proteinPercentage,
-                label: "Protein",
-                unit: "g",
-                color: .blue
-            )
+             ProgressBubble(
+                 value: protein,
+                 goal: proteinGoal,
+                 percentage: proteinPercentage,
+                 label: "Protein",
+                 unit: "g",
+                 color: .blue
+             )
 
-            ProgressBubble(
-                value: fats,
-                goal: fatsGoal,
-                percentage: fatsPercentage,
-                label: "Fats",
-                unit: "g",
-                color: .green
-            )
+             ProgressBubble(
+                 value: fats,
+                 goal: fatsGoal,
+                 percentage: fatsPercentage,
+                 label: "Fats",
+                 unit: "g",
+                 color: .green
+             )
 
-            ProgressBubble(
-                value: carbs,
-                goal: carbsGoal,
-                percentage: carbsPercentage,
-                label: "Carbs",
-                unit: "g",
-                color: .orange
-            )
-        }
-        .padding(.horizontal, 8)
+             ProgressBubble(
+                 value: carbs,
+                 goal: carbsGoal,
+                 percentage: carbsPercentage,
+                 label: "Carbs",
+                 unit: "g",
+                 color: .orange
+             )
+         }
+         .padding(.horizontal, 8) // Keep padding within the bubbles view if needed
+         // Add a flexible frame if you want the bubbles to take up a certain space
+         // .frame(height: 150) // Example fixed height for bubbles view
     }
 }
 
+// ProgressBubble struct (remains the same)
 struct ProgressBubble: View {
     let value: Double
     let goal: Double
@@ -132,21 +204,24 @@ struct ProgressBubble: View {
                     .stroke(lineWidth: 6)
                     .foregroundColor(color)
                     .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut, value: percentage) // Animate trim change
 
                 VStack {
                     Text("\(String(format: "%.0f", value))")
                         .font(.subheadline)
-                        .foregroundColor(colorScheme == .dark ? .white : .black) // Dynamic text color.
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                     Text("/ \(String(format: "%.0f", goal)) \(unit)")
                         .font(.caption2)
                         .foregroundColor(.gray)
                 }
             }
-            .frame(width: 70, height: 70)
+            .frame(width: 70, height: 70) // Keep fixed size for bubbles
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(colorScheme == .dark ? .white : .black) // Dynamic text color.
+                .foregroundColor(colorScheme == .dark ? .white : .black)
         }
     }
 }
+
+//WaterTrackingCardView(date: dailyLog.date)

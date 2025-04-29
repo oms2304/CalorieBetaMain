@@ -50,7 +50,10 @@
 		3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693DD2CB83BDC002222C6 /* GoalSettings.swift */; };
 		3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */; };
 		3EC693E22CBD90B2002222C6 /* AIChatBotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */; };
+		412EBD4D2DB65E10001C513C /* WaterTrackingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412EBD4C2DB65E10001C513C /* WaterTrackingCardView.swift */; };
 		414735632DA7646D002489C6 /* WeightChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414735622DA7646D002489C6 /* WeightChartViewController.swift */; };
+		41634C942DB843A6006F0832 /* WaterBottleShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41634C932DB8439D006F0832 /* WaterBottleShape.swift */; };
+		41634C982DB97912006F0832 /* EditWaterGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41634C972DB97912006F0832 /* EditWaterGoalView.swift */; };
 		4B619A942D677DBC00D6C9A8 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B619A932D677DB500D6C9A8 /* APIError.swift */; };
 		4B619A962D6FAADA00D6C9A8 /* HorizontalBarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B619A952D6FAAD000D6C9A8 /* HorizontalBarChartView.swift */; };
 		4B619A982D79EB5200D6C9A8 /* LandingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B619A972D79EB4C00D6C9A8 /* LandingPageView.swift */; };
@@ -99,7 +102,7 @@
 		3EB09F452CC7F41D0088C849 /* FirestoreSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSeeder.swift; sourceTree = "<group>"; };
 		3EB09F4C2CCBFB310088C849 /* WeightTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightTrackingView.swift; sourceTree = "<group>"; };
 		3EB09F4E2CCBFFE60088C849 /* WeightTrackingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightTrackingViewController.swift; sourceTree = "<group>"; };
-		3EB297762CAEEDC90093E1B9 /* CalorieBeta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalorieBeta.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3EB297762CAEEDC90093E1B9 /* MyFitPlate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitPlate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EB2977B2CAEEDC90093E1B9 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		3EB2977D2CAEEDCA0093E1B9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3EB2977F2CAEEDCA0093E1B9 /* CalorieBeta.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalorieBeta.entitlements; sourceTree = "<group>"; };
@@ -119,7 +122,10 @@
 		3EC693DD2CB83BDC002222C6 /* GoalSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettings.swift; sourceTree = "<group>"; };
 		3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatSecretFoodAPIService.swift; sourceTree = "<group>"; };
 		3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatBotView.swift; sourceTree = "<group>"; };
+		412EBD4C2DB65E10001C513C /* WaterTrackingCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterTrackingCardView.swift; sourceTree = "<group>"; };
 		414735622DA7646D002489C6 /* WeightChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightChartViewController.swift; sourceTree = "<group>"; };
+		41634C932DB8439D006F0832 /* WaterBottleShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterBottleShape.swift; sourceTree = "<group>"; };
+		41634C972DB97912006F0832 /* EditWaterGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWaterGoalView.swift; sourceTree = "<group>"; };
 		4B619A932D677DB500D6C9A8 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		4B619A952D6FAAD000D6C9A8 /* HorizontalBarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalBarChartView.swift; sourceTree = "<group>"; };
 		4B619A972D79EB4C00D6C9A8 /* LandingPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingPageView.swift; sourceTree = "<group>"; };
@@ -174,7 +180,7 @@
 		3EB297772CAEEDC90093E1B9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3EB297762CAEEDC90093E1B9 /* CalorieBeta.app */,
+				3EB297762CAEEDC90093E1B9 /* MyFitPlate.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -183,6 +189,7 @@
 			isa = PBXGroup;
 			children = (
 				3EB297982CAEF8D40093E1B9 /* Info.plist */,
+				41634C932DB8439D006F0832 /* WaterBottleShape.swift */,
 				3EB2977B2CAEEDC90093E1B9 /* HomeView.swift */,
 				4B999ECE2D93027200930413 /* NotificationManager.swift */,
 				3EB09F452CC7F41D0088C849 /* FirestoreSeeder.swift */,
@@ -230,6 +237,8 @@
 				3E676A1F2CDBC2220019DC51 /* CommentsView.swift */,
 				4BA2DB3B2D42A37B00B6BDED /* MLImageModel.swift */,
 				4BA2DB3D2D42A74300B6BDED /* ImagePicker.swift */,
+				412EBD4C2DB65E10001C513C /* WaterTrackingCardView.swift */,
+				41634C972DB97912006F0832 /* EditWaterGoalView.swift */,
 				3EB2977D2CAEEDCA0093E1B9 /* Assets.xcassets */,
 				4BA2DB362D42A24500B6BDED /* MLModel */,
 				3EB2977F2CAEEDCA0093E1B9 /* CalorieBeta.entitlements */,
@@ -250,9 +259,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3EB297752CAEEDC90093E1B9 /* CalorieBeta */ = {
+		3EB297752CAEEDC90093E1B9 /* MyFitPlate */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3EB297852CAEEDCA0093E1B9 /* Build configuration list for PBXNativeTarget "CalorieBeta" */;
+			buildConfigurationList = 3EB297852CAEEDCA0093E1B9 /* Build configuration list for PBXNativeTarget "MyFitPlate" */;
 			buildPhases = (
 				3EB297722CAEEDC90093E1B9 /* Sources */,
 				3EB297732CAEEDC90093E1B9 /* Frameworks */,
@@ -266,7 +275,7 @@
 			fileSystemSynchronizedGroups = (
 				4BA2DB362D42A24500B6BDED /* MLModel */,
 			);
-			name = CalorieBeta;
+			name = MyFitPlate;
 			packageProductDependencies = (
 				3EC693D32CB83700002222C6 /* FirebaseAnalytics */,
 				3EC693D52CB83700002222C6 /* FirebaseAuth */,
@@ -276,7 +285,7 @@
 				3EB09F482CCBFA6D0088C849 /* DGCharts */,
 			);
 			productName = CalorieBeta;
-			productReference = 3EB297762CAEEDC90093E1B9 /* CalorieBeta.app */;
+			productReference = 3EB297762CAEEDC90093E1B9 /* MyFitPlate.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -294,7 +303,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 3EB297712CAEEDC90093E1B9 /* Build configuration list for PBXProject "CalorieBeta" */;
+			buildConfigurationList = 3EB297712CAEEDC90093E1B9 /* Build configuration list for PBXProject "MyFitPlate" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -311,7 +320,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3EB297752CAEEDC90093E1B9 /* CalorieBeta */,
+				3EB297752CAEEDC90093E1B9 /* MyFitPlate */,
 			);
 		};
 /* End PBXProject section */
@@ -341,10 +350,12 @@
 				3E78210B2CC0294B007E219A /* CaloricCalculatorView.swift in Sources */,
 				4BA2DB3C2D42A38B00B6BDED /* MLImageModel.swift in Sources */,
 				3EB297912CAEF0460093E1B9 /* Model.swift in Sources */,
+				41634C942DB843A6006F0832 /* WaterBottleShape.swift in Sources */,
 				3EC693E22CBD90B2002222C6 /* AIChatBotView.swift in Sources */,
 				3EB297932CAEF1300093E1B9 /* SettingsView.swift in Sources */,
 				4BA2DB3E2D42A74800B6BDED /* ImagePicker.swift in Sources */,
 				3E676A282CE3C0AC0019DC51 /* GroupSelectionView.swift in Sources */,
+				412EBD4D2DB65E10001C513C /* WaterTrackingCardView.swift in Sources */,
 				3E676A2A2CE3C76D0019DC51 /* JoinGroupConfirmationView.swift in Sources */,
 				3EB09F4D2CCBFB310088C849 /* WeightTrackingView.swift in Sources */,
 				4B750C772D148F6B002AE2FB /* SetHeightView.swift in Sources */,
@@ -377,6 +388,7 @@
 				3E78210D2CC18259007E219A /* CurrentWeightView.swift in Sources */,
 				4B999ECB2D80847300930413 /* WelcomeView.swift in Sources */,
 				4B999ECF2D93027A00930413 /* NotificationManager.swift in Sources */,
+				41634C982DB97912006F0832 /* EditWaterGoalView.swift in Sources */,
 				3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */,
 				3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */,
 				3EC693CB2CB81F8B002222C6 /* NutritionProgressView.swift in Sources */,
@@ -586,7 +598,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3EB297712CAEEDC90093E1B9 /* Build configuration list for PBXProject "CalorieBeta" */ = {
+		3EB297712CAEEDC90093E1B9 /* Build configuration list for PBXProject "MyFitPlate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3EB297832CAEEDCA0093E1B9 /* Debug */,
@@ -595,7 +607,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3EB297852CAEEDCA0093E1B9 /* Build configuration list for PBXNativeTarget "CalorieBeta" */ = {
+		3EB297852CAEEDCA0093E1B9 /* Build configuration list for PBXNativeTarget "MyFitPlate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3EB297862CAEEDCA0093E1B9 /* Debug */,

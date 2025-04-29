@@ -20,27 +20,32 @@ struct HorizontalBarChartView: View {
             let fats = max(0, totalMacros.fats) // Ensures non-negative fats.
             let carbs = max(0, totalMacros.carbs) // Ensures non-negative carbs.
 
-            let proteinGoal = goal.protein // Goal protein in grams.
-            let fatsGoal = goal.fats // Goal fats in grams.
-            let carbsGoal = goal.carbs // Goal carbs in grams.
+            // Use max(goal, 1) to prevent division by zero if a goal is accidentally 0
+            let proteinGoal = max(goal.protein, 1)
+            let fatsGoal = max(goal.fats, 1)
+            let carbsGoal = max(goal.carbs, 1)
+            let effectiveCaloriesGoal = max(caloriesGoal, 1) // Use for calculation
 
             // Calculates the progress percentage for each nutrient as a percentage (0 to 100).
-            let caloriesPercentage = (caloriesGoal > 0) ? min((totalCalories / max(caloriesGoal, 1)) * 100, 100) : 0
-            let proteinPercentage = (proteinGoal > 0) ? min((protein / max(proteinGoal, 1)) * 100, 100) : 0
-            let fatsPercentage = (fatsGoal > 0) ? min((fats / max(fatsGoal, 1)) * 100, 100) : 0
-            let carbsPercentage = (carbsGoal > 0) ? min((carbs / max(carbsGoal, 1)) * 100, 100) : 0
+            let caloriesPercentage = min((totalCalories / effectiveCaloriesGoal) * 100, 100)
+            let proteinPercentage = min((protein / proteinGoal) * 100, 100)
+            let fatsPercentage = min((fats / fatsGoal) * 100, 100)
+            let carbsPercentage = min((carbs / carbsGoal) * 100, 100)
 
             // Creates the chart using the Charts framework.
             Chart {
                 // Bar for calories progress.
                 BarMark(
-                    x: .value("Calories", caloriesPercentage), // X-axis: percentage of goal.
-                    y: .value("Type", "Calories") // Y-axis: category label.
+                    x: .value("Calories", caloriesPercentage),
+                    y: .value("Type", "Calories")
                 )
-                .foregroundStyle(.red) // Red color for calories.
-                .annotation(position: .trailing) { // Adds a label showing current vs. goal.
-                    Text("\(Int(totalCalories)) / \(Int(caloriesGoal)) kcal")
-                        .font(.caption) // Small font for the label.
+                .foregroundStyle(.red)
+                .annotation(position: .trailing, alignment: .leading) {
+                    // *** Changed "kcal" to "cal" ***
+                    Text("\(Int(totalCalories)) / \(Int(caloriesGoal)) cal")
+                        .font(.caption)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // Bar for protein progress.
@@ -48,10 +53,13 @@ struct HorizontalBarChartView: View {
                     x: .value("Protein", proteinPercentage),
                     y: .value("Type", "Protein")
                 )
-                .foregroundStyle(.blue) // Blue color for protein.
-                .annotation(position: .trailing) {
-                    Text("\(String(format: "%.1f", protein)) / \(String(format: "%.1f", proteinGoal))g")
+                .foregroundStyle(.blue)
+                .annotation(position: .trailing, alignment: .leading) {
+                    // *** Changed format to Int ***
+                    Text("\(Int(protein)) / \(Int(goal.protein))g")
                         .font(.caption)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // Bar for fats progress.
@@ -59,10 +67,13 @@ struct HorizontalBarChartView: View {
                     x: .value("Fats", fatsPercentage),
                     y: .value("Type", "Fats")
                 )
-                .foregroundStyle(.green) // Green color for fats.
-                .annotation(position: .trailing) {
-                    Text("\(String(format: "%.1f", fats)) / \(String(format: "%.1f", fatsGoal))g")
+                .foregroundStyle(.green)
+                .annotation(position: .trailing, alignment: .leading) {
+                     // *** Changed format to Int ***
+                    Text("\(Int(fats)) / \(Int(goal.fats))g")
                         .font(.caption)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // Bar for carbs progress.
@@ -70,23 +81,40 @@ struct HorizontalBarChartView: View {
                     x: .value("Carbs", carbsPercentage),
                     y: .value("Type", "Carbs")
                 )
-                .foregroundStyle(.orange) // Orange color for carbs.
-                .annotation(position: .trailing) {
-                    Text("\(String(format: "%.1f", carbs)) / \(String(format: "%.1f", carbsGoal))g")
+                .foregroundStyle(.orange)
+                .annotation(position: .trailing, alignment: .leading) {
+                     // *** Changed format to Int ***
+                    Text("\(Int(carbs)) / \(Int(goal.carbs))g")
                         .font(.caption)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
             }
-            .chartXAxis { AxisMarks(position: .bottom) } // Places X-axis labels at the bottom.
-            .chartYAxis { AxisMarks(position: .leading) } // Places Y-axis labels on the left.
-            .chartXScale(domain: 0...100) // Sets the X-axis range from 0 to 100%.
-            .frame(maxHeight: 250) // Limits the maximum height of the chart.
-            .padding() // Adds padding around the chart.
+             // *** Updated AxisMarks to remove GridLines ***
+            .chartXAxis {
+                AxisMarks(position: .bottom) { value in
+                    // Explicitly omit AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel()
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading) { value in
+                    // Explicitly omit AxisGridLine()
+                    AxisTick() // Keep ticks if desired
+                    AxisValueLabel(horizontalSpacing: 5) // Add spacing
+                }
+            }
+            .chartXScale(domain: 0...100)
+            .fixedSize(horizontal: false, vertical: true) // Keep dynamic height
+            .padding()
+
         } else {
-            // Displays a loading message if the calorie goal is not yet loaded.
+            // Loading state remains the same
             Text("Loading data...")
-                .foregroundColor(.gray) // Gray text for the placeholder.
-                .frame(maxHeight: 250) // Matches the chart's height for consistency.
-                .padding() // Adds padding.
+                .foregroundColor(.gray)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding()
         }
     }
 }

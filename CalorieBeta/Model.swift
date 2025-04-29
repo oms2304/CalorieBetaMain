@@ -9,6 +9,16 @@ struct DailyLog: Codable, Identifiable, Equatable {
     var date: Date // The date associated with this log.
     var meals: [Meal] // Array of meals consumed on this date.
     var totalCaloriesOverride: Double? // Optional override for total calories, if manually adjusted.
+    var waterTracker: WaterTracker? // Add the waterTracker property
+
+    // Updated initializer to include waterTracker
+    init(id: String? = nil, date: Date, meals: [Meal], totalCaloriesOverride: Double? = nil, waterTracker: WaterTracker? = nil) {
+        self.id = id
+        self.date = date
+        self.meals = meals
+        self.totalCaloriesOverride = totalCaloriesOverride
+        self.waterTracker = waterTracker
+    }
 
     // Calculates the total calories from all food items across all meals.
     func totalCalories() -> Double {
@@ -29,7 +39,8 @@ struct DailyLog: Codable, Identifiable, Equatable {
         return lhs.id == rhs.id &&
                lhs.date == rhs.date &&
                lhs.meals == rhs.meals &&
-               lhs.totalCaloriesOverride == rhs.totalCaloriesOverride
+               lhs.totalCaloriesOverride == rhs.totalCaloriesOverride &&
+               lhs.waterTracker == rhs.waterTracker
     }
 }
 
@@ -136,9 +147,6 @@ struct CustomCorners: Shape {
 }
 
 // Reusable Components
-/// A custom text field with rounded corners and a border.
-/// Used for consistent styling of text input fields across the app.
-// Reusable Components
 /// A custom text field with rounded corners and a border, adapting to light and dark modes.
 /// Used for consistent styling of text input fields across the app.
 struct RoundedTextField: View {
@@ -190,5 +198,17 @@ struct RoundedSecureField: View {
                     .stroke(colorScheme == .dark ? Color(.systemGray4) : Color.black, lineWidth: 1) // Dynamic border: lighter in dark mode, black in light mode.
             )
             .foregroundColor(colorScheme == .dark ? .white : .black) // Dynamic text color for readability.
+    }
+}
+
+struct WaterTracker: Codable, Equatable {
+    var totalOunces: Double
+    var goalOunces: Double
+    var date: Date
+
+    init(totalOunces: Double, goalOunces: Double, date: Date) {
+        self.totalOunces = totalOunces
+        self.goalOunces = goalOunces
+        self.date = date
     }
 }

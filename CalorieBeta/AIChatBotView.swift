@@ -54,9 +54,11 @@ struct AIChatbotView: View {
                 .foregroundColor(.gray)
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
         .cornerRadius(15)
         .shadow(radius: 2)
+        
     }
 
     private var chatHistorySection: some View {
@@ -96,6 +98,7 @@ struct AIChatbotView: View {
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
         .cornerRadius(15)
         .shadow(radius: 2)
@@ -103,7 +106,9 @@ struct AIChatbotView: View {
 
     private var inputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
+            
             HStack {
+       
                 TextField("Ask for a healthy recipe...", text: $userMessage)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
@@ -119,7 +124,7 @@ struct AIChatbotView: View {
                         .foregroundColor(.white)
                 }
                 .disabled(isLoading || userMessage.isEmpty)
-                .background(Color(red: 144/255, green: 190/255, blue: 109/255))
+                .background(Color(red: 67/255, green: 173/255, blue: 111/255))
                 .clipShape(Circle())
             }
             .padding()
@@ -127,6 +132,7 @@ struct AIChatbotView: View {
             .cornerRadius(15)
             .shadow(radius: 2)
 
+            
             Button(action: {
                 selectedTab = 0
                 hideKeyboard()
@@ -138,22 +144,30 @@ struct AIChatbotView: View {
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color(red: 144/255, green: 190/255, blue: 109/255))
+                    .background(Color(red: 67/255, green: 173/255, blue: 111/255))
                     .cornerRadius(25)
             }
             .padding(.horizontal)
+            .padding(.bottom, 12)
         }
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                remainingGoalsSection
-                chatHistorySection
-                inputSection
+        VStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    remainingGoalsSection
+                    chatHistorySection
+                    
+                }
+                .padding(.vertical)
+                
             }
-            .padding(.vertical)
+            
+            Spacer()
+            inputSection
         }
+    
         .background(colorScheme == .dark ? Color(.systemBackground) : Color.white)
         .navigationTitle("AI Recipe Bot")
         .onTapGesture {
@@ -432,7 +446,7 @@ struct ChatBubble: View {
                 }
                 Text(message.text)
                     .padding()
-                    .background(message.isUser ? Color(red: 144/255, green: 190/255, blue: 109/255) : Color.gray.opacity(0.2))
+                    .background(message.isUser ? Color(red: 67/255, green: 173/255, blue: 111/255) : Color.gray.opacity(0.2))
                     .cornerRadius(12)
                     .foregroundColor(message.isUser ? .white : .black)
                     .frame(maxWidth: 300, alignment: message.isUser ? .trailing : .leading)
@@ -456,7 +470,7 @@ struct ChatBubble: View {
                         .fontWeight(.semibold)
                         .padding(.vertical, 4)
                         .padding(.horizontal, 8)
-                        .background(Color(red: 144/255, green: 190/255, blue: 109/255))
+                        .background(Color(red: 67/255, green: 173/255, blue: 111/255))
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
@@ -474,3 +488,24 @@ struct ChatBubble: View {
         }
     }
 }
+
+
+
+//#Preview {
+//    // Mock environment objects
+//    let goalSettings = GoalSettings()
+//    let dailyLogService = DailyLogService()
+//    
+//    goalSettings.calories = 2000
+//    goalSettings.protein = 150
+//    goalSettings.carbs = 250
+//    goalSettings.fats = 70
+//    
+//    dailyLogService.currentDailyLog = DailyLog(date: Date(), meals: [], waterTracker: WaterTracker(totalOunces: 0, goalOunces: 64, date: Date()))
+//    
+//    return NavigationView {
+//        AIChatbotView(selectedTab: .constant(1))
+//            .environmentObject(goalSettings)
+//            .environmentObject(dailyLogService)
+//    }
+//}
