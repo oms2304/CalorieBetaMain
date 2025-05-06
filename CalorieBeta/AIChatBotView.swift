@@ -4,14 +4,21 @@ import FirebaseAuth
 
 struct AIChatbotView: View {
     @State private var userMessage = ""
+//    @State private var chatMessages: [ChatMessage] = loadChatHistory()
     @State private var chatMessages: [ChatMessage] = loadChatHistory()
     @State private var isLoading = false
+    @State private var showHistorySheet = false
     @Binding var selectedTab: Int
     @EnvironmentObject var goalSettings: GoalSettings
     @EnvironmentObject var dailyLogService: DailyLogService
     @Environment(\.colorScheme) var colorScheme
     @State private var showAlert = false
     @State private var alertMessage = ""
+    
+    init(selectedTab: Binding<Int>, chatMessages: [ChatMessage] = []) {
+        self._selectedTab = selectedTab
+        self._chatMessages = State(initialValue: chatMessages)
+    }
 
     private var remainingCalories: Double {
         let totalCalories = dailyLogService.currentDailyLog?.totalCalories() ?? 0
@@ -61,48 +68,9 @@ struct AIChatbotView: View {
         
     }
 
-    private var chatHistorySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Chat History")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundColor(colorScheme == .dark ? .white : .black)
-            ScrollView {
-                ScrollViewReader { proxy in
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(chatMessages) { message in
-                            ChatBubble(
-                                message: message,
-                                onLogRecipe: { recipeText in
-                                    logRecipe(recipeText: recipeText)
-                                },
-                                showAlert: $showAlert,
-                                alertMessage: $alertMessage
-                            )
-                            .id(message.id)
-                        }
-                    }
-                    .onChange(of: chatMessages) { _ in
-                        if let lastMessageId = chatMessages.last?.id {
-                            withAnimation {
-                                proxy.scrollTo(lastMessageId, anchor: .bottom)
-                            }
-                        }
-                    }
-                    .onAppear {
-                        if let lastMessageId = chatMessages.last?.id {
-                            proxy.scrollTo(lastMessageId, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
-        .cornerRadius(15)
-        .shadow(radius: 2)
-    }
+//    private var chatHistorySection: some View {
+//        
+//    }
 
     private var inputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -115,9 +83,15 @@ struct AIChatbotView: View {
                     .submitLabel(.done)
                     .onSubmit {
                         sendMessage()
+                        hideKeyboard()
+                        saveChatHistory()
                     }
 
-                Button(action: sendMessage) {
+                Button(action: {
+                    sendMessage()
+                    saveChatHistory()
+                    hideKeyboard()
+                }) {
                     Image(systemName: "paperplane.fill")
                         .font(.title2)
                         .padding()
@@ -133,43 +107,73 @@ struct AIChatbotView: View {
             .shadow(radius: 2)
 
             
-            Button(action: {
-                selectedTab = 0
-                hideKeyboard()
-                saveChatHistory()
-            }) {
-                Text("Done")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color(red: 67/255, green: 173/255, blue: 111/255))
-                    .cornerRadius(25)
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 12)
+            // Moved "Done" button functionality to paperplane
+//            Button(action: {
+//                selectedTab = 0
+//                hideKeyboard()
+//                saveChatHistory()
+//            }) {
+//                Text("Done")
+//                    .font(.headline)
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(.white)
+//                    .padding()
+//                    .frame(maxWidth: .infinity)
+//                    .background(Color(red: 67/255, green: 173/255, blue: 111/255))
+//                    .cornerRadius(25)
+//            }
+//            .padding(.horizontal)
+//            .padding(.bottom, 12)
         }
     }
 
     var body: some View {
+        var showingHistorySheet = false
         VStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    remainingGoalsSection
-                    chatHistorySection
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 16) {
+                        remainingGoalsSection
+                        //                    chatHistorySection
+                        ForEach(chatMessages) { message in
+                            ChatBubble(
+                                message: message,
+                                onLogRecipe: logRecipe,
+                                showAlert: $showAlert,
+                                alertMessage: $alertMessage
+                            )
+                            .id(message.id)
+                        }
+                    }
+                    .padding(.vertical)
                     
                 }
-                .padding(.vertical)
-                
-            }
+                .onChange(of: chatMessages) { _ in
+                    if let last = chatMessages.last?.id {
+                        withAnimation { proxy.scrollTo(last, anchor: .bottom) }
+                    }
+                    }
+                    
+                }
             
-            Spacer()
-            inputSection
-        }
+                inputSection
+            }
     
         .background(colorScheme == .dark ? Color(.systemBackground) : Color.white)
-        .navigationTitle("AI Recipe Bot")
+//        .navigationTitle("AI Recipe Bot")
+        .toolbar{
+            ToolbarItem(placement: .navigationBarLeading) { Text("AI Recipe Bot").font(.headline).foregroundColor(.primary.opacity(0.5)).padding(.leading, 5) }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button( action : {
+                    showHistorySheet = true
+                }){ Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90").font(.title2).foregroundColor(.gray)
+                    
+                }
+                    
+                }
+            }
+              
         .onTapGesture {
             hideKeyboard()
         }
@@ -191,6 +195,11 @@ struct AIChatbotView: View {
                 message: Text(alertMessage),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        
+        .sheet(isPresented: $showHistorySheet) {
+            ShowHistory()
+                .environmentObject(dailyLogService)
         }
     }
 
@@ -405,6 +414,151 @@ func loadChatHistory() -> [ChatMessage] {
     return []
 }
 
+struct ShowHistory: View {
+    @State private var chatMessages: [ChatMessage] = loadChatHistory()
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    @EnvironmentObject var dailyLogService: DailyLogService
+    @Environment(\.colorScheme) var colorScheme
+    
+    func logRecipe(recipeText: String) {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            print("❌ No user ID found for logging recipe.")
+            alertMessage = "Unable to log recipe: No user is logged in."
+            showAlert = true
+            return
+        }
+        
+        print("📝 Recipe Text:\n\(recipeText)")
+        
+        let nutritionalBreakdown = parseNutritionalBreakdown(from: recipeText)
+        guard let calories = nutritionalBreakdown["calories"],
+              let protein = nutritionalBreakdown["protein"],
+              let fats = nutritionalBreakdown["fats"],
+              let carbs = nutritionalBreakdown["carbs"] else {
+            print("❌ Failed to parse nutritional breakdown from recipe.")
+            alertMessage = "Unable to log recipe: Missing nutritional information."
+            showAlert = true
+            return
+        }
+        
+        let recipeName = recipeText.components(separatedBy: "\n").first ?? "Custom Recipe"
+        
+        let recipeFoodItem = FoodItem(
+            id: UUID().uuidString,
+            name: recipeName,
+            calories: calories,
+            protein: protein,
+            carbs: carbs,
+            fats: fats,
+            servingSize: "1 serving",
+            servingWeight: 0.0,
+            timestamp: Date()
+        )
+        
+        let mealType = determineMealType()
+        dailyLogService.addMealToCurrentLog(for: userID, mealName: mealType, foodItems: [recipeFoodItem], date: Date())
+    }
+    
+    private func determineMealType() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 0..<11:
+            return "Breakfast"
+        case 11..<16:
+            return "Lunch"
+        case 16..<21:
+            return "Dinner"
+        default:
+            return "Snack"
+        }
+    }
+    
+    private func parseNutritionalBreakdown(from recipeText: String) -> [String: Double] {
+        var breakdown: [String: Double] = [:]
+        let lines = recipeText.components(separatedBy: "\n")
+        
+        var breakdownStarted = false
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            if trimmedLine == "Nutritional Breakdown:" {
+                breakdownStarted = true
+                continue
+            }
+            
+            if breakdownStarted {
+                let components = trimmedLine.components(separatedBy: ": ")
+                if components.count == 2 {
+                    let valueString = components[1]
+                        .components(separatedBy: " ")
+                        .first ?? "0"
+                    if let value = Double(valueString) {
+                        if trimmedLine.lowercased().contains("calories") {
+                            breakdown["calories"] = value
+                        } else if trimmedLine.lowercased().contains("protein") {
+                            breakdown["protein"] = value
+                        } else if trimmedLine.lowercased().contains("fats") {
+                            breakdown["fats"] = value
+                        } else if trimmedLine.lowercased().contains("carbs") {
+                            breakdown["carbs"] = value
+                        }
+                    }
+                }
+            }
+        }
+        
+        print("🔍 Parsed Nutritional Breakdown: \(breakdown)")
+        return breakdown
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Chat History")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .foregroundColor(colorScheme == .dark ? .white : .white)
+            ScrollView {
+                ScrollViewReader { proxy in
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(chatMessages) { message in
+                            ChatBubble(
+                                message: message,
+                                onLogRecipe: { recipeText in
+                                    logRecipe(recipeText: recipeText)
+                                },
+                                showAlert: $showAlert,
+                                alertMessage: $alertMessage
+                            )
+                            .id(message.id)
+                        }
+                    }
+                    .onChange(of: chatMessages) { _ in
+                        if let lastMessageId = chatMessages.last?.id {
+                            withAnimation {
+                                proxy.scrollTo(lastMessageId, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .onAppear {
+                        if let lastMessageId = chatMessages.last?.id {
+                            proxy.scrollTo(lastMessageId, anchor: .bottom)
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(colorScheme == .dark ? Color(.secondarySystemBackground) : Color.white)
+        .cornerRadius(15)
+        .shadow(radius: 2)
+        
+    }
+        
+        
+}
+
+
 struct ChatMessage: Identifiable, Codable, Equatable {
     let id: UUID
     let text: String
@@ -416,6 +570,8 @@ struct ChatMessage: Identifiable, Codable, Equatable {
                lhs.isUser == rhs.isUser
     }
 }
+
+
 
 struct ChatBubble: View {
     let message: ChatMessage
@@ -442,13 +598,14 @@ struct ChatBubble: View {
         VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
             HStack {
                 if message.isUser {
+                    
                     Spacer()
                 }
                 Text(message.text)
                     .padding()
                     .background(message.isUser ? Color(red: 67/255, green: 173/255, blue: 111/255) : Color.gray.opacity(0.2))
                     .cornerRadius(12)
-                    .foregroundColor(message.isUser ? .white : .black)
+                    .foregroundColor(message.isUser ? .white : .white)
                     .frame(maxWidth: 300, alignment: message.isUser ? .trailing : .leading)
 
                 if !message.isUser {

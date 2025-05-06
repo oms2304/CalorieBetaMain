@@ -48,7 +48,7 @@ struct MainTabView: View {
             // AI Chatbot Tab: Provides an interface for interacting with the AI chatbot.
             NavigationView {
                 AIChatbotView(selectedTab: $selectedTab)
-                    .navigationTitle("AI Chatbot")
+//                    .navigationTitle("AI Chatbot")
                     .navigationBarTitleDisplayMode(.inline) // Ensures consistent title display.
             }
             .tabItem {
