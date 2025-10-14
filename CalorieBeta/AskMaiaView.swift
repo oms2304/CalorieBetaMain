@@ -1,45 +1,45 @@
 import SwiftUI
 import FirebaseAuth
 
-private struct ChatHistoryListView: View {
-    @Binding var chatMessages: [ChatMessage]
-    var onLogRecipe: (String) -> Void
-    var onSpeak: (String) -> Void
-    @Binding var showAlert: Bool
-    @Binding var alertMessage: String
-    
-var body: some View {
-    ScrollViewReader { proxy in
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(chatMessages) { message in
-                    ChatBubble(
-                        message: message,
-                        onLogRecipe: onLogRecipe,
-                        onSpeak: onSpeak,
-                        showAlert: $showAlert,
-                        alertMessage: $alertMessage
-                    )
-                    .id(message.id)
-                }
-            }
-            .padding()
-        }
-        .onChange(of: chatMessages) {
-            if let lastId = chatMessages.last?.id {
-                withAnimation {
-                    proxy.scrollTo(lastId, anchor: .bottom)
-                }
-            }
-        }
-        .onAppear {
-            if let lastId = chatMessages.last?.id {
-                proxy.scrollTo(lastId, anchor: .bottom)
-            }
-        }
-    }
-}
-}
+//private struct ChatHistoryListView: View {
+//    @Binding var chatMessages: [ChatMessage]
+//    var onLogRecipe: (String) -> Void
+//    var onSpeak: (String) -> Void
+//    @Binding var showAlert: Bool
+//    @Binding var alertMessage: String
+//    
+//var body: some View {
+//    ScrollViewReader { proxy in
+//        ScrollView {
+//            VStack(alignment: .leading, spacing: 10) {
+//                ForEach(chatMessages) { message in
+//                    ChatBubble(
+//                        message: message,
+//                        onLogRecipe: onLogRecipe,
+//                        onSpeak: onSpeak,
+//                        showAlert: $showAlert,
+//                        alertMessage: $alertMessage
+//                    )
+//                    .id(message.id)
+//                }
+//            }
+//            .padding()
+//        }
+//        .onChange(of: chatMessages) {
+//            if let lastId = chatMessages.last?.id {
+//                withAnimation {
+//                    proxy.scrollTo(lastId, anchor: .bottom)
+//                }
+//            }
+//        }
+//        .onAppear {
+//            if let lastId = chatMessages.last?.id {
+//                proxy.scrollTo(lastId, anchor: .bottom)
+//            }
+//        }
+//    }
+//}
+//}
 
 struct AskMaiaView: View {
     @Environment(\.dismiss) var dismiss

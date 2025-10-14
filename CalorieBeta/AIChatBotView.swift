@@ -57,7 +57,6 @@ struct SuggestionButtonsView: View {
     }
 }
 
-
 // MARK: - ChatBubble
 struct ChatBubble: View {
     @Environment(\.colorScheme) var colorScheme
@@ -83,11 +82,12 @@ struct ChatBubble: View {
         VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
             HStack {
                 if message.isUser { Spacer() }
-                VStack(alignment: !message.isUser ? .leading : .trailing) {
+                
+                VStack(alignment: !message.isUser ? .leading : .trailing, spacing: 8) {
                     if !message.isUser {
                         Text("Maia")
                             .padding()
-                            .background(Circle().fill(colorScheme == .dark ? bgGreen : Color.backgroundSecondary ))
+                            .background(Circle().fill(colorScheme == .dark ? Color.backgroundSecondary : Color.backgroundSecondary))
                             .padding(.leading, -6)
                     }
                     
@@ -113,6 +113,7 @@ struct ChatBubble: View {
             
             HStack(spacing: 12) {
                 if message.isUser { Spacer() }
+                
                 if !message.isUser {
                     Button(action: { onSpeak(message.text) }) {
                         Image(systemName: "speaker.wave.2.fill")
@@ -121,6 +122,7 @@ struct ChatBubble: View {
                             .padding(.bottom, 10)
                     }
                 }
+                
                 if canBeLogged {
                     Button(action: { onLogRecipe(message.text) }) {
                         Text("Log Food")
@@ -130,9 +132,9 @@ struct ChatBubble: View {
                             .background(Color.brandPrimary)
                             .foregroundColor(.white)
                             .cornerRadius(8)
-                            
                     }
                 }
+                
                 if !message.isUser { Spacer() }
             }
             .padding(.horizontal, message.isUser ? 40 : 0)
@@ -141,44 +143,44 @@ struct ChatBubble: View {
 }
 
 // MARK: - ChatHistoryListView
-private struct ChatHistoryListView: View {
-@Binding var chatMessages: [ChatMessage]
-var onLogRecipe: (String) -> Void
-var onSpeak: (String) -> Void
-@Binding var showAlert: Bool
-@Binding var alertMessage: String
+struct ChatHistoryListView: View {
+    @Binding var chatMessages: [ChatMessage]
+    var onLogRecipe: (String) -> Void
+    var onSpeak: (String) -> Void
+    @Binding var showAlert: Bool
+    @Binding var alertMessage: String
 
-var body: some View {
-    ScrollViewReader { proxy in
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(chatMessages) { message in
-                    ChatBubble(
-                        message: message,
-                        onLogRecipe: onLogRecipe,
-                        onSpeak: onSpeak,
-                        showAlert: $showAlert,
-                        alertMessage: $alertMessage
-                    )
-                    .id(message.id)
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(chatMessages) { message in
+                        ChatBubble(
+                            message: message,
+                            onLogRecipe: onLogRecipe,
+                            onSpeak: onSpeak,
+                            showAlert: $showAlert,
+                            alertMessage: $alertMessage
+                        )
+                        .id(message.id)
+                    }
+                }
+                .padding()
+            }
+            .onChange(of: chatMessages) {
+                if let lastId = chatMessages.last?.id {
+                    withAnimation {
+                        proxy.scrollTo(lastId, anchor: .bottom)
+                    }
                 }
             }
-            .padding()
-        }
-        .onChange(of: chatMessages) {
-            if let lastId = chatMessages.last?.id {
-                withAnimation {
+            .onAppear {
+                if let lastId = chatMessages.last?.id {
                     proxy.scrollTo(lastId, anchor: .bottom)
                 }
             }
         }
-        .onAppear {
-            if let lastId = chatMessages.last?.id {
-                proxy.scrollTo(lastId, anchor: .bottom)
-            }
-        }
     }
-}
 }
 
 // MARK: - AIChatbotView
@@ -204,57 +206,74 @@ struct AIChatbotView: View {
     @State private var alertMessage = ""
 
     var body: some View {
-        VStack(spacing: 0) {
-            ChatHistoryListView(
-                chatMessages: $chatMessages,
-                onLogRecipe: logRecipe,
-                onSpeak: ttsManager.speak,
-                showAlert: $showAlert,
-                alertMessage: $alertMessage
-            )
-            .onTapGesture { hideKeyboard() }
-
+        ZStack {
+            // Custom background shape
+            ChatBoxShape()
+                .fill(colorScheme == .dark ? bgGreen : Color.backgroundSecondary)
+                .frame(width: UIScreen.main.bounds.width * 0.53, height: 232)
+                .padding(.bottom, 45)
+            
             VStack(spacing: 0) {
-                if chatMessages.count <= 1 && !isLoading {
-                    SuggestionButtonsView { prompt in
-                        userMessage = prompt
-                        sendMessage()
+                // Chat history area
+                ChatHistoryListView(
+                    chatMessages: $chatMessages,
+                    onLogRecipe: logRecipe,
+                    onSpeak: ttsManager.speak,
+                    showAlert: $showAlert,
+                    alertMessage: $alertMessage
+                )
+                .frame(maxWidth: 390, maxHeight: 600)
+                .onTapGesture { hideKeyboard() }
+                .padding(.top, 20)
+                
+                Spacer()
+                
+                // Bottom section with suggestions and loading
+                VStack(spacing: 0) {
+                    if chatMessages.count <= 1 && !isLoading {
+                        SuggestionButtonsView { prompt in
+                            userMessage = prompt
+                            sendMessage()
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.top, -5)
                     }
-                    .padding(.vertical, 10)
+                    
+                    if isLoading {
+                        ProgressView()
+                            .padding(10)
+                    }
                 }
                 
-                if isLoading {
-                    ProgressView().padding(10)
-                }
-
-                HStack(spacing: 15) {
+                // Input bar
+                HStack(spacing: 12) {
                     TextField("Ask Maia anything...", text: $userMessage, axis: .vertical)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 12)
                         .background(colorScheme == .dark ? Color(white: 0.2) : Color.white)
                         .clipShape(Capsule())
+                        .padding(.trailing, 20)
+                        .padding(.leading, -5)
                         .onSubmit(sendMessage)
                     
                     Button(action: sendMessage) {
                         Image(systemName: "arrow.up.circle.fill")
-                            .font(.largeTitle)
+                            .resizable()
+                            .scaledToFit()
                             .foregroundColor(.brandPrimary)
+                            .frame(width: 50, height: 50)
                     }
+                    
                     .disabled(userMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
                 }
-                .padding(.horizontal)
-                .padding(.top, 10)
-                .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)
+                .padding(.horizontal, 20)
+//                .padding(.top, 20)
+                .padding(.bottom, (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0) + 5)
             }
-            .background(
-                ChatBoxShape()
-                    .fill(colorScheme == .dark ? bgGreen : Color.backgroundSecondary)
-                    .shadow(color: .black.opacity(0.1), radius: 5, y: -2)
-            )
         }
         .background(Color.backgroundPrimary.ignoresSafeArea())
-        .navigationTitle("Maia")
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: setupView)
         .onDisappear(perform: saveMessages)
@@ -280,7 +299,7 @@ struct AIChatbotView: View {
             dailyLogService.fetchLog(for: userID, date: dailyLogService.activelyViewedDate) { _ in }
         }
         if chatMessages.isEmpty {
-            let welcomeMessage = "Hello! I’m Maia, your personal nutrition assistant. How can I assist you right now?"
+            let welcomeMessage = "Hello! I'm Maia, your personal nutrition assistant. How can I assist you right now?"
             let initialMessage = ChatMessage(id: UUID(), text: welcomeMessage, isUser: false)
             chatMessages.append(initialMessage)
         }
@@ -473,10 +492,6 @@ struct AIChatbotView: View {
         dailyLogService.addMealToCurrentLog(for: userID, mealName: mealType, foodItems: [loggedFoodItem])
         let haptic = UINotificationFeedbackGenerator(); haptic.notificationOccurred(.success); alertMessage = "\(foodName) logged!"; showAlert = true
         Task { @MainActor in self.achievementService.checkFeatureUsedAchievement(userID: userID, featureType: .aiRecipeLogged) }
-        
-        HapticManager.instance.notification(.success)
-        alertMessage="\(foodName) was logged!"
-        showAlert=true
     }
     
     private func parseNutrient(from text: String, for nutrient: String) -> Double? {
@@ -507,7 +522,16 @@ struct AIChatbotView: View {
         return breakdown
     }
 
-    private func determineMealType() -> String { let h = Calendar.current.component(.hour, from: Date()); switch h { case 0..<4: return "Snack"; case 4..<11: return "Breakfast"; case 11..<16: return "Lunch"; case 16..<21: return "Dinner"; default: return "Snack" } }
+    private func determineMealType() -> String {
+        let h = Calendar.current.component(.hour, from: Date())
+        switch h {
+        case 0..<4: return "Snack"
+        case 4..<11: return "Breakfast"
+        case 11..<16: return "Lunch"
+        case 16..<21: return "Dinner"
+        default: return "Snack"
+        }
+    }
     
     private func loadMessages() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
@@ -530,13 +554,11 @@ struct AIChatbotView: View {
     }
 }
 
-struct AIChatbotView_Previews: PreviewProvider {
-    static var previews: some View {
-        AIChatbotView(selectedTab: .constant(0))
-            .environmentObject(AppState())
-            .environmentObject(GoalSettings())
-            .environmentObject(DailyLogService())
-            .environmentObject(AchievementService())
-            .environmentObject(MealPlannerService(recipeService: RecipeService()))
-    }
+#Preview {
+    AIChatbotView(selectedTab: .constant(2))
+        .environmentObject(AppState())
+        .environmentObject(GoalSettings())
+        .environmentObject(DailyLogService())
+        .environmentObject(AchievementService())
+        .environmentObject(MealPlannerService(recipeService: RecipeService()))
 }

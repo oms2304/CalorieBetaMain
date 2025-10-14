@@ -102,24 +102,24 @@ extension ExerciseHistoryViewModel {
     }
 }
 
-//struct ExerciseHistoryView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let mockSets = [
-//            CompletedSet(id: UUID().uuidString, reps: 10, weight: 100),
-//            CompletedSet(id: UUID().uuidString, reps: 8, weight: 105),
-//            CompletedSet(id: UUID().uuidString, reps: 6, weight: 110)
-//        ]
-//        
-//        let mockHistory = [
-//            ExerciseHistoryViewModel.ExerciseHistorySession(
-//                date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-//                sets: mockSets
-//            )
-//        ]
-//        
-//        return ExerciseHistoryView(previewData: mockHistory, exerciseName: "Bench Press")
-//    }
-//}
+struct ExerciseHistoryView_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockSets = [
+            CompletedSet(id: UUID().uuidString, reps: 10, weight: 100),
+            CompletedSet(id: UUID().uuidString, reps: 8, weight: 105),
+            CompletedSet(id: UUID().uuidString, reps: 6, weight: 110)
+        ]
+        
+        let mockHistory = [
+            ExerciseHistoryViewModel.ExerciseHistorySession(
+                date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+                sets: mockSets
+            )
+        ]
+        
+        return ExerciseHistoryView(previewData: mockHistory, exerciseName: "Bench Press")
+    }
+}
 
 //#Preview {
 //    CustomPicker()

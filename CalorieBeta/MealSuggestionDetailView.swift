@@ -61,3 +61,12 @@ struct MealSuggestionDetailView: View {
         }
     }
 }
+
+//#Preview {
+//    NavigationView {
+//        MealSuggestionDetailView(
+//            suggestion: MealSuggestion(),
+//        )
+//            .environmentObject(DailyLogService())
+//    }
+//}

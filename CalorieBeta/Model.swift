@@ -120,6 +120,11 @@ struct PlannedMeal: Identifiable, Codable {
     var foodItem: FoodItem?
     var ingredients: [String]?
     var instructions: String?
+    var calories: String?
+    var protein: String?
+    var carbs: String?
+    var fats: String?
+    
 }
 
 struct MealPlanDay: Identifiable, Codable {

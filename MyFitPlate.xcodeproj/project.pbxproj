@@ -52,7 +52,12 @@
 		41180CA12E84A29000AC1472 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 41180CA02E84A29000AC1472 /* Toast */; };
 		41180CA42E84A2BE00AC1472 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 41180CA32E84A2BE00AC1472 /* Toasts */; };
 		41180CA62E85742D00AC1472 /* AskMaiaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41180CA52E85742D00AC1472 /* AskMaiaView.swift */; };
+		411B63702E8EEC9A000BD531 /* TextRecognitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411B636F2E8EEC9A000BD531 /* TextRecognitionView.swift */; };
+		411B63722E8EF037000BD531 /* TranslationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411B63712E8EF037000BD531 /* TranslationView.swift */; };
+		411B63742E8F22A4000BD531 /* TextRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411B63732E8F22A4000BD531 /* TextRecognizer.swift */; };
 		412423CB2E8C0583003746A8 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412423CA2E8C0583003746A8 /* HapticManager.swift */; };
+		413334322E9A3D18001798D1 /* HexagonParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 413334312E9A3D18001798D1 /* HexagonParameters.swift */; };
+		413334342E9A3EA4001798D1 /* BadgeBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 413334332E9A3EA4001798D1 /* BadgeBackground.swift */; };
 		414735632DA7646D002489C6 /* WeightChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414735622DA7646D002489C6 /* WeightChartViewController.swift */; };
 		416848522E47E37600B9405A /* Exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = 416848512E47E37600B9405A /* Exercises.json */; };
 		416848562E47E3FB00B9405A /* ExerciseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416848552E47E3FB00B9405A /* ExerciseViewModel.swift */; };
@@ -252,7 +257,12 @@
 		3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatSecretFoodAPIService.swift; sourceTree = "<group>"; };
 		3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatBotView.swift; sourceTree = "<group>"; };
 		41180CA52E85742D00AC1472 /* AskMaiaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskMaiaView.swift; sourceTree = "<group>"; };
+		411B636F2E8EEC9A000BD531 /* TextRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionView.swift; sourceTree = "<group>"; };
+		411B63712E8EF037000BD531 /* TranslationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationView.swift; sourceTree = "<group>"; };
+		411B63732E8F22A4000BD531 /* TextRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognizer.swift; sourceTree = "<group>"; };
 		412423CA2E8C0583003746A8 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
+		413334312E9A3D18001798D1 /* HexagonParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonParameters.swift; sourceTree = "<group>"; };
+		413334332E9A3EA4001798D1 /* BadgeBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeBackground.swift; sourceTree = "<group>"; };
 		414735622DA7646D002489C6 /* WeightChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightChartViewController.swift; sourceTree = "<group>"; };
 		416848512E47E37600B9405A /* Exercises.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Exercises.json; sourceTree = "<group>"; };
 		416848552E47E3FB00B9405A /* ExerciseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseViewModel.swift; sourceTree = "<group>"; };
@@ -470,8 +480,12 @@
 				41180CA52E85742D00AC1472 /* AskMaiaView.swift */,
 				4171D3612E807D9300DAA10F /* AddFoodView2.swift */,
 				412423CA2E8C0583003746A8 /* HapticManager.swift */,
+				411B63712E8EF037000BD531 /* TranslationView.swift */,
+				411B636F2E8EEC9A000BD531 /* TextRecognitionView.swift */,
+				411B63732E8F22A4000BD531 /* TextRecognizer.swift */,
 				4BF46DDF2DF76A6F0018668F /* AddMealToPlanView.swift */,
-				3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */,
+				413334312E9A3D18001798D1 /* HexagonParameters.swift */,
+				413334332E9A3EA4001798D1 /* BadgeBackground.swift */,
 				416848552E47E3FB00B9405A /* ExerciseViewModel.swift */,
 				419635612E5773660042B798 /* ProfilePicture.swift */,
 				416848572E47E5F600B9405A /* ExerciseSearchView.swift */,
@@ -497,6 +511,7 @@
 				3EB2977F2CAEEDCA0093E1B9 /* CalorieBeta.entitlements */,
 				3E7821042CBEC38A007E219A /* CalorieLogView.swift */,
 				4B444E0A2DF4B6F400C6F094 /* ChallengesView.swift */,
+				3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */,
 				4B15AD2E2E393D2800F0A0BB /* ChatBoxShape.swift */,
 				4B6046A22DEA068E000B4A46 /* CircularWeightDisplayView.swift */,
 				3E676A1F2CDBC2220019DC51 /* CommentsView.swift */,
@@ -846,6 +861,8 @@
 				4B727FA72E280F5000874936 /* SuggestionPreferencesView.swift in Sources */,
 				4BCCF50C2E01D3FE00ACC8F4 /* RecipeImporterService.swift in Sources */,
 				4B15AD2F2E393D2800F0A0BB /* ChatBoxShape.swift in Sources */,
+				413334342E9A3EA4001798D1 /* BadgeBackground.swift in Sources */,
+				413334322E9A3D18001798D1 /* HexagonParameters.swift in Sources */,
 				4B3C8CB62DE0B636007D24FA /* WaterTrackingCardView.swift in Sources */,
 				3EB2978F2CAEEFAB0093E1B9 /* MainAppView.swift in Sources */,
 				3E676A202CDBC2220019DC51 /* CommentsView.swift in Sources */,
@@ -871,9 +888,11 @@
 				4BD5F3342E1D71C100DF283D /* SpotlightTextView.swift in Sources */,
 				4B4878E42DF3C964009AB665 /* BannerService.swift in Sources */,
 				4B15AD1B2E32DC2900F0A0BB /* BannerView.swift in Sources */,
+				411B63742E8F22A4000BD531 /* TextRecognizer.swift in Sources */,
 				3EB2978D2CAEEF830093E1B9 /* LoginView.swift in Sources */,
 				4B15AD2D2E37FDC900F0A0BB /* WorkoutReport.swift in Sources */,
 				4B727FA32E28030D00874936 /* MealSuggestionCardView.swift in Sources */,
+				411B63722E8EF037000BD531 /* TranslationView.swift in Sources */,
 				3E676A222CDBC2390019DC51 /* CreatePostView.swift in Sources */,
 				4BCCF5112E01DFA400ACC8F4 /* ParsedIngredient.swift in Sources */,
 				4B15AD172E31670900F0A0BB /* CycleTrackingView.swift in Sources */,
@@ -903,6 +922,7 @@
 				4B4694102DC3CA80006F1F86 /* ReportsView.swift in Sources */,
 				4B999ECF2D93027A00930413 /* NotificationManager.swift in Sources */,
 				3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */,
+				411B63702E8EEC9A000BD531 /* TextRecognitionView.swift in Sources */,
 				3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */,
 				3EC693CB2CB81F8B002222C6 /* NutritionProgressView.swift in Sources */,
 				4B619A942D677DBC00D6C9A8 /* APIError.swift in Sources */,
