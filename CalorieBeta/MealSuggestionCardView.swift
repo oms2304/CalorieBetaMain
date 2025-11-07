@@ -77,6 +77,7 @@ struct MealSuggestionCardView: View {
         .asCard()
     }
 }
+<<<<<<< HEAD
 
 #Preview {
     MealSuggestionCardView(
@@ -97,3 +98,5 @@ struct MealSuggestionCardView: View {
     )
     .environmentObject(DailyLogService())
 }
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)

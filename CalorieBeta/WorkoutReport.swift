@@ -13,10 +13,27 @@ struct WorkoutReportCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+<<<<<<< HEAD
             Text("Weekly Workout Summary")
                 .appFont(size: 17, weight: .semibold)
                 .padding([.top, .leading, .trailing])
             
+=======
+            HStack{
+                
+                Text("Weekly Workout Summary")
+                    .appFont(size: 16, weight: .semibold)
+    //                .padding([.top, .leading, .trailing])
+                
+                Spacer()
+                
+                Image(systemName:"ellipsis")
+                    .foregroundColor(.white)
+                    .padding(.bottom,5)
+                
+            }
+     
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             HStack(spacing: 16) {
                 workoutStatBox(value: "\(report.totalWorkouts)", label: "Workouts")
                 workoutStatBox(value: String(format: "%.0f", report.totalCaloriesBurned), label: "Calories Burned")
@@ -31,9 +48,16 @@ struct WorkoutReportCard: View {
                     .appFont(size: 15)
             }
             .padding(.horizontal)
+<<<<<<< HEAD
             .padding(.bottom)
         }
         .asCard()
+=======
+//            .padding(.bottom)
+        }
+        .asCard()
+        
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
     
     @ViewBuilder

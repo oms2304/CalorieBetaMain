@@ -1,8 +1,11 @@
 import SwiftUI
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 struct ExerciseHistoryView: View {
     let exerciseName: String
     @StateObject private var viewModel: ExerciseHistoryViewModel
@@ -86,6 +89,7 @@ class ExerciseHistoryViewModel: ObservableObject {
         }
     }
 }
+<<<<<<< HEAD
 
 extension ExerciseHistoryView {
     init(previewData: [ExerciseHistoryViewModel.ExerciseHistorySession], exerciseName: String) {
@@ -124,3 +128,5 @@ struct ExerciseHistoryView_Previews: PreviewProvider {
 //#Preview {
 //    CustomPicker()
 //}
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)

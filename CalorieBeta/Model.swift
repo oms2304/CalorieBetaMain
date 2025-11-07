@@ -120,11 +120,14 @@ struct PlannedMeal: Identifiable, Codable {
     var foodItem: FoodItem?
     var ingredients: [String]?
     var instructions: String?
+<<<<<<< HEAD
     var calories: String?
     var protein: String?
     var carbs: String?
     var fats: String?
     
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 }
 
 struct MealPlanDay: Identifiable, Codable {
@@ -211,6 +214,23 @@ struct ServingSizeOption: Identifiable, Hashable {
     let vitaminD: Double?
     let vitaminB12: Double?
     let folate: Double?
+<<<<<<< HEAD
+=======
+    let magnesium: Double?
+    let phosphorus: Double?
+    let zinc: Double?
+    let copper: Double?
+    let manganese: Double?
+    let selenium: Double?
+    let vitaminB1: Double?
+    let vitaminB2: Double?
+    let vitaminB3: Double?
+    let vitaminB5: Double?
+    let vitaminB6: Double?
+    let vitaminE: Double?
+    let vitaminK: Double?
+
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     func hash(into hasher: inout Hasher) { hasher.combine(description); hasher.combine(servingWeightGrams) }
     static func == (lhs: ServingSizeOption, rhs: ServingSizeOption) -> Bool { lhs.description == rhs.description && lhs.servingWeightGrams == rhs.servingWeightGrams }
 }
@@ -311,6 +331,22 @@ struct UserRecipe: Codable, Identifiable {
         var vitaminD: Double? = 0
         var vitaminB12: Double? = 0
         var folate: Double? = 0
+<<<<<<< HEAD
+=======
+        var magnesium: Double? = 0
+        var phosphorus: Double? = 0
+        var zinc: Double? = 0
+        var copper: Double? = 0
+        var manganese: Double? = 0
+        var selenium: Double? = 0
+        var vitaminB1: Double? = 0
+        var vitaminB2: Double? = 0
+        var vitaminB3: Double? = 0
+        var vitaminB5: Double? = 0
+        var vitaminB6: Double? = 0
+        var vitaminE: Double? = 0
+        var vitaminK: Double? = 0
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 
     mutating func calculateTotals() {
@@ -375,9 +411,31 @@ struct FoodItem: Codable, Identifiable, Hashable {
     var vitaminD: Double?
     var vitaminB12: Double?
     var folate: Double?
+<<<<<<< HEAD
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
     static func == (lhs: FoodItem, rhs: FoodItem) -> Bool { lhs.id == rhs.id }
     enum CodingKeys: String, CodingKey { case id, name, calories, protein, carbs, fats, saturatedFat, polyunsaturatedFat, monounsaturatedFat, fiber, servingSize, servingWeight, timestamp, calcium, iron, potassium, sodium, vitaminA, vitaminC, vitaminD, vitaminB12, folate }
+=======
+    var magnesium: Double?
+    var phosphorus: Double?
+    var zinc: Double?
+    var copper: Double?
+    var manganese: Double?
+    var selenium: Double?
+    var vitaminB1: Double?
+    var vitaminB2: Double?
+    var vitaminB3: Double?
+    var vitaminB5: Double?
+    var vitaminB6: Double?
+    var vitaminE: Double?
+    var vitaminK: Double?
+
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    static func == (lhs: FoodItem, rhs: FoodItem) -> Bool { lhs.id == rhs.id }
+    enum CodingKeys: String, CodingKey {
+        case id, name, calories, protein, carbs, fats, saturatedFat, polyunsaturatedFat, monounsaturatedFat, fiber, servingSize, servingWeight, timestamp, calcium, iron, potassium, sodium, vitaminA, vitaminC, vitaminD, vitaminB12, folate, magnesium, phosphorus, zinc, copper, manganese, selenium, vitaminB1, vitaminB2, vitaminB3, vitaminB5, vitaminB6, vitaminE, vitaminK
+    }
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 }
 struct Meal: Codable, Identifiable, Equatable { var id: String = UUID().uuidString; var name: String; var foodItems: [FoodItem]; static func == (lhs: Meal, rhs: Meal) -> Bool { lhs.id == rhs.id && lhs.name == rhs.name && lhs.foodItems == rhs.foodItems } }
 struct WaterTracker: Codable, Equatable { var totalOunces: Double; var goalOunces: Double; var date: Date; init(totalOunces: Double, goalOunces: Double = 64.0, date: Date) { self.totalOunces = totalOunces; self.goalOunces = goalOunces; self.date = date } }
@@ -402,7 +460,26 @@ struct DailyLog: Codable, Identifiable, Equatable {
 
     func totalCalories() -> Double { meals.flatMap { $0.foodItems }.reduce(0) { $0 + $1.calories } }
     func totalMacros() -> (protein: Double, fats: Double, carbs: Double) { let p = meals.flatMap { $0.foodItems }.reduce(0) { $0 + $1.protein }; let f = meals.flatMap { $0.foodItems }.reduce(0) { $0 + $1.fats }; let c = meals.flatMap { $0.foodItems }.reduce(0) { $0 + $1.carbs }; return (p, f, c) }
+<<<<<<< HEAD
     func totalMicronutrients() -> (calcium: Double, iron: Double, potassium: Double, sodium: Double, vitaminA: Double, vitaminC: Double, vitaminD: Double, vitaminB12: Double, folate: Double, fiber: Double ) { var ca=0.0, fe=0.0, k=0.0, na=0.0, va=0.0, vc=0.0, vd=0.0, vb12=0.0, fol=0.0, fib=0.0; for meal in meals { for item in meal.foodItems { ca += item.calcium ?? 0; fe += item.iron ?? 0; k += item.potassium ?? 0; na += item.sodium ?? 0; va += item.vitaminA ?? 0; vc += item.vitaminC ?? 0; vd += item.vitaminD ?? 0; vb12 += item.vitaminB12 ?? 0; fol += item.folate ?? 0; fib += item.fiber ?? 0 } }; return (ca, fe, k, na, va, vc, vd, vb12, fol, fib) }
+=======
+    func totalMicronutrients() -> (
+        calcium: Double, iron: Double, potassium: Double, sodium: Double, vitaminA: Double, vitaminC: Double, vitaminD: Double, vitaminB12: Double, folate: Double, fiber: Double, magnesium: Double, phosphorus: Double, zinc: Double, copper: Double, manganese: Double, selenium: Double, vitaminB1: Double, vitaminB2: Double, vitaminB3: Double, vitaminB5: Double, vitaminB6: Double, vitaminE: Double, vitaminK: Double
+    ) {
+        var ca=0.0, fe=0.0, k=0.0, na=0.0, va=0.0, vc=0.0, vd=0.0, vb12=0.0, fol=0.0, fib=0.0, mg=0.0, p=0.0, zn=0.0, cu=0.0, mn=0.0, se=0.0, vb1=0.0, vb2=0.0, vb3=0.0, vb5=0.0, vb6=0.0, ve=0.0, vk=0.0
+        for meal in meals {
+            for item in meal.foodItems {
+                ca += item.calcium ?? 0; fe += item.iron ?? 0; k += item.potassium ?? 0; na += item.sodium ?? 0
+                va += item.vitaminA ?? 0; vc += item.vitaminC ?? 0; vd += item.vitaminD ?? 0; vb12 += item.vitaminB12 ?? 0
+                fol += item.folate ?? 0; fib += item.fiber ?? 0; mg += item.magnesium ?? 0; p += item.phosphorus ?? 0
+                zn += item.zinc ?? 0; cu += item.copper ?? 0; mn += item.manganese ?? 0; se += item.selenium ?? 0
+                vb1 += item.vitaminB1 ?? 0; vb2 += item.vitaminB2 ?? 0; vb3 += item.vitaminB3 ?? 0
+                vb5 += item.vitaminB5 ?? 0; vb6 += item.vitaminB6 ?? 0; ve += item.vitaminE ?? 0; vk += item.vitaminK ?? 0
+            }
+        }
+        return (ca, fe, k, na, va, vc, vd, vb12, fol, fib, mg, p, zn, cu, mn, se, vb1, vb2, vb3, vb5, vb6, ve, vk)
+    }
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     func totalSaturatedFat() -> Double { meals.flatMap { $0.foodItems }.reduce(0) { $0 + ($1.saturatedFat ?? 0) } }
     func totalPolyunsaturatedFat() -> Double { meals.flatMap { $0.foodItems }.reduce(0) { $0 + ($1.polyunsaturatedFat ?? 0) } }
     func totalMonounsaturatedFat() -> Double { meals.flatMap { $0.foodItems }.reduce(0) { $0 + ($1.monounsaturatedFat ?? 0) } }
@@ -425,7 +502,13 @@ struct CommunityPost: Identifiable, Codable { @DocumentID var id: String?; let a
 struct CommunityGroup: Identifiable, Codable { @DocumentID var id: String?; var name: String; var description: String; var creatorID: String; var isPreset: Bool = false }
 struct GroupMembership: Codable { var groupID: String; var userID: String; var joinedAt: Timestamp = Timestamp(date: Date()) }
 
+<<<<<<< HEAD
 enum AchievementCriteriaType: String, Codable { case loggingStreak, goalHitCount, calorieGoalHitCount, macroGoalHitCount, waterGoalHitCount, weightChange, targetWeightReached, featureUsed, barcodeScanUsed, imageScanUsed, aiRecipeLogged }
+=======
+enum AchievementCriteriaType: String, Codable {
+    case loggingStreak, goalHitCount, calorieGoalHitCount, macroGoalHitCount, waterGoalHitCount, weightChange, targetWeightReached, featureUsed, barcodeScanUsed, imageScanUsed, aiRecipeLogged, workoutsLogged, recipesCreated
+}
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
 struct AchievementDefinition: Identifiable, Hashable {
     let id: String

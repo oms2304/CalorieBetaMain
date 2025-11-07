@@ -1,19 +1,26 @@
 import SwiftUI
 
 struct AddExerciseView: View {
+<<<<<<< HEAD
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     
+=======
+    @Environment(\.dismiss) var dismiss
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @State private var exerciseName: String = ""
     @State private var duration: String = ""
     @State private var caloriesBurned: String = ""
     @State private var selectedDate: Date = Date()
+<<<<<<< HEAD
     @State private var selectedOptionIndex = 0
     @State private var showDropdown = false
 
     
     @State private var searchText = ""
     let names = ["Holly", "Josh", "Rhonda", "Ted"]
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
     var exerciseToEdit: LoggedExercise?
     var onSave: (LoggedExercise) -> Void
@@ -40,6 +47,7 @@ struct AddExerciseView: View {
              _isEditing = State(initialValue: false)
         }
     }
+<<<<<<< HEAD
     var searchResults: [String] {
            if searchText.isEmpty {
                return names
@@ -111,6 +119,40 @@ struct AddExerciseView: View {
            
             .navigationTitle(isEditing ? "Edit Exercise" : "Add Exercise")
             .background(colorScheme == .dark ? Color.backgroundSecondary : .white )
+=======
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Exercise Details")) {
+                    TextField("Exercise Name (e.g., Running)", text: $exerciseName)
+                        .textFieldStyle(AppTextFieldStyle(iconName: "figure.walk"))
+
+                    HStack {
+                        TextField("Duration", text: $duration)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(AppTextFieldStyle(iconName: "clock"))
+                        Text("min")
+                    }
+                    HStack {
+                        TextField("Calories Burned", text: $caloriesBurned)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(AppTextFieldStyle(iconName: "flame.fill"))
+                        Text("kcal")
+                    }
+                    DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
+                }
+
+                Button(isEditing ? "Update Exercise" : "Log Exercise") {
+                    saveExercise()
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(exerciseName.isEmpty || caloriesBurned.isEmpty)
+                .listRowInsets(EdgeInsets())
+                .padding(.vertical)
+            }
+            .navigationTitle(isEditing ? "Edit Exercise" : "Add Exercise")
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -123,7 +165,10 @@ struct AddExerciseView: View {
                 Text(alertMessage ?? "An unknown error occurred.")
             }
         }
+<<<<<<< HEAD
         .background(Color.brandSecondary.opacity(0.5)) // covers safe areas too
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 
     private func saveExercise() {
@@ -157,6 +202,7 @@ struct AddExerciseView: View {
         dismiss()
     }
 }
+<<<<<<< HEAD
 
 struct AddExerciseView_Previews: PreviewProvider {
     static var previews: some View {
@@ -178,3 +224,5 @@ struct AddExerciseView_Previews: PreviewProvider {
         }
     }
 }
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)

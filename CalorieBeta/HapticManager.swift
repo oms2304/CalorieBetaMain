@@ -14,6 +14,7 @@ class HapticManager {
     func notification(_ type: UINotificationFeedbackGenerator.FeedbackType){
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(type)
+<<<<<<< HEAD
         
     }
     
@@ -23,3 +24,7 @@ class HapticManager {
 
 
 
+=======
+    }
+}
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)

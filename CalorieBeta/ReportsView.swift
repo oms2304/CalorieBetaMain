@@ -7,7 +7,11 @@ struct ReportsView: View {
     @EnvironmentObject var goalSettings: GoalSettings
     @EnvironmentObject var insightsService: InsightsService
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @State private var selectedTimeframe: ReportTimeframe = .week
     @State private var customStartDate: Date = Calendar.current.date(byAdding: .day, value: -6, to: Date())!
     @State private var customEndDate: Date = Date()
@@ -22,6 +26,7 @@ struct ReportsView: View {
         return formatter
     }
 
+<<<<<<< HEAD
     init(dailyLogService: DailyLogService) {
         _viewModel = StateObject(wrappedValue: ReportsViewModel(dailyLogService: dailyLogService))
     }
@@ -31,6 +36,26 @@ struct ReportsView: View {
             VStack(alignment: .leading, spacing: 16) {
                 headerSection
                 
+=======
+    init(dailyLogService: DailyLogService, wellnessScore: WellnessScore) {
+        _viewModel = StateObject(wrappedValue: ReportsViewModel(dailyLogService: dailyLogService))
+        self.wellnessScore = wellnessScore
+    }
+    
+    func safePercentage(user: Double, total: Double) -> Double {
+        guard total > 0 else { return 0 }
+        return min((user / total) * 100, 100)
+    }
+    
+    private func calculateProgress(consumed: Double, goal: Double) -> Double {
+        guard goal > 0 else { return 0 }
+        return min(consumed / goal, 1.0) * 0.8
+    }
+
+    var body: some View {
+        VStack {
+            VStack(alignment: .leading, spacing: 16) {
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 if viewModel.isLoading {
                     ProgressView("Loading Reports...")
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -56,6 +81,10 @@ struct ReportsView: View {
                 
                 Spacer()
             }
+<<<<<<< HEAD
+=======
+            .padding(.top, 10)
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             .padding(.horizontal)
         }
         .background(Color.backgroundPrimary.ignoresSafeArea())
@@ -122,12 +151,17 @@ struct ReportsView: View {
             Label("Generate Weekly Insights", systemImage: "wand.and.stars")
         }
         .buttonStyle(PrimaryButtonStyle())
+<<<<<<< HEAD
         
+=======
+       
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         NavigationLink(isActive: $showingDetailedInsights) {
             DetailedInsightsView(insightsService: insightsService)
         } label: { EmptyView() }
     }
     
+<<<<<<< HEAD
     @ViewBuilder
     private var reportsContentSection: some View {
         VStack(spacing: 16) {
@@ -151,6 +185,92 @@ struct ReportsView: View {
 
     private var timeframeSelectorAndPickers: some View {
         VStack {
+=======
+    let wellnessScore: WellnessScore
+    
+//     MARK: - Content
+    @ViewBuilder
+    private var reportsContentSection: some View {
+        VStack(spacing: 12) {
+//            if let score = viewModel.mealScore {
+//                MealScoreCard(score: score)
+//            }
+            if let score = viewModel.mealScore {
+                WellnessScoreCardView(wellnessScore: wellnessScore)
+            }
+        
+            if let workoutReport = viewModel.weeklyWorkoutReport {
+                WorkoutReportCard(report: workoutReport)
+            }
+            
+            HStack(spacing: 12){
+                mealDistributionCard
+                WeightCardReport
+            }
+        }
+        .padding(.bottom, 15)
+        
+        insightsActionSection
+
+    }
+    //     MARK: - Weight
+    private var WeightCardReport: some View {
+        NavigationLink(destination: WeightTrackingView()){
+            VStack(alignment: .center){
+                HStack{
+                    Text("Weight Report")
+                        .appFont(size: 16, weight: .semibold)
+                        .padding(.bottom, 15)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    VStack{
+                        Image(systemName:"ellipsis")
+                            .foregroundColor(.white)
+                            Spacer()
+                    }
+                    .padding(.top,-5)
+                    
+                }
+              
+                
+                HStack(spacing: 24) {
+                    ZStack {
+                        Circle()
+                            .trim(from: 0, to: 5/6)
+                            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                            .rotationEffect(.degrees(120))
+                            .frame(width: 130, height: 105)
+                        Circle()
+                            .trim(from: 0, to: (goalSettings.calculateWeightProgress() ?? 0) / 100 * 5/6)
+                            .stroke(Color.green, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                            .rotationEffect(.degrees(120))
+                            .frame(width: 130, height: 105)
+                            .animation(.easeInOut, value: goalSettings.weight)
+                        VStack {
+                            Text("\(Int(goalSettings.calculateWeightProgress() ?? 0))%")
+                                .font(.title2.bold())
+                            Text("Progress")
+                                .font(.caption)
+                        }
+                    }
+
+                }
+            }
+            .asCard()
+//            .background(Color.black.opacity(0.8))
+            .cornerRadius(20)
+            .frame(width: 180, height: 140) // <-- same width & height
+            
+            
+        }
+    }
+
+
+    private var timeframeSelectorAndPickers: some View {
+        VStack {
+            
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             Picker("Timeframe", selection: $selectedTimeframe) {
                 ForEach(ReportTimeframe.allCases) { tf in
                     Text(tf.rawValue).tag(tf)
@@ -160,13 +280,23 @@ struct ReportsView: View {
             
             if selectedTimeframe == .custom {
                 VStack(spacing: 12) {
+<<<<<<< HEAD
                     Grid(alignment: .leading) {
+=======
+                    
+                    Grid(alignment: .leading) {
+                        
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         GridRow {
                             Text("Start Date").gridColumnAlignment(.leading)
                             DatePicker("Start Date", selection: $customStartDate, in: ...customEndDate, displayedComponents: .date)
                                 .labelsHidden()
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
+<<<<<<< HEAD
+=======
+                        
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         GridRow {
                             Text("End Date").gridColumnAlignment(.leading)
                             DatePicker("End Date", selection: $customEndDate, in: customStartDate..., displayedComponents: .date)
@@ -174,7 +304,11 @@ struct ReportsView: View {
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
                     }
+<<<<<<< HEAD
                     
+=======
+
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                     Button("View Custom Report") {
                         fetchDataForCurrentSelection()
                     }
@@ -252,6 +386,7 @@ struct ReportsView: View {
        }
        .frame(maxWidth: .infinity, alignment: .leading)
     }
+<<<<<<< HEAD
     
     @ViewBuilder private var calorieChartCard: some View {
         VStack(alignment: .leading) {
@@ -383,3 +518,90 @@ struct ReportsView: View {
         .asCard()
     }
 }
+=======
+
+//     MARK: - Macro
+    @ViewBuilder private var mealDistributionCard: some View {
+        NavigationLink(destination: CalorieTrackingView(viewModel: viewModel)){
+            VStack(alignment: .center) {
+                HStack{
+                    Text("Calorie Report")
+                        .appFont(size: 16, weight: .semibold)
+                        
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Image(systemName:"ellipsis")
+                        .foregroundColor(.white)
+                        .padding(.bottom, 1)
+                }
+                
+                if !viewModel.mealDistributionData.isEmpty {
+                    // Group and order meals correctly
+                    let groupedMeals = Dictionary(grouping: viewModel.mealDistributionData, by: { $0.mealName })
+                    let orderedMealNames = ["Breakfast", "Lunch", "Dinner", "Snack"]
+                    
+                    // Calculate total calories per meal type
+                    let processedData: [(meal: String, totalCalories: Double)] = orderedMealNames.compactMap { mealName in
+                        if let items = groupedMeals[mealName] {
+                            let total = items.reduce(0) { $0 + $1.totalCalories }
+                            return (mealName, total)
+                        } else { return nil }
+                    }
+                    
+                    // Define distinct colors
+                    let colorMapping: [String: Color] = [
+                        "Breakfast": .red,
+                        "Lunch": .orange,
+                        "Dinner": .blue,
+                        "Snack": .green
+                    ]
+                    
+                    Chart(processedData, id: \.meal) { dp in
+                        SectorMark(
+                            angle: .value("Calories", dp.totalCalories),
+                            innerRadius: .ratio(0.5),
+                            angularInset: 2
+                        )
+                        .foregroundStyle(colorMapping[dp.meal, default: .gray])
+                        .annotation(position: .overlay) {
+                            VStack {
+                                Text(dp.meal)
+                                    .appFont(size: 11, weight: .bold)
+                                Text("\(dp.totalCalories, specifier: "%.0f") cal")
+                                    .appFont(size: 10, weight: .bold)
+                                
+                            }
+                        }
+                    }
+                    .chartLegend(position: .bottom, alignment: .center)
+                    .frame(maxWidth: .infinity, maxHeight: 120)
+                    .padding(.top, 8)
+                    
+                } else if !viewModel.isLoading {
+                    Text("No meal data available for calorie distribution.")
+                        .foregroundColor(Color(UIColor.secondaryLabel))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .asCard()
+            .frame(width: 180, height: 180) // <-- same width & height
+        }
+        
+    }
+}
+//
+//
+//struct ReportsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        NavigationView {
+//            ReportsView(dailyLogService: DailyLogService())
+//                .environmentObject(GoalSettings())
+////                .environmentObject(InsightsService())
+//                .environmentObject(HealthKitViewModel())
+//        }
+//    }
+//}
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)

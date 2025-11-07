@@ -49,6 +49,7 @@
 		3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693DD2CB83BDC002222C6 /* GoalSettings.swift */; };
 		3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */; };
 		3EC693E22CBD90B2002222C6 /* AIChatBotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */; };
+<<<<<<< HEAD
 		41180CA12E84A29000AC1472 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 41180CA02E84A29000AC1472 /* Toast */; };
 		41180CA42E84A2BE00AC1472 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 41180CA32E84A2BE00AC1472 /* Toasts */; };
 		41180CA62E85742D00AC1472 /* AskMaiaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41180CA52E85742D00AC1472 /* AskMaiaView.swift */; };
@@ -71,6 +72,13 @@
 		419635622E5773660042B798 /* ProfilePicture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419635612E5773660042B798 /* ProfilePicture.swift */; };
 		41DE3DFB2E5AFCA900371946 /* ImportPFP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DE3DFA2E5AFCA900371946 /* ImportPFP.swift */; };
 		41EDE0032E4CDE5A00094AA1 /* ClickedTerm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EDE0022E4CDE5A00094AA1 /* ClickedTerm.swift */; };
+=======
+		414735632DA7646D002489C6 /* WeightChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414735622DA7646D002489C6 /* WeightChartViewController.swift */; };
+		416B8EB42EBE421500EE230F /* WellnessScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B8EB32EBE421500EE230F /* WellnessScore.swift */; };
+		416B8EB82EBE423900EE230F /* WellnessScoreCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B8EB72EBE423900EE230F /* WellnessScoreCardView.swift */; };
+		416B8EBA2EBE433B00EE230F /* WellnessDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B8EB92EBE433B00EE230F /* WellnessDetailView.swift */; };
+		416B8EEB2EBE4F3000EE230F /* CalorieTrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B8EEA2EBE4F3000EE230F /* CalorieTrackingView.swift */; };
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 		4B15AD112E315C7900F0A0BB /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 4B15AD102E315C7900F0A0BB /* GoogleMobileAds */; };
 		4B15AD132E31659200F0A0BB /* CycleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B15AD122E31659200F0A0BB /* CycleSettingsView.swift */; };
 		4B15AD152E3165A500F0A0BB /* CycleTrackingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B15AD142E3165A500F0A0BB /* CycleTrackingService.swift */; };
@@ -146,6 +154,10 @@
 		4BA12D432E43EE7900E55716 /* AITextLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA12D422E43EE7900E55716 /* AITextLogView.swift */; };
 		4BA12D452E43EF3F00E55716 /* AITextResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA12D442E43EF3F00E55716 /* AITextResultsView.swift */; };
 		4BA12D472E43EF9C00E55716 /* MealScoreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA12D462E43EF9C00E55716 /* MealScoreCard.swift */; };
+<<<<<<< HEAD
+=======
+		4BA12D7A2E5658E600E55716 /* IngredientRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA12D792E5658E600E55716 /* IngredientRowView.swift */; };
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 		4BA2DB3C2D42A38B00B6BDED /* MLImageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA2DB3B2D42A37B00B6BDED /* MLImageModel.swift */; };
 		4BA2DB3E2D42A74800B6BDED /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA2DB3D2D42A74300B6BDED /* ImagePicker.swift */; };
 		4BB4628F2E1EE8AB007CCA8A /* MyFitPlateWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4BB462822E1EE8AA007CCA8A /* MyFitPlateWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -256,6 +268,7 @@
 		3EC693DD2CB83BDC002222C6 /* GoalSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettings.swift; sourceTree = "<group>"; };
 		3EC693DF2CBD712D002222C6 /* FatSecretFoodAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatSecretFoodAPIService.swift; sourceTree = "<group>"; };
 		3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatBotView.swift; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		41180CA52E85742D00AC1472 /* AskMaiaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskMaiaView.swift; sourceTree = "<group>"; };
 		411B636F2E8EEC9A000BD531 /* TextRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionView.swift; sourceTree = "<group>"; };
 		411B63712E8EF037000BD531 /* TranslationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationView.swift; sourceTree = "<group>"; };
@@ -276,6 +289,13 @@
 		419635612E5773660042B798 /* ProfilePicture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePicture.swift; sourceTree = "<group>"; };
 		41DE3DFA2E5AFCA900371946 /* ImportPFP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPFP.swift; sourceTree = "<group>"; };
 		41EDE0022E4CDE5A00094AA1 /* ClickedTerm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickedTerm.swift; sourceTree = "<group>"; };
+=======
+		414735622DA7646D002489C6 /* WeightChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightChartViewController.swift; sourceTree = "<group>"; };
+		416B8EB32EBE421500EE230F /* WellnessScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessScore.swift; sourceTree = "<group>"; };
+		416B8EB72EBE423900EE230F /* WellnessScoreCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessScoreCardView.swift; sourceTree = "<group>"; };
+		416B8EB92EBE433B00EE230F /* WellnessDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessDetailView.swift; sourceTree = "<group>"; };
+		416B8EEA2EBE4F3000EE230F /* CalorieTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieTrackingView.swift; sourceTree = "<group>"; };
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 		4B15AD122E31659200F0A0BB /* CycleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleSettingsView.swift; sourceTree = "<group>"; };
 		4B15AD142E3165A500F0A0BB /* CycleTrackingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleTrackingService.swift; sourceTree = "<group>"; };
 		4B15AD162E31670900F0A0BB /* CycleTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleTrackingView.swift; sourceTree = "<group>"; };
@@ -351,6 +371,10 @@
 		4BA12D422E43EE7900E55716 /* AITextLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITextLogView.swift; sourceTree = "<group>"; };
 		4BA12D442E43EF3F00E55716 /* AITextResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITextResultsView.swift; sourceTree = "<group>"; };
 		4BA12D462E43EF9C00E55716 /* MealScoreCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealScoreCard.swift; sourceTree = "<group>"; };
+<<<<<<< HEAD
+=======
+		4BA12D792E5658E600E55716 /* IngredientRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientRowView.swift; sourceTree = "<group>"; };
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 		4BA2DB3B2D42A37B00B6BDED /* MLImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLImageModel.swift; sourceTree = "<group>"; };
 		4BA2DB3D2D42A74300B6BDED /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		4BB462822E1EE8AA007CCA8A /* MyFitPlateWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MyFitPlateWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -409,10 +433,15 @@
 				4B15AD112E315C7900F0A0BB /* GoogleMobileAds in Frameworks */,
 				3EC693D62CB83700002222C6 /* FirebaseAuth in Frameworks */,
 				3EB09F492CCBFA6D0088C849 /* DGCharts in Frameworks */,
+<<<<<<< HEAD
 				41180CA42E84A2BE00AC1472 /* Toasts in Frameworks */,
 				4B6046A92DEE1F0E000B4A46 /* FirebaseCrashlytics in Frameworks */,
 				3EC693D82CB83700002222C6 /* FirebaseFirestore in Frameworks */,
 				41180CA12E84A29000AC1472 /* Toast in Frameworks */,
+=======
+				4B6046A92DEE1F0E000B4A46 /* FirebaseCrashlytics in Frameworks */,
+				3EC693D82CB83700002222C6 /* FirebaseFirestore in Frameworks */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4BCCF50F2E01D51400ACC8F4 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -474,6 +503,7 @@
 			children = (
 				4B46940A2DBBD190006F1F86 /* AchievementService.swift */,
 				4B4694132DCA6A13006F1F86 /* AddExerciseView.swift */,
+<<<<<<< HEAD
 				41DE3DFA2E5AFCA900371946 /* ImportPFP.swift */,
 				416848512E47E37600B9405A /* Exercises.json */,
 				3EB297882CAEEE2F0093E1B9 /* AddFoodView.swift */,
@@ -495,6 +525,11 @@
 				419635422E532B230042B798 /* FavoriteList.swift */,
 				419635442E532C0E0042B798 /* sampleFavs.swift */,
 				41EDE0022E4CDE5A00094AA1 /* ClickedTerm.swift */,
+=======
+				3EB297882CAEEE2F0093E1B9 /* AddFoodView.swift */,
+				4BF46DDF2DF76A6F0018668F /* AddMealToPlanView.swift */,
+				3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B71DBBE2E1065FF003A0078 /* AISummaryView.swift */,
 				4BA12D402E43EE6900E55716 /* AITextLogService.swift */,
 				4BA12D422E43EE7900E55716 /* AITextLogView.swift */,
@@ -511,7 +546,10 @@
 				3EB2977F2CAEEDCA0093E1B9 /* CalorieBeta.entitlements */,
 				3E7821042CBEC38A007E219A /* CalorieLogView.swift */,
 				4B444E0A2DF4B6F400C6F094 /* ChallengesView.swift */,
+<<<<<<< HEAD
 				3EC693E12CBD90B2002222C6 /* AIChatBotView.swift */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B15AD2E2E393D2800F0A0BB /* ChatBoxShape.swift */,
 				4B6046A22DEA068E000B4A46 /* CircularWeightDisplayView.swift */,
 				3E676A1F2CDBC2220019DC51 /* CommentsView.swift */,
@@ -551,6 +589,10 @@
 				4BA2DB3D2D42A74300B6BDED /* ImagePicker.swift */,
 				4B15AD1C2E33D05D00F0A0BB /* ImageProcessingView.swift */,
 				3EB297982CAEF8D40093E1B9 /* Info.plist */,
+<<<<<<< HEAD
+=======
+				4BA12D792E5658E600E55716 /* IngredientRowView.swift */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B46941D2DCE5C3C006F1F86 /* InsightsService.swift */,
 				3E676A292CE3C76D0019DC51 /* JoinGroupConfirmationView.swift */,
 				4B619A972D79EB4C00D6C9A8 /* LandingPageView.swift */,
@@ -607,8 +649,17 @@
 				3EC693D02CB8281C002222C6 /* WeightChartView.swift */,
 				414735622DA7646D002489C6 /* WeightChartViewController.swift */,
 				3EB09F4C2CCBFB310088C849 /* WeightTrackingView.swift */,
+<<<<<<< HEAD
 				3EB09F4E2CCBFFE60088C849 /* WeightTrackingViewController.swift */,
 				4B999ECA2D80846C00930413 /* WelcomeView.swift */,
+=======
+				416B8EEA2EBE4F3000EE230F /* CalorieTrackingView.swift */,
+				3EB09F4E2CCBFFE60088C849 /* WeightTrackingViewController.swift */,
+				4B999ECA2D80846C00930413 /* WelcomeView.swift */,
+				416B8EB32EBE421500EE230F /* WellnessScore.swift */,
+				416B8EB92EBE433B00EE230F /* WellnessDetailView.swift */,
+				416B8EB72EBE423900EE230F /* WellnessScoreCardView.swift */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B727FAA2E2FD64900874936 /* WorkOutComponentApp.swift */,
 				4B727FAE2E2FD6A600874936 /* WorkoutPlayerView.swift */,
 				4B15AD2C2E37FDC900F0A0BB /* WorkoutReport.swift */,
@@ -657,8 +708,11 @@
 				4B6046A82DEE1F0E000B4A46 /* FirebaseCrashlytics */,
 				4BCCF50E2E01D51400ACC8F4 /* SwiftSoup */,
 				4B15AD102E315C7900F0A0BB /* GoogleMobileAds */,
+<<<<<<< HEAD
 				41180CA02E84A29000AC1472 /* Toast */,
 				41180CA32E84A2BE00AC1472 /* Toasts */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 			);
 			productName = CalorieBeta;
 			productReference = 3EB297762CAEEDC90093E1B9 /* MyFitPlate.app */;
@@ -743,8 +797,11 @@
 				3EB09F472CCBFA6D0088C849 /* XCRemoteSwiftPackageReference "Charts" */,
 				4BCCF50D2E01D51400ACC8F4 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				4B15AD0F2E315C7900F0A0BB /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+<<<<<<< HEAD
 				41180C9F2E84A25C00AC1472 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 				41180CA22E84A2BE00AC1472 /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 			);
 			productRefGroup = 3EB297772CAEEDC90093E1B9 /* Products */;
 			projectDirPath = "";
@@ -763,7 +820,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				3EB297822CAEEDCA0093E1B9 /* Preview Assets.xcassets in Resources */,
+<<<<<<< HEAD
 				416848522E47E37600B9405A /* Exercises.json in Resources */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				3EB2977E2CAEEDCA0093E1B9 /* Assets.xcassets in Resources */,
 				4BCCF5062DFC830E00ACC8F4 /* GoogleService-Info.plist in Resources */,
 			);
@@ -795,7 +855,11 @@
 				4B15AD192E31671700F0A0BB /* CycleInsightCard.swift in Sources */,
 				3E7821092CC02464007E219A /* FoodSearchView.swift in Sources */,
 				4B15AD232E3592BC00F0A0BB /* ContinueProgramCard.swift in Sources */,
+<<<<<<< HEAD
 				419635432E532B230042B798 /* FavoriteList.swift in Sources */,
+=======
+				416B8EEB2EBE4F3000EE230F /* CalorieTrackingView.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				3E7821072CC02423007E219A /* FoodAddOptionView.swift in Sources */,
 				4B727FAB2E2FD64900874936 /* WorkOutComponentApp.swift in Sources */,
 				4B4878E22DF3C950009AB665 /* NotificationBanner.swift in Sources */,
@@ -803,13 +867,21 @@
 				3E78210B2CC0294B007E219A /* CaloricCalculatorView.swift in Sources */,
 				4B444E0B2DF4B6F400C6F094 /* ChallengesView.swift in Sources */,
 				4B4694202DCE622F006F1F86 /* DetailedInsightsView.swift in Sources */,
+<<<<<<< HEAD
 				416848562E47E3FB00B9405A /* ExerciseViewModel.swift in Sources */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B4694052DBA898C006F1F86 /* HealthKitManager.swift in Sources */,
 				4B71DBBF2E1065FF003A0078 /* AISummaryView.swift in Sources */,
 				4B71DB772E0AFE41003A0078 /* SleepReportCard.swift in Sources */,
 				4B15AD1F2E358F1A00F0A0BB /* PlateCalculatorView.swift in Sources */,
+<<<<<<< HEAD
 				41DE3DFB2E5AFCA900371946 /* ImportPFP.swift in Sources */,
 				4BA2DB3C2D42A38B00B6BDED /* MLImageModel.swift in Sources */,
+=======
+				4BA2DB3C2D42A38B00B6BDED /* MLImageModel.swift in Sources */,
+				416B8EB82EBE423900EE230F /* WellnessScoreCardView.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B6046A32DEA068E000B4A46 /* CircularWeightDisplayView.swift in Sources */,
 				4BA12D412E43EE6900E55716 /* AITextLogService.swift in Sources */,
 				4B4694162DCD0AE9006F1F86 /* RecipeService.swift in Sources */,
@@ -820,6 +892,10 @@
 				4B727FB12E2FD6B000874936 /* WorkoutRoutinesView.swift in Sources */,
 				3EC693E22CBD90B2002222C6 /* AIChatBotView.swift in Sources */,
 				4BF46DDE2DF74ED30018668F /* MealPlanSurveyView.swift in Sources */,
+<<<<<<< HEAD
+=======
+				416B8EB42EBE421500EE230F /* WellnessScore.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B444E0D2DF4C3A800C6F094 /* MealPlannerService.swift in Sources */,
 				4B71DB752E08B7AD003A0078 /* FeatureTourView.swift in Sources */,
 				3EB297932CAEF1300093E1B9 /* SettingsView.swift in Sources */,
@@ -853,31 +929,49 @@
 				3EC693D12CB8281C002222C6 /* WeightChartView.swift in Sources */,
 				3E676A1C2CDBC1C30019DC51 /* CommunityHubView.swift in Sources */,
 				4B727FA12E26C14600874936 /* MaiaAvatarView.swift in Sources */,
+<<<<<<< HEAD
 				4B727FA52E280C0400874936 /* MealSuggestionDetailView.swift in Sources */,
 				4B46941C2DCE59BF006F1F86 /* ReportsViewModel.swift in Sources */,
 				4BD5F32E2E1D621400DF283D /* SpotlightManager.swift in Sources */,
 				4171D3622E807D9300DAA10F /* AddFoodView2.swift in Sources */,
+=======
+				416B8EBA2EBE433B00EE230F /* WellnessDetailView.swift in Sources */,
+				4B727FA52E280C0400874936 /* MealSuggestionDetailView.swift in Sources */,
+				4B46941C2DCE59BF006F1F86 /* ReportsViewModel.swift in Sources */,
+				4BD5F32E2E1D621400DF283D /* SpotlightManager.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B4694142DCA6A1A006F1F86 /* AddExerciseView.swift in Sources */,
 				4B727FA72E280F5000874936 /* SuggestionPreferencesView.swift in Sources */,
 				4BCCF50C2E01D3FE00ACC8F4 /* RecipeImporterService.swift in Sources */,
 				4B15AD2F2E393D2800F0A0BB /* ChatBoxShape.swift in Sources */,
+<<<<<<< HEAD
 				413334342E9A3EA4001798D1 /* BadgeBackground.swift in Sources */,
 				413334322E9A3D18001798D1 /* HexagonParameters.swift in Sources */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B3C8CB62DE0B636007D24FA /* WaterTrackingCardView.swift in Sources */,
 				3EB2978F2CAEEFAB0093E1B9 /* MainAppView.swift in Sources */,
 				3E676A202CDBC2220019DC51 /* CommentsView.swift in Sources */,
 				3EC693CD2CB823C1002222C6 /* FoodLogView.swift in Sources */,
+<<<<<<< HEAD
 				419635412E532A5A0042B798 /* Favorite.swift in Sources */,
 				4B3C8CB42DE0B56E007D24FA /* WaterBottleUI.swift in Sources */,
 				419635622E5773660042B798 /* ProfilePicture.swift in Sources */,
 				41180CA62E85742D00AC1472 /* AskMaiaView.swift in Sources */,
+=======
+				4B3C8CB42DE0B56E007D24FA /* WaterBottleUI.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4BE7685A2D51040E00EAF4C8 /* FoodDetailView.swift in Sources */,
 				4B727F9D2E26B41C00874936 /* TTSManager.swift in Sources */,
 				4BA12D472E43EF9C00E55716 /* MealScoreCard.swift in Sources */,
 				3EB2977C2CAEEDC90093E1B9 /* HomeView.swift in Sources */,
+<<<<<<< HEAD
 				419635452E532C0E0042B798 /* sampleFavs.swift in Sources */,
 				3EC693CF2CB827F2002222C6 /* UserProfileView.swift in Sources */,
 				41EDE0032E4CDE5A00094AA1 /* ClickedTerm.swift in Sources */,
+=======
+				3EC693CF2CB827F2002222C6 /* UserProfileView.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B444E112DF4C5BE00C6F094 /* GroceryListView.swift in Sources */,
 				4B619A982D79EB5200D6C9A8 /* LandingPageView.swift in Sources */,
 				4B15AD1D2E33D05D00F0A0BB /* ImageProcessingView.swift in Sources */,
@@ -888,11 +982,17 @@
 				4BD5F3342E1D71C100DF283D /* SpotlightTextView.swift in Sources */,
 				4B4878E42DF3C964009AB665 /* BannerService.swift in Sources */,
 				4B15AD1B2E32DC2900F0A0BB /* BannerView.swift in Sources */,
+<<<<<<< HEAD
 				411B63742E8F22A4000BD531 /* TextRecognizer.swift in Sources */,
 				3EB2978D2CAEEF830093E1B9 /* LoginView.swift in Sources */,
 				4B15AD2D2E37FDC900F0A0BB /* WorkoutReport.swift in Sources */,
 				4B727FA32E28030D00874936 /* MealSuggestionCardView.swift in Sources */,
 				411B63722E8EF037000BD531 /* TranslationView.swift in Sources */,
+=======
+				3EB2978D2CAEEF830093E1B9 /* LoginView.swift in Sources */,
+				4B15AD2D2E37FDC900F0A0BB /* WorkoutReport.swift in Sources */,
+				4B727FA32E28030D00874936 /* MealSuggestionCardView.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				3E676A222CDBC2390019DC51 /* CreatePostView.swift in Sources */,
 				4BCCF5112E01DFA400ACC8F4 /* ParsedIngredient.swift in Sources */,
 				4B15AD172E31670900F0A0BB /* CycleTrackingView.swift in Sources */,
@@ -901,20 +1001,30 @@
 				4B727FA92E2FD63800874936 /* RoutineEditorView.swift in Sources */,
 				4BCCF5132E01E3A500ACC8F4 /* RecipeImporterView.swift in Sources */,
 				3E676A182CCFE4AD0019DC51 /* AppState.swift in Sources */,
+<<<<<<< HEAD
 				419635602E5600B90042B798 /* TwoSectionListView.swift in Sources */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B15AD152E3165A500F0A0BB /* CycleTrackingService.swift in Sources */,
 				4B7053FD2D5E4C0F001D9C1C /* ManualFoodEntryView.swift in Sources */,
 				4BA12D452E43EF3F00E55716 /* AITextResultsView.swift in Sources */,
 				4B727FAD2E2FD69A00874936 /* WorkoutService.swift in Sources */,
+<<<<<<< HEAD
 				419635472E532CA60042B798 /* FavoriteDetail.swift in Sources */,
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				3EB297952CAEF34A0093E1B9 /* SignUpView.swift in Sources */,
 				3E7821052CBEC38A007E219A /* CalorieLogView.swift in Sources */,
 				4B4694122DC3CB53006F1F86 /* CustomTabBar.swift in Sources */,
 				3EB297892CAEEE2F0093E1B9 /* AddFoodView.swift in Sources */,
 				4B71DB9C2E0B6B69003A0078 /* SharedDataManager.swift in Sources */,
+<<<<<<< HEAD
 				412423CB2E8C0583003746A8 /* HapticManager.swift in Sources */,
 				3EB09F4F2CCBFFE60088C849 /* WeightTrackingViewController.swift in Sources */,
 				416848582E47E5F600B9405A /* ExerciseSearchView.swift in Sources */,
+=======
+				3EB09F4F2CCBFFE60088C849 /* WeightTrackingViewController.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				3E78210D2CC18259007E219A /* CurrentWeightView.swift in Sources */,
 				4B999ECB2D80847300930413 /* WelcomeView.swift in Sources */,
 				4BA12D432E43EE7900E55716 /* AITextLogView.swift in Sources */,
@@ -922,9 +1032,15 @@
 				4B4694102DC3CA80006F1F86 /* ReportsView.swift in Sources */,
 				4B999ECF2D93027A00930413 /* NotificationManager.swift in Sources */,
 				3EC693DE2CB83BDC002222C6 /* GoalSettings.swift in Sources */,
+<<<<<<< HEAD
 				411B63702E8EEC9A000BD531 /* TextRecognitionView.swift in Sources */,
 				3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */,
 				3EC693CB2CB81F8B002222C6 /* NutritionProgressView.swift in Sources */,
+=======
+				3EC693E02CBD712D002222C6 /* FatSecretFoodAPIService.swift in Sources */,
+				3EC693CB2CB81F8B002222C6 /* NutritionProgressView.swift in Sources */,
+				4BA12D7A2E5658E600E55716 /* IngredientRowView.swift in Sources */,
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 				4B619A942D677DBC00D6C9A8 /* APIError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1365,6 +1481,7 @@
 				minimumVersion = 11.3.0;
 			};
 		};
+<<<<<<< HEAD
 		41180C9F2E84A25C00AC1472 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scalessec/Toast-Swift";
@@ -1381,6 +1498,8 @@
 				minimumVersion = 1.1.1;
 			};
 		};
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 		4B15AD0F2E315C7900F0A0BB /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
@@ -1429,6 +1548,7 @@
 			package = 3EC693D22CB83700002222C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseFirestoreCombine-Community";
 		};
+<<<<<<< HEAD
 		41180CA02E84A29000AC1472 /* Toast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 41180C9F2E84A25C00AC1472 /* XCRemoteSwiftPackageReference "Toast-Swift" */;
@@ -1439,6 +1559,8 @@
 			package = 41180CA22E84A2BE00AC1472 /* XCRemoteSwiftPackageReference "swiftui-toasts" */;
 			productName = Toasts;
 		};
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 		4B15AD102E315C7900F0A0BB /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4B15AD0F2E315C7900F0A0BB /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;

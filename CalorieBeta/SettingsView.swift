@@ -10,6 +10,10 @@ struct SettingsView: View {
     @EnvironmentObject var spotlightManager: SpotlightManager
     @EnvironmentObject var dailyLogService: DailyLogService
     @EnvironmentObject var cycleService: CycleTrackingService
+<<<<<<< HEAD
+=======
+    @EnvironmentObject var recipeService: RecipeService
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
     @Binding var showSettings: Bool
     
@@ -23,7 +27,12 @@ struct SettingsView: View {
     @State private var waterGoalInput: String = ""
     @State private var showingResetTourConfirmation = false
     @State private var showCycleSettings = false
+<<<<<<< HEAD
 
+=======
+    @State private var migrationStatusMessage = ""
+    @State private var showingMigrationAlert = false
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
     var body: some View {
         List {
@@ -60,6 +69,7 @@ struct SettingsView: View {
                 }
                 .foregroundColor(.textPrimary)
                 .disabled(healthKitViewModel.isSyncing)
+<<<<<<< HEAD
 
                 if !healthKitViewModel.isAuthorized {
                     if let hkError = healthKitViewModel.authError {
@@ -72,6 +82,8 @@ struct SettingsView: View {
                             .foregroundColor(Color(UIColor.secondaryLabel))
                     }
                 }
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             }
 
             Section(header: Text("Account")) {
@@ -96,6 +108,7 @@ struct SettingsView: View {
                   }
             }
             
+<<<<<<< HEAD
             Section(header: Text("Feature Tour")) {
                 Button("Reset Feature Tour") {
                     showingResetTourConfirmation = true
@@ -107,6 +120,8 @@ struct SettingsView: View {
                 NavigationLink("Health Disclaimers & Sources", destination: HealthDisclaimerView())
             }
 
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             Section {
                 Button("Sign Out", role: .destructive) { showingSignOutAlert = true }
                 Button("Delete Account", role: .destructive) { showingDeleteAccountAlert = true }
@@ -140,6 +155,7 @@ struct SettingsView: View {
             }
             showingWaterGoalSheet = false
         }).environmentObject(goalSettings) }
+<<<<<<< HEAD
         .sheet(isPresented: $showCycleSettings) {
             NavigationView {
                 CycleSettingsView(cycleSettings: $cycleService.cycleSettings)
@@ -161,5 +177,9 @@ struct SettingsView: View {
     }
 
     private func deleteUserAccount() {
+=======
+        .alert("Sign Out", isPresented: $showingSignOutAlert, actions: { Button("Cancel", role: .cancel) {}; Button("Sign Out", role: .destructive) { appState.signOut() } }, message: { Text("Are you sure you want to sign out?") })
+        .alert("Delete Account", isPresented: $showingDeleteAccountAlert, actions: { Button("Cancel", role: .cancel) {}; Button("Delete", role: .destructive) { } }, message: { Text("Are you sure you want to delete your account? This action cannot be undone.") })
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 }

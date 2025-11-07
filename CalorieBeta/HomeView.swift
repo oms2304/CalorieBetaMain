@@ -54,6 +54,7 @@ struct HomeView: View {
     private var isToday: Bool {
         Calendar.current.isDateInToday(selectedDate)
     }
+<<<<<<< HEAD
     
     private var showCycleCard: Bool {
         return cycleService.cycleSettings.typicalCycleLength > 0 && goalSettings.gender == "Female"
@@ -62,6 +63,11 @@ struct HomeView: View {
     
     var body: some View {
          ZStack {
+=======
+
+    var body: some View {
+          ZStack {
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             NavigationLink(destination: WorkoutRoutinesView(), isActive: $showingWorkoutRoutines) { EmptyView() }
             ScrollViewReader { proxy in
                 ScrollView {
@@ -69,6 +75,7 @@ struct HomeView: View {
                         dateNavigationView
                             .padding(.horizontal)
                         
+<<<<<<< HEAD
                         if showCycleCard {
                             if cycleService.isLoadingInsight {
                                 ProgressView()
@@ -79,6 +86,8 @@ struct HomeView: View {
                             }
                         }
                         
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         nutritionProgressSection
                             .padding(.horizontal)
                             .id("nutritionProgress")
@@ -108,7 +117,10 @@ struct HomeView: View {
                         
                         if let currentDailyLog = dailyLogService.currentDailyLog, Calendar.current.isDate(currentDailyLog.date, inSameDayAs: selectedDate) {
                             
+<<<<<<< HEAD
                          
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                             let insightToShow = insightsService.isLoadingInsights ? nil : weeklyInsight
                             
                             WaterTrackingCardView(date: currentDailyLog.date, insight: insightToShow)
@@ -181,6 +193,7 @@ struct HomeView: View {
                     }
                 }
             }
+<<<<<<< HEAD
          }
          .sheet(isPresented: $showingSuggestionDetail) {
              if let suggestion = mealSuggestion {
@@ -214,6 +227,41 @@ struct HomeView: View {
          .onReceive(insightsService.$currentInsights) { insights in
              self.weeklyInsight = insights.first
          }
+=======
+          }
+          .sheet(isPresented: $showingSuggestionDetail) {
+              if let suggestion = mealSuggestion {
+                  MealSuggestionDetailView(suggestion: suggestion, onLog: logMealSuggestion)
+              }
+          }
+          .sheet(isPresented: $showingSuggestionPreferences) {
+              SuggestionPreferencesView(goalSettings: goalSettings)
+          }
+          .sheet(isPresented: $showingProfileSheet) {
+              NavigationView {
+                  UserProfileView()
+              }
+          }
+          .sheet(isPresented: $showingAddExerciseView) {
+              AddExerciseView { newExercise in
+                  if let userID = Auth.auth().currentUser?.uid {
+                      self.dailyLogService.addExerciseToLog(for: userID, exercise: newExercise)
+                  }
+              }
+          }
+          .sheet(item: $exerciseToEdit) { exerciseToEdit in
+              AddExerciseView(exerciseToEdit: exerciseToEdit) { updatedExercise in
+                  if let userID = Auth.auth().currentUser?.uid {
+                      self.dailyLogService.deleteExerciseFromLog(for: userID, exerciseID: exerciseToEdit.id)
+                      self.dailyLogService.addExerciseToLog(for: userID, exercise: updatedExercise)
+                  }
+              }
+          }
+          .onAppear(perform: onHomeViewAppear)
+          .onReceive(insightsService.$currentInsights) { insights in
+              self.weeklyInsight = insights.first
+          }
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
     
     private func logMealSuggestion(_ suggestion: MealSuggestion) {
@@ -318,7 +366,11 @@ struct HomeView: View {
             if let currentDailyLog = dailyLogService.currentDailyLog, Calendar.current.isDate(currentDailyLog.date, inSameDayAs: selectedDate) {
                 NutritionProgressView(dailyLog: currentDailyLog, goal: goalSettings, insight: weeklyInsight)
             } else {
+<<<<<<< HEAD
                  ProgressView()
+=======
+                ProgressView()
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                     .frame(maxWidth: .infinity, minHeight: 220)
             }
         }
@@ -334,7 +386,11 @@ struct HomeView: View {
             let currentLogForDisplay = (dailyLogService.currentDailyLog != nil && Calendar.current.isDate(dailyLogService.currentDailyLog!.date, inSameDayAs: selectedDate)) ? dailyLogService.currentDailyLog : nil
 
             if (currentLogForDisplay?.meals.flatMap({ $0.foodItems }).isEmpty ?? true) && (currentLogForDisplay?.exercises?.isEmpty ?? true) {
+<<<<<<< HEAD
                  Text("No food or exercise logged yet for this day.")
+=======
+                Text("No food or exercise logged yet for this day.")
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                     .foregroundColor(Color(UIColor.secondaryLabel))
                     .appFont(size: 15)
                     .frame(maxWidth: .infinity, alignment: .center)

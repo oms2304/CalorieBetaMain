@@ -4,7 +4,11 @@ import FirebaseFirestore
 import WidgetKit
 
 class DailyLogService: ObservableObject {
+<<<<<<< HEAD
     @Published var currentDailyLog: DailyLog? = nil
+=======
+    @Published var currentDailyLog: DailyLog?
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @Published var activelyViewedDate: Date = Calendar.current.startOfDay(for: Date())
     private let db = Firestore.firestore()
     private var logListener: ListenerRegistration?

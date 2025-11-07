@@ -93,10 +93,12 @@ class MealPlannerService: ObservableObject {
         **Primary Goal:** The total nutrition for the day must add up to approximately \(Int(goals.calories ?? 2000)) calories, \(Int(goals.protein))g Protein, \(Int(goals.carbs))g Carbs, and \(Int(goals.fats))g Fats.
         **Allowed Ingredients:** Create meals primarily using this list: \(preferredFoods.joined(separator: ", ")). Common pantry items are also allowed.
         
+
         **Response Format:** You MUST follow this format exactly. Do NOT add any conversational text or day numbers DO NOT print the word "end" in the macros paragraph.
         **Ingredient Format:** Every ingredient line MUST be in the format: '- [Ingredient Name] - [Quantity] [Unit]'.
         **Instruction Format:** Provide clear, step-by-step cooking instructions. Include details like cooking temperatures, times, and methods (e.g., "bake at 400°F for 20 minutes," "sauté until browned") 
         **Macros format:** replace the macors in the the brackets with the respective numbers.
+
 
         Breakfast: [Meal Name]
         Ingredients:
@@ -106,6 +108,7 @@ class MealPlannerService: ObservableObject {
         2. Season the main protein with salt and pepper.
         3. Bake for 20-25 minutes, or until cooked through.
         4. While the main dish is baking, steam the vegetables until tender-crisp.
+
                          Macros:
                                         
                         [snackCalories]
@@ -115,12 +118,15 @@ class MealPlannerService: ObservableObject {
                         [snackCarbs]
                                         
                         [snackFat]
+
+
 
         Lunch: [Meal Name]
         Ingredients:
         - [Ingredient Name] - [Quantity] [Unit]
         Instructions:
         1. [Detailed Step-by-Step Instructions]
+
                          Macros:
                                         
                         [snackCalories]
@@ -131,11 +137,14 @@ class MealPlannerService: ObservableObject {
                                         
                         [snackFat]
 
+
+
         Dinner: [Meal Name]
         Ingredients:
         - [Ingredient Name] - [Quantity] [Unit]
         Instructions:
         1. [Detailed Step-by-Step Instructions]
+
                          Macros:
                                         
                         [snackCalories]
@@ -145,12 +154,12 @@ class MealPlannerService: ObservableObject {
                         [snackCarbs]
                                         
                         [snackFat]
-        
         Snack: [Snack Name]
         Ingredients:
         - [Ingredient Name] - [Quantity] [Unit]
         Instructions:
         1. [Detailed Step-by-Step Instructions]
+
          Macros:
                         
         [snackCalories]
@@ -160,6 +169,7 @@ class MealPlannerService: ObservableObject {
         [snackCarbs]
                         
         [snackFat]
+
         """
         
         guard let aiResponse = await fetchAIResponse(prompt: prompt) else { return nil }
@@ -203,7 +213,9 @@ class MealPlannerService: ObservableObject {
             
             let ingredientsIndex = mealLines.firstIndex(where: { $0.lowercased() == "ingredients:" })
             let instructionsIndex = mealLines.firstIndex(where: { $0.lowercased() == "instructions:" })
+
             let macrosIndex = mealLines.firstIndex(where: { $0.lowercased() == "macros:" })
+
             
             let nameLines = mealLines[..<(ingredientsIndex ?? mealLines.endIndex)]
             let mealName = nameLines.joined(separator: "\n").trimmingCharacters(in: .whitespaces)
@@ -221,6 +233,7 @@ class MealPlannerService: ObservableObject {
             if let instructionsIndex = instructionsIndex {
                 let instructionsStart = mealLines.index(after: instructionsIndex)
                 if instructionsStart < mealLines.endIndex {
+
                     
                     instructions = mealLines[instructionsStart...].joined(separator: "\n")
                     
@@ -262,14 +275,19 @@ class MealPlannerService: ObservableObject {
             
             }
 
+                    instructions = mealLines[instructionsStart...].joined(separator: "\n")
+                }
+            }
+
+
             if mealName.isEmpty { continue }
             
             print("MealPlannerService Debug: Day \(i + 1) - \(currentMealType): \(mealName)")
             
-            
-            
-            
-            
+            let foodItem = FoodItem(id: UUID().uuidString, name: mealName, calories: 0, protein: 0, carbs: 0, fats: 0, servingSize: "1 serving", servingWeight: 0)
+            let meal = PlannedMeal(id: UUID().uuidString, mealType: currentMealType, foodItem: foodItem, ingredients: ingredients, instructions: instructions)
+            parsedMeals.append(meal)
+
         }
         return parsedMeals
     }

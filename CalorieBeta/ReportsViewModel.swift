@@ -2,13 +2,26 @@ import SwiftUI
 import Charts
 import FirebaseAuth
 import HealthKit
+<<<<<<< HEAD
+=======
+import FirebaseFirestore
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
 struct MealScore {
     let grade: String
     let summary: String
     let color: Color
+<<<<<<< HEAD
 
     static let noScore = MealScore(grade: "N/A", summary: "Log a full day of meals to get your score.", color: .gray)
+=======
+    let calorieScore: Int
+    let macroScore: Int
+    let qualityScore: Int
+//    let finalScore: Int
+
+    static let noScore = MealScore(grade: "N/A", summary: "Log a full day of meals to get your score.", color: .gray, calorieScore: 0, macroScore: 0, qualityScore: 0)
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 }
 
 struct ReportSummary: Identifiable {
@@ -47,6 +60,10 @@ struct MealDistributionDataPoint: Identifiable {
 class ReportsViewModel: ObservableObject {
     @Published var summary: ReportSummary? = nil
     @Published var mealScore: MealScore? = nil
+<<<<<<< HEAD
+=======
+    @Published var mealScoreHistory: [DateValuePoint] = []
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @Published var calorieTrend: [DateValuePoint] = []
     @Published var proteinTrend: [DateValuePoint] = []
     @Published var carbTrend: [DateValuePoint] = []
@@ -62,6 +79,10 @@ class ReportsViewModel: ObservableObject {
     let dailyLogService: DailyLogService
     private var currentGoals: GoalSettings?
     private var currentUserID: String? { Auth.auth().currentUser?.uid }
+<<<<<<< HEAD
+=======
+    private let db = Firestore.firestore()
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
     init(dailyLogService: DailyLogService) {
         self.dailyLogService = dailyLogService
@@ -300,16 +321,67 @@ class ReportsViewModel: ObservableObject {
         let result = await dailyLogService.fetchDailyHistory(for: userID, startDate: yesterday, endDate: yesterday)
         
         if case .success(let logs) = result, let yesterdaysLog = logs.first {
+<<<<<<< HEAD
             return calculateMealScore(for: yesterdaysLog, goals: goals)
+=======
+            let score = calculateMealScore(for: yesterdaysLog, goals: goals)
+            saveMealScore(for: userID, date: yesterday, score: score)
+            return score
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         }
         return .noScore
     }
     
+<<<<<<< HEAD
+=======
+    private func saveMealScore(for userID: String, date: Date, score: MealScore) {
+        let dateString = dailyLogService.dateFormatter.string(from: date)
+        let ref = db.collection("users").document(userID).collection("dailySummaries").document(dateString)
+        let data: [String: Any] = [
+            "date": Timestamp(date: date),
+            "mealScore": score.grade,
+            "calorieScore": score.calorieScore,
+            "macroScore": score.macroScore,
+            "qualityScore": score.qualityScore
+        ]
+        ref.setData(data, merge: true)
+    }
+
+    func fetchMealScoreHistory(for userID: String) {
+        let ref = db.collection("users").document(userID).collection("dailySummaries").order(by: "date", descending: true).limit(to: 30)
+        ref.getDocuments { [weak self] snapshot, error in
+            guard let self = self, let documents = snapshot?.documents else { return }
+            
+            let history = documents.compactMap { doc -> DateValuePoint? in
+                guard let timestamp = doc.data()["date"] as? Timestamp,
+                      let scoreString = doc.data()["mealScore"] as? String else { return nil }
+                
+                let scoreValue: Double
+                switch scoreString {
+                case "A+": scoreValue = 100
+                case "A-": scoreValue = 90
+                case "B": scoreValue = 80
+                case "C": scoreValue = 70
+                case "D": scoreValue = 60
+                default: scoreValue = 0
+                }
+                
+                return DateValuePoint(date: timestamp.dateValue(), value: scoreValue)
+            }
+            
+            DispatchQueue.main.async {
+                self.mealScoreHistory = history.sorted { $0.date < $1.date }
+            }
+        }
+    }
+
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private func calculateMealScore(for log: DailyLog, goals: GoalSettings) -> MealScore {
         guard let calorieGoal = goals.calories, calorieGoal > 0 else {
             return .noScore
         }
 
+<<<<<<< HEAD
         var score = 100.0
         var feedback: [String] = []
 
@@ -337,6 +409,42 @@ class ReportsViewModel: ObservableObject {
         let grade: String
         let color: Color
         switch score {
+=======
+        // Calorie Control Score (40%)
+        let calorieDiff = abs(log.totalCalories() - calorieGoal)
+        let calorieScore = max(0, 100 - (calorieDiff / calorieGoal) * 200)
+
+        // Macro Balance Score (30%)
+        let macros = log.totalMacros()
+        let proteinDiff = abs(macros.protein - goals.protein) / goals.protein
+        let carbDiff = abs(macros.carbs - goals.carbs) / goals.carbs
+        let fatDiff = abs(macros.fats - goals.fats) / goals.fats
+        let macroScore = max(0, 100 - (proteinDiff + carbDiff + fatDiff) / 3 * 100)
+
+        // Food Quality Score (30%)
+        let micros = log.totalMicronutrients()
+        var qualityScore = 50.0 // Start with a base score
+        // Fiber bonus
+        let fiberGoal = 25.0
+        qualityScore += min(25, (micros.fiber / fiberGoal) * 25)
+        // Sodium penalty
+        let sodiumGoal = 2300.0
+        if micros.sodium > sodiumGoal {
+            qualityScore -= min(25, (micros.sodium - sodiumGoal) / sodiumGoal * 25)
+        }
+        // Micronutrient bonus
+        let ironGoal = goals.ironGoal ?? 18
+        let calciumGoal = goals.calciumGoal ?? 1000
+        if micros.iron >= ironGoal { qualityScore += 12.5 }
+        if micros.calcium >= calciumGoal { qualityScore += 12.5 }
+        qualityScore = max(0, min(100, qualityScore))
+
+        let finalScore = (calorieScore * 0.4) + (macroScore * 0.3) + (qualityScore * 0.3)
+        
+        let grade: String
+        let color: Color
+        switch finalScore {
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             case 90...: grade = "A+"; color = .accentPositive
             case 80..<90: grade = "A-"; color = .accentPositive
             case 70..<80: grade = "B"; color = .yellow
@@ -344,6 +452,7 @@ class ReportsViewModel: ObservableObject {
             default: grade = "D"; color = .red
         }
         
+<<<<<<< HEAD
         let summary: String
         if feedback.isEmpty {
             summary = "Excellent work! You hit all your major targets."
@@ -352,5 +461,18 @@ class ReportsViewModel: ObservableObject {
         }
 
         return MealScore(grade: grade, summary: summary, color: color)
+=======
+        
+        let summary: String
+        if finalScore >= 80 {
+            summary = "Excellent work! You're hitting your targets."
+        } else if finalScore >= 60 {
+            summary = "Good effort! A few areas to improve."
+        } else {
+            summary = "Let's focus on hitting your goals more consistently."
+        }
+
+        return MealScore(grade: grade, summary: summary, color: color, calorieScore: Int(calorieScore), macroScore: Int(macroScore), qualityScore: Int(qualityScore))
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 }

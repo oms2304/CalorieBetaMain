@@ -57,6 +57,10 @@ struct SuggestionButtonsView: View {
     }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 // MARK: - ChatBubble
 struct ChatBubble: View {
     @Environment(\.colorScheme) var colorScheme
@@ -82,12 +86,20 @@ struct ChatBubble: View {
         VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
             HStack {
                 if message.isUser { Spacer() }
+<<<<<<< HEAD
                 
                 VStack(alignment: !message.isUser ? .leading : .trailing, spacing: 8) {
                     if !message.isUser {
                         Text("Maia")
                             .padding()
                             .background(Circle().fill(colorScheme == .dark ? Color.backgroundSecondary : Color.backgroundSecondary))
+=======
+                VStack(alignment: !message.isUser ? .leading : .trailing) {
+                    if !message.isUser {
+                        Text("Maia")
+                            .padding()
+                            .background(Circle().fill(colorScheme == .dark ? bgGreen : Color.backgroundSecondary ))
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                             .padding(.leading, -6)
                     }
                     
@@ -113,7 +125,10 @@ struct ChatBubble: View {
             
             HStack(spacing: 12) {
                 if message.isUser { Spacer() }
+<<<<<<< HEAD
                 
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 if !message.isUser {
                     Button(action: { onSpeak(message.text) }) {
                         Image(systemName: "speaker.wave.2.fill")
@@ -122,7 +137,10 @@ struct ChatBubble: View {
                             .padding(.bottom, 10)
                     }
                 }
+<<<<<<< HEAD
                 
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 if canBeLogged {
                     Button(action: { onLogRecipe(message.text) }) {
                         Text("Log Food")
@@ -134,7 +152,10 @@ struct ChatBubble: View {
                             .cornerRadius(8)
                     }
                 }
+<<<<<<< HEAD
                 
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 if !message.isUser { Spacer() }
             }
             .padding(.horizontal, message.isUser ? 40 : 0)
@@ -143,7 +164,11 @@ struct ChatBubble: View {
 }
 
 // MARK: - ChatHistoryListView
+<<<<<<< HEAD
 struct ChatHistoryListView: View {
+=======
+private struct ChatHistoryListView: View {
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @Binding var chatMessages: [ChatMessage]
     var onLogRecipe: (String) -> Void
     var onSpeak: (String) -> Void
@@ -206,6 +231,7 @@ struct AIChatbotView: View {
     @State private var alertMessage = ""
 
     var body: some View {
+<<<<<<< HEAD
         ZStack {
             // Custom background shape
             ChatBoxShape()
@@ -255,10 +281,43 @@ struct AIChatbotView: View {
                         .clipShape(Capsule())
                         .padding(.trailing, 20)
                         .padding(.leading, -5)
+=======
+        VStack(spacing: 0) {
+            ChatHistoryListView(
+                chatMessages: $chatMessages,
+                onLogRecipe: logRecipe,
+                onSpeak: ttsManager.speak,
+                showAlert: $showAlert,
+                alertMessage: $alertMessage
+            )
+            .onTapGesture { hideKeyboard() }
+
+            VStack(spacing: 0) {
+                if chatMessages.count <= 1 && !isLoading {
+                    SuggestionButtonsView { prompt in
+                        userMessage = prompt
+                        sendMessage()
+                    }
+                    .padding(.vertical, 10)
+                }
+                
+                if isLoading {
+                    ProgressView().padding(10)
+                }
+
+                HStack(spacing: 15) {
+                    TextField("Ask Maia anything...", text: $userMessage, axis: .vertical)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(colorScheme == .dark ? Color(white: 0.2) : Color.white)
+                        .clipShape(Capsule())
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         .onSubmit(sendMessage)
                     
                     Button(action: sendMessage) {
                         Image(systemName: "arrow.up.circle.fill")
+<<<<<<< HEAD
                             .resizable()
                             .scaledToFit()
                             .foregroundColor(.brandPrimary)
@@ -274,6 +333,25 @@ struct AIChatbotView: View {
         }
         .background(Color.backgroundPrimary.ignoresSafeArea())
         .navigationTitle("")
+=======
+                            .font(.largeTitle)
+                            .foregroundColor(.brandPrimary)
+                    }
+                    .disabled(userMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+                .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)
+            }
+            .background(
+                ChatBoxShape()
+                    .fill(colorScheme == .dark ? bgGreen : Color.backgroundSecondary)
+                    .shadow(color: .black.opacity(0.1), radius: 5, y: -2)
+            )
+        }
+        .background(Color.backgroundPrimary.ignoresSafeArea())
+        .navigationTitle("Maia")
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: setupView)
         .onDisappear(perform: saveMessages)
@@ -299,7 +377,11 @@ struct AIChatbotView: View {
             dailyLogService.fetchLog(for: userID, date: dailyLogService.activelyViewedDate) { _ in }
         }
         if chatMessages.isEmpty {
+<<<<<<< HEAD
             let welcomeMessage = "Hello! I'm Maia, your personal nutrition assistant. How can I assist you right now?"
+=======
+            let welcomeMessage = "Hello! I’m Maia, your personal nutrition assistant. How can I assist you right now?"
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             let initialMessage = ChatMessage(id: UUID(), text: welcomeMessage, isUser: false)
             chatMessages.append(initialMessage)
         }
@@ -522,6 +604,7 @@ struct AIChatbotView: View {
         return breakdown
     }
 
+<<<<<<< HEAD
     private func determineMealType() -> String {
         let h = Calendar.current.component(.hour, from: Date())
         switch h {
@@ -532,6 +615,9 @@ struct AIChatbotView: View {
         default: return "Snack"
         }
     }
+=======
+    private func determineMealType() -> String { let h = Calendar.current.component(.hour, from: Date()); switch h { case 0..<4: return "Snack"; case 4..<11: return "Breakfast"; case 11..<16: return "Lunch"; case 16..<21: return "Dinner"; default: return "Snack" } }
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     
     private func loadMessages() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
@@ -553,6 +639,7 @@ struct AIChatbotView: View {
         }
     }
 }
+<<<<<<< HEAD
 
 #Preview {
     AIChatbotView(selectedTab: .constant(2))
@@ -562,3 +649,5 @@ struct AIChatbotView: View {
         .environmentObject(AchievementService())
         .environmentObject(MealPlannerService(recipeService: RecipeService()))
 }
+=======
+>>>>>>> 5424a6b (Recreated the reports page with more polished UI)
