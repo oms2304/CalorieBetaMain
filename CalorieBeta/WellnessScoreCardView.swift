@@ -11,7 +11,7 @@ struct WellnessScoreCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // MARK: - Header Section
+            // MARK: -]/ Header Section
             HStack {
                 // Title and summary text.
                 VStack(alignment: .leading) {

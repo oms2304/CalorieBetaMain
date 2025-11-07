@@ -61,15 +61,3 @@ struct MealSuggestionDetailView: View {
         }
     }
 }
-<<<<<<< HEAD
-
-//#Preview {
-//    NavigationView {
-//        MealSuggestionDetailView(
-//            suggestion: MealSuggestion(),
-//        )
-//            .environmentObject(DailyLogService())
-//    }
-//}
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)

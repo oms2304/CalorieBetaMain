@@ -20,8 +20,6 @@ struct NutritionLabelData: Decodable {
     let protein: Double
     let carbs: Double
     let fats: Double
-<<<<<<< HEAD
-=======
     let saturatedFat: Double?
     let polyunsaturatedFat: Double?
     let monounsaturatedFat: Double?
@@ -48,7 +46,6 @@ struct NutritionLabelData: Decodable {
     let vitaminB6: Double?
     let vitaminE: Double?
     let vitaminK: Double?
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 }
 
 enum ImageRecognitionError: Error, LocalizedError {
@@ -97,12 +94,8 @@ class MLImageModel {
 
         let prompt = """
         You are a highly accurate nutrition label parser. Analyze the image of the nutrition label provided.
-<<<<<<< HEAD
-        Your response MUST be a valid JSON object only. The root object must contain these exact keys: "foodName", "calories", "protein", "carbs", and "fats".
-=======
         Your response MUST be a valid JSON object only.
         The root object must contain these exact keys: "foodName", "calories", "protein", "carbs", "fats", "saturatedFat", "polyunsaturatedFat", "monounsaturatedFat", "fiber", "calcium", "iron", "potassium", "sodium", "vitaminA", "vitaminC", "vitaminD", "vitaminB12", "folate", "magnesium", "phosphorus", "zinc", "copper", "manganese", "selenium", "vitaminB1", "vitaminB2", "vitaminB3", "vitaminB5", "vitaminB6", "vitaminE", "vitaminK".
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         - "foodName" should be the product name if visible, otherwise use a generic name like "Scanned Food".
         - All nutritional values must be numbers. If a value is not found, it should be 0.
         """

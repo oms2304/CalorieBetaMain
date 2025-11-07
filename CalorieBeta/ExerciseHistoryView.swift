@@ -1,11 +1,5 @@
 import SwiftUI
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 struct ExerciseHistoryView: View {
     let exerciseName: String
     @StateObject private var viewModel: ExerciseHistoryViewModel
@@ -89,44 +83,3 @@ class ExerciseHistoryViewModel: ObservableObject {
         }
     }
 }
-<<<<<<< HEAD
-
-extension ExerciseHistoryView {
-    init(previewData: [ExerciseHistoryViewModel.ExerciseHistorySession], exerciseName: String) {
-        self.exerciseName = exerciseName
-        _viewModel = StateObject(wrappedValue: ExerciseHistoryViewModel(previewData: previewData))
-    }
-}
-
-extension ExerciseHistoryViewModel {
-    convenience init(previewData: [ExerciseHistorySession]) {
-        self.init(exerciseName: "")
-        self.history = previewData
-        self.isLoading = false
-    }
-}
-
-struct ExerciseHistoryView_Previews: PreviewProvider {
-    static var previews: some View {
-        let mockSets = [
-            CompletedSet(id: UUID().uuidString, reps: 10, weight: 100),
-            CompletedSet(id: UUID().uuidString, reps: 8, weight: 105),
-            CompletedSet(id: UUID().uuidString, reps: 6, weight: 110)
-        ]
-        
-        let mockHistory = [
-            ExerciseHistoryViewModel.ExerciseHistorySession(
-                date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-                sets: mockSets
-            )
-        ]
-        
-        return ExerciseHistoryView(previewData: mockHistory, exerciseName: "Bench Press")
-    }
-}
-
-//#Preview {
-//    CustomPicker()
-//}
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)

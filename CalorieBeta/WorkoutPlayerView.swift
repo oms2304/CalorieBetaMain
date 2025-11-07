@@ -65,10 +65,6 @@ class TotalWorkoutTimer: ObservableObject {
     }
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 class RestTimer: ObservableObject {
     @Published var timeRemaining: TimeInterval = 0
     private var timer: Timer?
@@ -113,19 +109,12 @@ class RestTimer: ObservableObject {
     }
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 struct WorkoutPlayerView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dailyLogService: DailyLogService
     @EnvironmentObject var goalSettings: GoalSettings
     @EnvironmentObject var workoutService: WorkoutService
-<<<<<<< HEAD
-=======
     @EnvironmentObject var achievementService: AchievementService
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     
     @State private var routine: WorkoutRoutine
     @StateObject private var restTimer = RestTimer()
@@ -306,10 +295,7 @@ struct WorkoutPlayerView: View {
             )
             Task {
                 await workoutService.saveWorkoutSessionLog(sessionLog)
-<<<<<<< HEAD
-=======
                 achievementService.checkWorkoutCountAchievements(userID: userID)
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             }
         }
 
@@ -602,10 +588,6 @@ private struct StrengthSetRow: View {
                 Button(action: {
                     set.isCompleted.toggle()
                     if set.isCompleted {
-<<<<<<< HEAD
-                        HapticManager.instance.feedback(.light)
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         onComplete()
                     }
                 }) {

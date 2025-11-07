@@ -13,10 +13,7 @@ struct FoodDetailView: View {
     @EnvironmentObject var dailyLogService: DailyLogService
     @EnvironmentObject var bannerService: BannerService
     private let foodAPIService = FatSecretFoodAPIService()
-<<<<<<< HEAD
-=======
     private let imageModel = MLImageModel()
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
     @State private var foodName: String
     @State private var availableServings: [ServingSizeOption] = []
@@ -31,13 +28,10 @@ struct FoodDetailView: View {
     @State private var isSavedAsCustom: Bool = false
     @State private var customFoodForAction: FoodItem?
 
-<<<<<<< HEAD
-=======
     @State private var showingImagePicker = false
     @State private var isProcessingLabel = false
     @State private var scanError: (Bool, String) = (false, "")
 
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private var selectedServingOption: ServingSizeOption? {
         guard let selectedID = selectedServingID else { return nil }
         return availableServings.first { $0.id == selectedID }
@@ -48,11 +42,8 @@ struct FoodDetailView: View {
         saturatedFat: Double?, polyunsaturatedFat: Double?, monounsaturatedFat: Double?,
         fiber: Double?, calcium: Double?, iron: Double?, potassium: Double?, sodium: Double?,
         vitaminA: Double?, vitaminC: Double?, vitaminD: Double?, vitaminB12: Double?, folate: Double?,
-<<<<<<< HEAD
-=======
         magnesium: Double?, phosphorus: Double?, zinc: Double?, copper: Double?, manganese: Double?, selenium: Double?,
         vitaminB1: Double?, vitaminB2: Double?, vitaminB3: Double?, vitaminB5: Double?, vitaminB6: Double?, vitaminE: Double?, vitaminK: Double?,
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         servingDescription: String, servingWeightGrams: Double
     ) {
         guard let quantityValue = Double(quantity), quantityValue > 0, let currentSelectedServing = selectedServingOption else {
@@ -78,8 +69,6 @@ struct FoodDetailView: View {
                 vitaminD: initialFoodItem.vitaminD.map { $0 / initialQtyFactor },
                 vitaminB12: initialFoodItem.vitaminB12.map { $0 / initialQtyFactor },
                 folate: initialFoodItem.folate.map { $0 / initialQtyFactor },
-<<<<<<< HEAD
-=======
                 magnesium: initialFoodItem.magnesium.map { $0 / initialQtyFactor },
                 phosphorus: initialFoodItem.phosphorus.map { $0 / initialQtyFactor },
                 zinc: initialFoodItem.zinc.map { $0 / initialQtyFactor },
@@ -93,7 +82,6 @@ struct FoodDetailView: View {
                 vitaminB6: initialFoodItem.vitaminB6.map { $0 / initialQtyFactor },
                 vitaminE: initialFoodItem.vitaminE.map { $0 / initialQtyFactor },
                 vitaminK: initialFoodItem.vitaminK.map { $0 / initialQtyFactor },
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 servingDescription: baseDesc,
                 servingWeightGrams: initialFoodItem.servingWeight / initialQtyFactor
             )
@@ -126,8 +114,6 @@ struct FoodDetailView: View {
             vitaminD: currentSelectedServing.vitaminD.map { $0 * factor },
             vitaminB12: currentSelectedServing.vitaminB12.map { $0 * factor },
             folate: currentSelectedServing.folate.map { $0 * factor },
-<<<<<<< HEAD
-=======
             magnesium: currentSelectedServing.magnesium.map { $0 * factor },
             phosphorus: currentSelectedServing.phosphorus.map { $0 * factor },
             zinc: currentSelectedServing.zinc.map { $0 * factor },
@@ -141,7 +127,6 @@ struct FoodDetailView: View {
             vitaminB6: currentSelectedServing.vitaminB6.map { $0 * factor },
             vitaminE: currentSelectedServing.vitaminE.map { $0 * factor },
             vitaminK: currentSelectedServing.vitaminK.map { $0 * factor },
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             servingDescription: finalDescription,
             servingWeightGrams: finalWeight
         )
@@ -191,11 +176,7 @@ struct FoodDetailView: View {
                 }.padding(.bottom, 5)
                 Divider()
                 Form {
-<<<<<<< HEAD
-                    Section(header: Text("Nutritional Information (Adjusted for Quantity)")) {
-=======
                     Section(header: Text("Nutritional Information (Adjusted for Quantity)"), footer: labelScannerButton) {
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         if isLoadingDetails && !isLoggedItem && source != "recent_tap" && source != "search_result_no_detail_fetch" { ProgressView() }
                         else if let error = errorLoading { Text("Error loading details: \(error)").foregroundColor(.red) }
                         else {
@@ -225,8 +206,6 @@ struct FoodDetailView: View {
                                 nutrientRow(label: "Vitamin D", value: nutrients.vitaminD, unit: "mcg", specifier: "%.0f")
                                 nutrientRow(label: "Vitamin B12", value: nutrients.vitaminB12, unit: "mcg", specifier: "%.1f")
                                 nutrientRow(label: "Folate", value: nutrients.folate, unit: "mcg", specifier: "%.0f")
-<<<<<<< HEAD
-=======
                                 nutrientRow(label: "Magnesium", value: nutrients.magnesium, unit: "mg", specifier: "%.0f")
                                 nutrientRow(label: "Phosphorus", value: nutrients.phosphorus, unit: "mg", specifier: "%.0f")
                                 nutrientRow(label: "Zinc", value: nutrients.zinc, unit: "mg", specifier: "%.1f")
@@ -240,7 +219,6 @@ struct FoodDetailView: View {
                                 nutrientRow(label: "Vitamin B6", value: nutrients.vitaminB6, unit: "mg", specifier: "%.1f")
                                 nutrientRow(label: "Vitamin E", value: nutrients.vitaminE, unit: "mg", specifier: "%.1f")
                                 nutrientRow(label: "Vitamin K", value: nutrients.vitaminK, unit: "mcg", specifier: "%.0f")
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                             }
                         }
                     }
@@ -280,16 +258,11 @@ struct FoodDetailView: View {
                 .buttonStyle(PrimaryButtonStyle())
                 .disabled(!logButtonEnabled)
                 .padding()
-<<<<<<< HEAD
-            }.blur(radius: (isLoadingDetails && !isLoggedItem && source != "recent_tap" && source != "search_result_no_detail_fetch") ? 3 : 0)
-            if isLoadingDetails && !isLoggedItem && source != "recent_tap" && source != "search_result_no_detail_fetch" { VStack { ProgressView("Loading Serving Sizes..."); Spacer() }.frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.black.opacity(0.1)) }
-=======
             }.blur(radius: isProcessingLabel ? 3 : 0)
             
             if isProcessingLabel {
                 ImageProcessingView()
             }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         }
         .background(Color.backgroundPrimary.ignoresSafeArea())
         .navigationTitle(navigationTitleText()).navigationBarTitleDisplayMode(.inline)
@@ -307,8 +280,6 @@ struct FoodDetailView: View {
             setupInitialData()
             checkIfSaved()
         }
-<<<<<<< HEAD
-=======
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(sourceType: .camera) { image in
                 self.isProcessingLabel = true
@@ -379,7 +350,6 @@ struct FoodDetailView: View {
         self.availableServings.insert(scannedServing, at: 0)
         self.selectedServingID = scannedServing.id
         self.quantity = "1"
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 
     private func buttonText() -> String {
@@ -420,15 +390,11 @@ struct FoodDetailView: View {
             potassium: finalNutrients.potassium, sodium: finalNutrients.sodium,
             vitaminA: finalNutrients.vitaminA, vitaminC: finalNutrients.vitaminC,
             vitaminD: finalNutrients.vitaminD,
-<<<<<<< HEAD
-            vitaminB12: finalNutrients.vitaminB12, folate: finalNutrients.folate
-=======
             vitaminB12: finalNutrients.vitaminB12, folate: finalNutrients.folate,
             magnesium: finalNutrients.magnesium, phosphorus: finalNutrients.phosphorus, zinc: finalNutrients.zinc,
             copper: finalNutrients.copper, manganese: finalNutrients.manganese, selenium: finalNutrients.selenium,
             vitaminB1: finalNutrients.vitaminB1, vitaminB2: finalNutrients.vitaminB2, vitaminB3: finalNutrients.vitaminB3,
             vitaminB5: finalNutrients.vitaminB5, vitaminB6: finalNutrients.vitaminB6, vitaminE: finalNutrients.vitaminE, vitaminK: finalNutrients.vitaminK
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         )
         onUpdate(updatedFoodItem)
         dismiss()
@@ -460,15 +426,11 @@ struct FoodDetailView: View {
             timestamp: nil, calcium: finalNutrients.calcium, iron: finalNutrients.iron,
             potassium: finalNutrients.potassium, sodium: finalNutrients.sodium, vitaminA: finalNutrients.vitaminA,
             vitaminC: finalNutrients.vitaminC, vitaminD: finalNutrients.vitaminD,
-<<<<<<< HEAD
-            vitaminB12: finalNutrients.vitaminB12, folate: finalNutrients.folate
-=======
             vitaminB12: finalNutrients.vitaminB12, folate: finalNutrients.folate,
             magnesium: finalNutrients.magnesium, phosphorus: finalNutrients.phosphorus, zinc: finalNutrients.zinc,
             copper: finalNutrients.copper, manganese: finalNutrients.manganese, selenium: finalNutrients.selenium,
             vitaminB1: finalNutrients.vitaminB1, vitaminB2: finalNutrients.vitaminB2, vitaminB3: finalNutrients.vitaminB3,
             vitaminB5: finalNutrients.vitaminB5, vitaminB6: finalNutrients.vitaminB6, vitaminE: finalNutrients.vitaminE, vitaminK: finalNutrients.vitaminK
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         )
         
         dailyLogService.saveCustomFood(for: userID, foodItem: itemToSave) { success in
@@ -538,9 +500,6 @@ struct FoodDetailView: View {
                 vitaminC: initialFoodItem.vitaminC.map { $0 / qtyFactor },
                 vitaminD: initialFoodItem.vitaminD.map { $0 / qtyFactor },
                 vitaminB12: initialFoodItem.vitaminB12.map { $0 / qtyFactor },
-<<<<<<< HEAD
-                folate: initialFoodItem.folate.map { $0 / qtyFactor }
-=======
                 folate: initialFoodItem.folate.map { $0 / qtyFactor },
                 magnesium: initialFoodItem.magnesium.map { $0 / qtyFactor },
                 phosphorus: initialFoodItem.phosphorus.map { $0 / qtyFactor },
@@ -555,7 +514,6 @@ struct FoodDetailView: View {
                 vitaminB6: initialFoodItem.vitaminB6.map { $0 / qtyFactor },
                 vitaminE: initialFoodItem.vitaminE.map { $0 / qtyFactor },
                 vitaminK: initialFoodItem.vitaminK.map { $0 / qtyFactor }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             )
             self.availableServings = [singleUnitNutrients]
             self.selectedServingID = singleUnitNutrients.id
@@ -585,9 +543,6 @@ struct FoodDetailView: View {
                 vitaminC: initialFoodItem.vitaminC.map { $0 / loggedQty },
                 vitaminD: initialFoodItem.vitaminD.map { $0 / loggedQty },
                 vitaminB12: initialFoodItem.vitaminB12.map { $0 / loggedQty },
-<<<<<<< HEAD
-                folate: initialFoodItem.folate.map { $0 / loggedQty }
-=======
                 folate: initialFoodItem.folate.map { $0 / loggedQty },
                 magnesium: initialFoodItem.magnesium.map { $0 / loggedQty },
                 phosphorus: initialFoodItem.phosphorus.map { $0 / loggedQty },
@@ -602,7 +557,6 @@ struct FoodDetailView: View {
                 vitaminB6: initialFoodItem.vitaminB6.map { $0 / loggedQty },
                 vitaminE: initialFoodItem.vitaminE.map { $0 / loggedQty },
                 vitaminK: initialFoodItem.vitaminK.map { $0 / loggedQty }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             )
             self.availableServings = [singleUnitNutrients]
             self.selectedServingID = singleUnitNutrients.id
@@ -630,9 +584,6 @@ struct FoodDetailView: View {
                 vitaminC: initialFoodItem.vitaminC,
                 vitaminD: initialFoodItem.vitaminD,
                 vitaminB12: initialFoodItem.vitaminB12,
-<<<<<<< HEAD
-                folate: initialFoodItem.folate
-=======
                 folate: initialFoodItem.folate,
                 magnesium: initialFoodItem.magnesium,
                 phosphorus: initialFoodItem.phosphorus,
@@ -647,7 +598,6 @@ struct FoodDetailView: View {
                 vitaminB6: initialFoodItem.vitaminB6,
                 vitaminE: initialFoodItem.vitaminE,
                 vitaminK: initialFoodItem.vitaminK
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             )
             self.availableServings = [baseServingOption]
             self.selectedServingID = baseServingOption.id
@@ -712,9 +662,6 @@ struct FoodDetailView: View {
             vitaminC: initialFoodItem.vitaminC.map { $0 / qtyFactor },
             vitaminD: initialFoodItem.vitaminD.map { $0 / qtyFactor },
             vitaminB12: initialFoodItem.vitaminB12.map { $0 / qtyFactor },
-<<<<<<< HEAD
-            folate: initialFoodItem.folate.map { $0 / qtyFactor }
-=======
             folate: initialFoodItem.folate.map { $0 / qtyFactor },
             magnesium: initialFoodItem.magnesium.map { $0 / qtyFactor },
             phosphorus: initialFoodItem.phosphorus.map { $0 / qtyFactor },
@@ -729,7 +676,6 @@ struct FoodDetailView: View {
             vitaminB6: initialFoodItem.vitaminB6.map { $0 / qtyFactor },
             vitaminE: initialFoodItem.vitaminE.map { $0 / qtyFactor },
             vitaminK: initialFoodItem.vitaminK.map { $0 / qtyFactor }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         )
     }
 
@@ -773,15 +719,11 @@ struct FoodDetailView: View {
             potassium: finalNutrients.potassium, sodium: finalNutrients.sodium,
             vitaminA: finalNutrients.vitaminA, vitaminC: finalNutrients.vitaminC,
             vitaminD: finalNutrients.vitaminD,
-<<<<<<< HEAD
-            vitaminB12: finalNutrients.vitaminB12, folate: finalNutrients.folate
-=======
             vitaminB12: finalNutrients.vitaminB12, folate: finalNutrients.folate,
             magnesium: finalNutrients.magnesium, phosphorus: finalNutrients.phosphorus, zinc: finalNutrients.zinc,
             copper: finalNutrients.copper, manganese: finalNutrients.manganese, selenium: finalNutrients.selenium,
             vitaminB1: finalNutrients.vitaminB1, vitaminB2: finalNutrients.vitaminB2, vitaminB3: finalNutrients.vitaminB3,
             vitaminB5: finalNutrients.vitaminB5, vitaminB6: finalNutrients.vitaminB6, vitaminE: finalNutrients.vitaminE, vitaminK: finalNutrients.vitaminK
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         )
         
         if isLoggedItem {

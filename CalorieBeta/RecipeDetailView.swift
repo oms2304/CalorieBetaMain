@@ -19,13 +19,6 @@ struct RecipeDetailView: View {
             }
 
             Section(header: Text("Nutrition Per Serving")) {
-<<<<<<< HEAD
-                if recipe.nutritionPerServing.calories > 0 {
-                    nutrientRow(label: "Calories", value: String(format: "%.0f kcal", recipe.nutritionPerServing.calories))
-                    nutrientRow(label: "Protein", value: String(format: "%.1f g", recipe.nutritionPerServing.protein))
-                    nutrientRow(label: "Carbs", value: String(format: "%.1f g", recipe.nutritionPerServing.carbs))
-                    nutrientRow(label: "Fats", value: String(format: "%.1f g", recipe.nutritionPerServing.fats))
-=======
                 let nutrition = recipe.nutritionPerServing
                 if nutrition.calories > 0 {
                     nutrientRow(label: "Calories", value: String(format: "%.0f kcal", nutrition.calories))
@@ -48,7 +41,6 @@ struct RecipeDetailView: View {
                         nutrientRow(label: "Vitamin B12", value: nutrition.vitaminB12, unit: "mcg")
                         nutrientRow(label: "Folate", value: nutrition.folate, unit: "mcg", specifier: "%.0f")
                     }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 } else {
                     Text("Nutritional information has not been calculated. Match all ingredients to see full details.")
                         .appFont(size: 12)
@@ -91,8 +83,6 @@ struct RecipeDetailView: View {
         }
         .appFont(size: 15)
     }
-<<<<<<< HEAD
-=======
     
     @ViewBuilder private func nutrientRow(label: String, value: Double?, unit: String, specifier: String = "%.1f") -> some View {
          if let unwrappedValue = value, unwrappedValue > 0.001 || (specifier == "%.0f" && unwrappedValue >= 0.5) {
@@ -102,5 +92,4 @@ struct RecipeDetailView: View {
               EmptyView()
          }
     }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 }

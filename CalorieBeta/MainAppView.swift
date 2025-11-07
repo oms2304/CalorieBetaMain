@@ -4,11 +4,6 @@ import FirebaseAuth
 import AppTrackingTransparency
 import GoogleMobileAds
 import WatchConnectivity
-<<<<<<< HEAD
-import SwiftData
-import Toasts
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
 class WatchConnectivityManager: NSObject, ObservableObject, WCSessionDelegate {
     @Published var isReachable: Bool = false
@@ -84,23 +79,12 @@ struct CalorieBetaApp: App {
     @StateObject var healthKitViewModel: HealthKitViewModel
     @StateObject var spotlightManager: SpotlightManager
     @StateObject var cycleService: CycleTrackingService
-<<<<<<< HEAD
-    @StateObject var exerciseViewModel: ExerciseViewModel
-    
-//    let container: ModelContainer
-    
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     
     @StateObject var connectivityManager = WatchConnectivityManager()
 
     init() {
         FirebaseApp.configure()
-<<<<<<< HEAD
-      
-=======
         
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         let bannerSvc = BannerService()
         let logService = DailyLogService()
         let goalsSvc = GoalSettings(dailyLogService: logService)
@@ -113,10 +97,6 @@ struct CalorieBetaApp: App {
         let plannerService = MealPlannerService(recipeService: recipes)
         let spotlightMgr = SpotlightManager()
         let cycleSvc = CycleTrackingService()
-<<<<<<< HEAD
-        let exView = ExerciseViewModel()
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
         _dailyLogService = StateObject(wrappedValue: logService)
         _goalSettings = StateObject(wrappedValue: goalsSvc)
@@ -130,10 +110,6 @@ struct CalorieBetaApp: App {
         _bannerService = StateObject(wrappedValue: bannerSvc)
         _spotlightManager = StateObject(wrappedValue: spotlightMgr)
         _cycleService = StateObject(wrappedValue: cycleSvc)
-<<<<<<< HEAD
-        _exerciseViewModel = StateObject(wrappedValue: exView)
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         
         logService.goalSettings = goalsSvc
         logService.bannerService = bannerSvc
@@ -141,14 +117,8 @@ struct CalorieBetaApp: App {
         achieveService.setupDependencies(dailyLogService: logService, goalSettings: goalsSvc, bannerService: bannerSvc)
         hkViewModel.setup(dailyLogService: logService)
         cycleSvc.setupDependencies(goalSettings: goalsSvc, dailyLogService: logService)
-<<<<<<< HEAD
-
-        Task { await MobileAds.shared.start() }
-        
-=======
         
         Task { await MobileAds.shared.start() }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 
     var body: some Scene {
@@ -167,18 +137,8 @@ struct CalorieBetaApp: App {
                 .environmentObject(connectivityManager)
                 .environmentObject(spotlightManager)
                 .environmentObject(cycleService)
-<<<<<<< HEAD
-                .environmentObject(exerciseViewModel)
-                .preferredColorScheme(appState.isDarkModeEnabled ? .dark : .light)
-                .modelContainer(for: ProfilePicture.self)
-                .installToast(position: .top)
-                
-        }
-        .modelContainer(for: Favorite.self)
-=======
                 .preferredColorScheme(appState.isDarkModeEnabled ? .dark : .light)
         }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
 }
 

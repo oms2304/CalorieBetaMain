@@ -6,11 +6,12 @@ import SwiftUI
 /// This struct defines the data model for the overall Wellness Score.
 /// It holds the final calculated scores and a summary message.
 struct WellnessScore {
-    // The main score, calculated from the other three components.
+    // The score for yesterday's nutrition (from MealScore).
     let overallScore: Int
     
-    // The score for yesterday's nutrition (from MealScore).
     let nutritionScore: Int
+    
+    
     
     // The score for the most recent night of sleep.
     let sleepScore: Int // Store the last night's comprehensive score
@@ -23,16 +24,18 @@ struct WellnessScore {
     
     // A color that corresponds to the score (e.g., green for good, red for bad).
     let color: Color
+    
+    
 
     /// A static "zero" state for when no data is available to display.
-    static let zero = WellnessScore(overallScore: 20, nutritionScore: 0, sleepScore: 0, recoveryScore: 0, summary: "Log your day to see your score.", color: .gray)
+    static let zero = WellnessScore(overallScore: 0,nutritionScore: 0, sleepScore: 0, recoveryScore: 0, summary: "Log your day to see your score.", color: .gray)
 }
 
 // MARK: - Wellness Score Service
 
 /// This class contains the business logic for calculating the WellnessScore.
 /// It takes data from nutrition, sleep, and recovery to create a single, weighted score.
-class WellnessScoreService {
+class WellnessScoreService: ObservableObject{
 
     /**
      Calculates the overall Wellness Score based on inputs from nutrition, sleep, and HealthKit.
@@ -53,7 +56,7 @@ class WellnessScoreService {
         // 1. Nutrition Score (40% weight)
         // We use the `mealScore` from yesterday, defaulting to 0 if it's nil.
         let currentMealScore = mealScore ?? .noScore
-        let nutritionScore = 2
+        let nutritionScore = 20
 
         // 2. Sleep Score (30% weight)
         // We use the `lastNightSleepScore` passed in, defaulting to 0 if nil.

@@ -32,12 +32,6 @@ struct FatSecretServing: Decodable {
     let servingDescription: String?; let metricServingAmount: String?; let metricServingUnit: String?
     let calcium: String?; let iron: String?; let potassium: String?; let sodium: String?
     let vitamin_a: String?; let vitamin_c: String?; let vitamin_d: String?; let vitamin_b12: String?; let folate: String?
-<<<<<<< HEAD
-    enum CodingKeys: String, CodingKey { case calories, protein, carbohydrate, fat, calcium, iron, potassium, sodium, vitamin_a, vitamin_c, vitamin_d, vitamin_b12, folate; case saturatedFat = "saturated_fat"; case polyunsaturatedFat = "polyunsaturated_fat"; case monounsaturatedFat = "monounsaturated_fat"; case fiber; case servingDescription = "serving_description"; case metricServingAmount = "metric_serving_amount"; case metricServingUnit = "metric_serving_unit" }
-
-    private func parseDouble(from string: String?) -> Double { guard let s = string?.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty, s.lowercased() != "n/a" else { return 0.0 }; let cleaned = s.replacingOccurrences(of: ",", with: ".").replacingOccurrences(of: "<", with: "").replacingOccurrences(of: ">", with: ""); return Double(cleaned) ?? 0.0 }
-    func parsedNutrient(_ key: CodingKeys) -> Double { switch key { case .calories: return parseDouble(from: calories); case .protein: return parseDouble(from: protein); case .carbohydrate: return parseDouble(from: carbohydrate); case .fat: return parseDouble(from: fat); case .saturatedFat: return parseDouble(from: saturatedFat); case .polyunsaturatedFat: return parseDouble(from: polyunsaturatedFat); case .monounsaturatedFat: return parseDouble(from: monounsaturatedFat); case .fiber: return parseDouble(from: fiber); case .calcium: return parseDouble(from: calcium); case .iron: return parseDouble(from: iron); case .potassium: return parseDouble(from: potassium); case .sodium: return parseDouble(from: sodium); case .vitamin_a: return parseDouble(from: vitamin_a); case .vitamin_c: return parseDouble(from: vitamin_c); case .vitamin_d: return parseDouble(from: vitamin_d); case .vitamin_b12: return parseDouble(from: vitamin_b12); case .folate: return parseDouble(from: folate); default: return 0.0 } }
-=======
     let magnesium: String?; let phosphorus: String?; let zinc: String?; let copper: String?; let manganese: String?; let selenium: String?
     let vitamin_b1: String?; let vitamin_b2: String?; let vitamin_b3: String?; let vitamin_b5: String?; let vitamin_b6: String?; let vitamin_e: String?; let vitamin_k: String?
 
@@ -85,7 +79,6 @@ struct FatSecretServing: Decodable {
         default: return 0.0
         }
     }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     var parsedServingWeightGrams: Double? { guard let amountStr = metricServingAmount, let unit = metricServingUnit?.lowercased(), let amount = Double(amountStr), amount > 0 else { return nil }; if unit == "g" { return amount }; if unit == "ml" { return amount }; if unit == "oz" { return amount * 28.3495 }; if unit == "fl oz" { return amount * 29.5735 }; return nil }
     var displayDescription: String { servingDescription ?? "Serving" }
 }
@@ -160,9 +153,6 @@ class FatSecretFoodAPIService {
                         vitaminC: serving.parsedNutrient(.vitamin_c) > 0 ? serving.parsedNutrient(.vitamin_c) : nil,
                         vitaminD: serving.parsedNutrient(.vitamin_d) > 0 ? serving.parsedNutrient(.vitamin_d) : nil,
                         vitaminB12: serving.parsedNutrient(.vitamin_b12) > 0 ? serving.parsedNutrient(.vitamin_b12) : nil,
-<<<<<<< HEAD
-                        folate: serving.parsedNutrient(.folate) > 0 ? serving.parsedNutrient(.folate) : nil
-=======
                         folate: serving.parsedNutrient(.folate) > 0 ? serving.parsedNutrient(.folate) : nil,
                         magnesium: serving.parsedNutrient(.magnesium) > 0 ? serving.parsedNutrient(.magnesium) : nil,
                         phosphorus: serving.parsedNutrient(.phosphorus) > 0 ? serving.parsedNutrient(.phosphorus) : nil,
@@ -177,7 +167,6 @@ class FatSecretFoodAPIService {
                         vitaminB6: serving.parsedNutrient(.vitamin_b6) > 0 ? serving.parsedNutrient(.vitamin_b6) : nil,
                         vitaminE: serving.parsedNutrient(.vitamin_e) > 0 ? serving.parsedNutrient(.vitamin_e) : nil,
                         vitaminK: serving.parsedNutrient(.vitamin_k) > 0 ? serving.parsedNutrient(.vitamin_k) : nil
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                     )
                     availableServings.append(option)
                 }
@@ -201,9 +190,6 @@ class FatSecretFoodAPIService {
                     vitaminC: baseServing.parsedNutrient(.vitamin_c) > 0 ? baseServing.parsedNutrient(.vitamin_c) : nil,
                     vitaminD: baseServing.parsedNutrient(.vitamin_d) > 0 ? baseServing.parsedNutrient(.vitamin_d) : nil,
                     vitaminB12: baseServing.parsedNutrient(.vitamin_b12) > 0 ? baseServing.parsedNutrient(.vitamin_b12) : nil,
-<<<<<<< HEAD
-                    folate: baseServing.parsedNutrient(.folate) > 0 ? baseServing.parsedNutrient(.folate) : nil
-=======
                     folate: baseServing.parsedNutrient(.folate) > 0 ? baseServing.parsedNutrient(.folate) : nil,
                     magnesium: baseServing.parsedNutrient(.magnesium) > 0 ? baseServing.parsedNutrient(.magnesium) : nil,
                     phosphorus: baseServing.parsedNutrient(.phosphorus) > 0 ? baseServing.parsedNutrient(.phosphorus) : nil,
@@ -218,7 +204,6 @@ class FatSecretFoodAPIService {
                     vitaminB6: baseServing.parsedNutrient(.vitamin_b6) > 0 ? baseServing.parsedNutrient(.vitamin_b6) : nil,
                     vitaminE: baseServing.parsedNutrient(.vitamin_e) > 0 ? baseServing.parsedNutrient(.vitamin_e) : nil,
                     vitaminK: baseServing.parsedNutrient(.vitamin_k) > 0 ? baseServing.parsedNutrient(.vitamin_k) : nil
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 )
                 
                 completion(.success((foodInfo: baseFoodItem, availableServings: availableServings)))

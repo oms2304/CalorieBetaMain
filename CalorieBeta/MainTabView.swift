@@ -4,10 +4,7 @@ import FirebaseAuth
 struct MainTabView: View {
     @EnvironmentObject var goalSettings: GoalSettings
     @EnvironmentObject var dailyLogService: DailyLogService
-<<<<<<< HEAD
-=======
     
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @EnvironmentObject var achievementService: AchievementService
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var groupService: GroupService
@@ -21,12 +18,6 @@ struct MainTabView: View {
     @State private var showingAddFoodView = false
     @State private var showingBarcodeScanner = false
     @State private var showingAddExerciseView = false
-<<<<<<< HEAD
-    @State private var showingActionSheet = false
-    @State private var showingExerciseSheet = false
-    @State private var showingWeightSheet = false
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     @State private var showingRecipeListView = false
     @State private var showingFoodSearch = false
     @State private var showingAITextLog = false
@@ -47,9 +38,6 @@ struct MainTabView: View {
     private var containerBackground: Color {
         Color.backgroundSecondary
     }
-<<<<<<< HEAD
-
-=======
     private let wellnessScoreService = WellnessScoreService()
 
     private var currentWellnessScore: WellnessScore {
@@ -63,7 +51,6 @@ struct MainTabView: View {
     }
 
     
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     var body: some View {
         ZStack {
             ZStack(alignment: .bottom) {
@@ -79,11 +66,7 @@ struct MainTabView: View {
                         NavigationView { MealPlannerView() }
                         .navigationViewStyle(StackNavigationViewStyle())
                     case 4:
-<<<<<<< HEAD
-                        NavigationView { ReportsView(dailyLogService: dailyLogService) }
-=======
                         NavigationView { ReportsView(dailyLogService: dailyLogService, wellnessScore: currentWellnessScore) }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         .navigationViewStyle(StackNavigationViewStyle())
                     default:
                         NavigationView { HomeView(navigateToProfile: .constant(false), showSettings: $showSettings) }
@@ -99,11 +82,6 @@ struct MainTabView: View {
                     centerButtonAction: {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                             showingAddOptions.toggle()
-<<<<<<< HEAD
-                            showingActionSheet = false
-                            showingAddFoodView = false
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                         }
                     }
                 )
@@ -113,85 +91,12 @@ struct MainTabView: View {
                         .onTapGesture {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.6)){
                                 showingAddOptions = false
-<<<<<<< HEAD
-                                showingExerciseSheet = false
-                                showingActionSheet = false
-                                
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                             }
                         }
                         .zIndex(1)
 
                     VStack(spacing: 16) {
                         let buttons = [
-<<<<<<< HEAD
-                            ("Scan Barcode", "barcode.viewfinder", { self.showingBarcodeScanner = true;
-                                }),
-                            ("Log Exercise", "figure.walk", {  self.showingExerciseSheet = true
-                                }),
-                            ("Log Food", "list.clipboard", { self.showingActionSheet = true;
-                            }),
-                            ("Log Weight", "square.and.pencil", {
-                                self.showingAddFoodView = true
-                                
-                            })
-                        ]
-                        ForEach(Array(buttons.enumerated()), id: \.offset) { index, buttonInfo in
-                            actionButton(title: buttonInfo.0, icon: buttonInfo.1) {
-                                buttonInfo.2()
-                                
-//                                self.showingAddOptions = false
-                            }
-                            .actionSheet(isPresented: $showingActionSheet) {
-                                if showingExerciseSheet {
-                                    
-                                    ActionSheet(title: Text("Log Exercise"),
-                                                message: Text(""),
-                                                buttons: [
-                                                    .default(
-                                                        Text("Cardio")
-                                                        
-                                                    ),
-                                                    .default(
-                                                        Text("Strength")
-                                                        
-                                                    ),
-                                                    .cancel {
-                                                        self.showingActionSheet = false
-                                                        self.showingExerciseSheet = false
-                                                    }
-                                                ]
-                                    )
-                                    
-                                }
-                                
-                                else {
-                                    ActionSheet(title: Text("Log Food"),
-                                                message: Text(""),
-                                                buttons: [
-                                                    .default(
-                                                        Text("Log new meal/reciepe")
-                                                        
-                                                    ),
-                                                    .default(
-                                                        Text("Saved meals")
-                                                        
-                                                    ),
-                                                    .cancel {
-                                                        self.showingActionSheet = false
-                                                        
-                                                    }
-                                                ]
-                                    )
-                                }
-                            }
-                            
-                            .transition(.scale(scale: 0.5, anchor: .bottom).combined(with: .opacity))
-                            .animation(.spring(response: 0.3, dampingFraction: 0.6).delay(0.05 * Double(index)), value: showingAddOptions)
-                        }
-                        
-=======
                             ("Search Food", "magnifyingglass", { self.showingFoodSearch = true }),
                             ("Scan Barcode", "barcode.viewfinder", { self.showingBarcodeScanner = true }),
                             ("Log with Camera", "camera.fill", { self.showingImagePicker = true }),
@@ -209,7 +114,6 @@ struct MainTabView: View {
                             .transition(.scale(scale: 0.5, anchor: .bottom).combined(with: .opacity))
                             .animation(.spring(response: 0.3, dampingFraction: 0.6).delay(0.05 * Double(index)), value: showingAddOptions)
                         }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                     }
                     .padding()
                     .background(containerBackground)
@@ -218,10 +122,6 @@ struct MainTabView: View {
                     .padding(40)
                     .zIndex(2)
                     .featureSpotlight(isActive: showingSpotlightTour)
-<<<<<<< HEAD
-                    
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 }
                 
                 if isSearchingAfterScan {
@@ -235,11 +135,7 @@ struct MainTabView: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: $showSettings) { NavigationView { SettingsView(showSettings: $showSettings) } }
-<<<<<<< HEAD
-            .sheet(isPresented: $showingExerciseSheet) { AddFoodView2 { newFood in if let userID = Auth.auth().currentUser?.uid { dailyLogService.addFoodToCurrentLog(for: userID, foodItem: newFood, source: "manual_log") } } }
-=======
             .sheet(isPresented: $showingAddFoodView) { AddFoodView { newFood in if let userID = Auth.auth().currentUser?.uid { dailyLogService.addFoodToCurrentLog(for: userID, foodItem: newFood, source: "manual_log") } } }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             .sheet(isPresented: $showingFoodSearch) { FoodSearchView(dailyLog: $dailyLogService.currentDailyLog, onFoodItemLogged: { showingFoodSearch = false }, searchContext: "general_search" ) }
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(sourceType: .camera) { image in
@@ -259,10 +155,6 @@ struct MainTabView: View {
                  AISummaryView(estimatedItems: $estimatedFoodItems)
             }
             .sheet(isPresented: $showingBarcodeScanner) {
-<<<<<<< HEAD
-                AddFoodView { newFood in if let userID = Auth.auth().currentUser?.uid { dailyLogService.addFoodToCurrentLog(for: userID, foodItem: newFood, source: "manual_log") } }
-                
-=======
                 BarcodeScannerView { barcode in
                     self.showingBarcodeScanner = false
                     self.isSearchingAfterScan = true
@@ -276,7 +168,6 @@ struct MainTabView: View {
                         }
                     }
                 }
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             }
             .sheet(item: $scannedFoodItem) { foodItem in
                 NavigationView {
@@ -306,10 +197,7 @@ struct MainTabView: View {
                     }
                 }
             }
-<<<<<<< HEAD
-=======
             
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
             if showingSpotlightTour {
                 Color.black.opacity(0.5).ignoresSafeArea()
                     .onTapGesture(perform: finishTour)
@@ -319,10 +207,7 @@ struct MainTabView: View {
                     title: "Quick Actions",
                     text: "From here you can log anything. Search our database, scan a barcode, analyze a meal with your camera, or add a recipe or exercise."
                 )
-<<<<<<< HEAD
-=======
                 
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                 SpotlightTextView(
                     content: content,
                     currentIndex: 0,

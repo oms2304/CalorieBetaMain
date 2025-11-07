@@ -103,12 +103,8 @@ fileprivate struct RecipeRow: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(recipe.name).appFont(size: 17, weight: .semibold)
-<<<<<<< HEAD
-                Text("\(recipe.servingSizeDescription) - \(recipe.nutritionPerServing.calories, specifier: "%.0f") cal")
-=======
                 let nutrition = recipe.nutritionPerServing
                 Text("\(recipe.servingSizeDescription) - \(String(format: "%.0f", nutrition.calories)) cal, P:\(String(format: "%.0f", nutrition.protein))g, C:\(String(format: "%.0f", nutrition.carbs))g, F:\(String(format: "%.0f", nutrition.fats))g")
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
                     .appFont(size: 15)
                     .foregroundColor(Color(UIColor.secondaryLabel))
             }
@@ -152,11 +148,6 @@ fileprivate struct RecipeRow: View {
             protein: nutrition.protein * quantity,
             carbs: nutrition.carbs * quantity,
             fats: nutrition.fats * quantity,
-<<<<<<< HEAD
-            servingSize: "\(String(format: "%g", quantity)) x \(recipe.servingSizeDescription)",
-            servingWeight: 0,
-            timestamp: Date()
-=======
             saturatedFat: (nutrition.saturatedFat ?? 0) * quantity,
             polyunsaturatedFat: (nutrition.polyunsaturatedFat ?? 0) * quantity,
             monounsaturatedFat: (nutrition.monounsaturatedFat ?? 0) * quantity,
@@ -173,7 +164,6 @@ fileprivate struct RecipeRow: View {
             vitaminD: (nutrition.vitaminD ?? 0) * quantity,
             vitaminB12: (nutrition.vitaminB12 ?? 0) * quantity,
             folate: (nutrition.folate ?? 0) * quantity
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         )
         dailyLogService.addFoodToCurrentLog(for: userID, foodItem: loggedItem, source: "recipe")
     }

@@ -93,12 +93,9 @@ class MealPlannerService: ObservableObject {
         **Primary Goal:** The total nutrition for the day must add up to approximately \(Int(goals.calories ?? 2000)) calories, \(Int(goals.protein))g Protein, \(Int(goals.carbs))g Carbs, and \(Int(goals.fats))g Fats.
         **Allowed Ingredients:** Create meals primarily using this list: \(preferredFoods.joined(separator: ", ")). Common pantry items are also allowed.
         
-
-        **Response Format:** You MUST follow this format exactly. Do NOT add any conversational text or day numbers DO NOT print the word "end" in the macros paragraph.
+        **Response Format:** You MUST follow this format exactly. Do NOT add any conversational text or day numbers.
         **Ingredient Format:** Every ingredient line MUST be in the format: '- [Ingredient Name] - [Quantity] [Unit]'.
-        **Instruction Format:** Provide clear, step-by-step cooking instructions. Include details like cooking temperatures, times, and methods (e.g., "bake at 400°F for 20 minutes," "sauté until browned") 
-        **Macros format:** replace the macors in the the brackets with the respective numbers.
-
+        **Instruction Format:** Provide clear, step-by-step cooking instructions. Include details like cooking temperatures, times, and methods (e.g., "bake at 400°F for 20 minutes," "sauté until browned").
 
         Breakfast: [Meal Name]
         Ingredients:
@@ -109,67 +106,23 @@ class MealPlannerService: ObservableObject {
         3. Bake for 20-25 minutes, or until cooked through.
         4. While the main dish is baking, steam the vegetables until tender-crisp.
 
-                         Macros:
-                                        
-                        [snackCalories]
-                                        
-                        [snackProtein]
-                                        
-                        [snackCarbs]
-                                        
-                        [snackFat]
-
-
-
         Lunch: [Meal Name]
         Ingredients:
         - [Ingredient Name] - [Quantity] [Unit]
         Instructions:
         1. [Detailed Step-by-Step Instructions]
 
-                         Macros:
-                                        
-                        [snackCalories]
-                                        
-                        [snackProtein]
-                                        
-                        [snackCarbs]
-                                        
-                        [snackFat]
-
-
-
         Dinner: [Meal Name]
         Ingredients:
         - [Ingredient Name] - [Quantity] [Unit]
         Instructions:
         1. [Detailed Step-by-Step Instructions]
-
-                         Macros:
-                                        
-                        [snackCalories]
-                                        
-                        [snackProtein]
-                                        
-                        [snackCarbs]
-                                        
-                        [snackFat]
+        
         Snack: [Snack Name]
         Ingredients:
         - [Ingredient Name] - [Quantity] [Unit]
         Instructions:
         1. [Detailed Step-by-Step Instructions]
-
-         Macros:
-                        
-        [snackCalories]
-                        
-        [snackProtein]
-                        
-        [snackCarbs]
-                        
-        [snackFat]
-
         """
         
         guard let aiResponse = await fetchAIResponse(prompt: prompt) else { return nil }
@@ -213,9 +166,6 @@ class MealPlannerService: ObservableObject {
             
             let ingredientsIndex = mealLines.firstIndex(where: { $0.lowercased() == "ingredients:" })
             let instructionsIndex = mealLines.firstIndex(where: { $0.lowercased() == "instructions:" })
-
-            let macrosIndex = mealLines.firstIndex(where: { $0.lowercased() == "macros:" })
-
             
             let nameLines = mealLines[..<(ingredientsIndex ?? mealLines.endIndex)]
             let mealName = nameLines.joined(separator: "\n").trimmingCharacters(in: .whitespaces)
@@ -233,52 +183,9 @@ class MealPlannerService: ObservableObject {
             if let instructionsIndex = instructionsIndex {
                 let instructionsStart = mealLines.index(after: instructionsIndex)
                 if instructionsStart < mealLines.endIndex {
-
-                    
-                    instructions = mealLines[instructionsStart...].joined(separator: "\n")
-                    
-                    
-                }
-            }
-            
-            var macros = ""
-            if let macrosIndex = macrosIndex {
-                let macrosStart = mealLines.index(after: macrosIndex)
-
-                    macros = mealLines[macrosStart...].joined(separator: "\n")
-                    
-                let values = macros.components(separatedBy: "\n")
-                let calories = Double(values[0].replacingOccurrences(of: "Calories:", with: "").trimmingCharacters(in: .whitespaces)) ?? 0
-                let protein  = Double(values[1].replacingOccurrences(of: "Protein:", with: "").trimmingCharacters(in: .whitespaces)) ?? 0
-                let carbs    = Double(values[2].replacingOccurrences(of: "Carb:", with: "").trimmingCharacters(in: .whitespaces)) ?? 0
-                let fats     = Double(values[3].replacingOccurrences(of: "Fat:", with: "").trimmingCharacters(in: .whitespaces)) ?? 0
-
-                    
-//                    print("Calories: \(calories) protein: \(protein) carbs: \(carbs) fats: \(fats)")
-                print("Parsed macros for \(mealName): \(calories) cal, \(protein) g protein, \(carbs) g carbs, \(fats) g fats")
-
-                // Remove the labels and their numbers from instructions
-                instructions = instructions
-                    .replacingOccurrences(of: "Macros:", with: "", options: .caseInsensitive)
-                    .replacingOccurrences(of: #"(?i)Calories:\s*\d+(\.\d+)?"#, with: "", options: .regularExpression)
-                    .replacingOccurrences(of: #"(?i)Protein:\s*\d+(\.\d+)?\s*g"#, with: "", options: .regularExpression)
-                    .replacingOccurrences(of: #"(?i)Carb[s]?:\s*\d+(\.\d+)?\s*g"#, with: "", options: .regularExpression)
-                    .replacingOccurrences(of: #"(?i)Fat[s]?:\s*\d+(\.\d+)?\s*g"#, with: "", options: .regularExpression)
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                
-                
-                let foodItem = FoodItem(id: UUID().uuidString, name: mealName, calories: calories, protein: protein, carbs: carbs, fats: fats, servingSize: "1 serving", servingWeight: 0)
-                
-                let meal = PlannedMeal(id: UUID().uuidString, mealType: currentMealType, foodItem: foodItem, ingredients: ingredients, instructions: instructions)
-                parsedMeals.append(meal)
-                
-            
-            }
-
                     instructions = mealLines[instructionsStart...].joined(separator: "\n")
                 }
             }
-
 
             if mealName.isEmpty { continue }
             
@@ -287,7 +194,6 @@ class MealPlannerService: ObservableObject {
             let foodItem = FoodItem(id: UUID().uuidString, name: mealName, calories: 0, protein: 0, carbs: 0, fats: 0, servingSize: "1 serving", servingWeight: 0)
             let meal = PlannedMeal(id: UUID().uuidString, mealType: currentMealType, foodItem: foodItem, ingredients: ingredients, instructions: instructions)
             parsedMeals.append(meal)
-
         }
         return parsedMeals
     }

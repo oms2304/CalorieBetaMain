@@ -77,26 +77,3 @@ struct MealSuggestionCardView: View {
         .asCard()
     }
 }
-<<<<<<< HEAD
-
-#Preview {
-    MealSuggestionCardView(
-        suggestion: MealSuggestion(
-            id: UUID(),
-            mealName: "Koshary",
-            calories: 500.0,
-            protein: 20.0,
-            carbs: 10.0,
-            fats: 25.0,
-            ingredients: ["rice", "pasta"],
-            instructions: "make koshary"
-        ),
-        onGenerate: { },
-        onTap: { },
-        onPrefs: { },
-        isLoading: false
-    )
-    .environmentObject(DailyLogService())
-}
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)

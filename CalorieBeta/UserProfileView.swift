@@ -1,39 +1,14 @@
 import SwiftUI
-<<<<<<< HEAD
-import PhotosUI
 import FirebaseAuth
-import SwiftData
-=======
-import FirebaseAuth
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
 
 struct UserProfileView: View {
     @EnvironmentObject var dailyLogService: DailyLogService
     @EnvironmentObject var goalSettings: GoalSettings
     @EnvironmentObject var achievementService: AchievementService
     @Environment(\.dismiss) var dismiss
-<<<<<<< HEAD
-    @Environment(\.modelContext) private var context
-    
-    @Query private var profiles: [ProfilePicture]   // fetch from SwiftData
-
-    
-    @State private var profilePicture = ProfilePicture()
-    @State private var selectedPhoto: PhotosPickerItem? = nil
-    @State private var selectedImage: Image? = Image("pfp3")
-    @State private var selectedPhotoData: Data? = nil
-    @State private var errorMessage: ErrorMessage?
-    @State private var selectedUIImage: UIImage? = nil
-    @State private var showingChallenges = false
-    @State private var showingOptions = false
-    @State private var openPicker = false
-    @State private var selection = "None"
-    
-=======
 
     @State private var errorMessage: ErrorMessage?
     @State private var showingChallenges = false
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     
     private var userLevelDisplay: String {
         "Level \(achievementService.userAchievementLevel)"
@@ -88,10 +63,6 @@ struct UserProfileView: View {
                   goalSettings.loadUserGoals(userID: userID)
                   achievementService.fetchUserStatuses(userID: userID)
                   achievementService.listenToUserProfile(userID: userID)
-<<<<<<< HEAD
-                 
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
              }
         }
         .alert(item: $errorMessage) { message in
@@ -107,229 +78,6 @@ struct UserProfileView: View {
             }
         }
     }
-<<<<<<< HEAD
-    
-    func saveImageToDocuments(_ data: Data) {
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("profile.jpg")
-        try? data.write(to: url)
-    }
-
-    func loadImageFromDocuments() -> UIImage? {
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("profile.jpg")
-        if let data = try? Data(contentsOf: url) {
-            return UIImage(data: data)
-        }
-        return nil
-    }
-
-
-//    func profileHeader() -> some View {
-//         VStack(spacing: 8) {
-////              Image(systemName: "person.crop.circle")
-////                 .resizable()
-////                 .frame(width: 80, height: 80)
-////                 .foregroundColor(Color(UIColor.secondaryLabel))
-//             VStack {
-//                 PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
-//                     if let imageData = profilePicture.image,
-//                        let uiImage = UIImage(data: imageData) {
-//                         Image(uiImage: uiImage)
-//                             .resizable()
-//                             .scaledToFit()
-//                             .clipShape(Circle())
-//                             .frame(width: 110, height: 110)
-//                     } else {
-//                         selectedImage?
-//                             .resizable()
-//                             .scaledToFit()
-//                             .clipShape(Circle())
-//                             .frame(width: 110, height: 110)
-//                     }
-//                 }
-//             }
-//             .onChange(of: selectedPhoto) { _, newItem in
-//                 Task {
-//                     if let data = try? await newItem?.loadTransferable(type: Data.self) {
-//                         saveImageToDocuments(data)
-//                         if let image = UIImage(data: data) {
-//                             selectedUIImage = image
-//                         }
-//                     }
-//                 }
-//             }
-//             .onAppear {
-//                 if let savedImage = loadImageFromDocuments() {
-//                     selectedUIImage = savedImage
-//                 }
-//             }
-//
-//
-//             .task(id: selectedPhoto) {
-//                 if let data = try? await selectedPhoto?.loadTransferable(type: Data.self),
-//                    let userID = Auth.auth().currentUser?.uid {
-//                     
-//                     if let existingProfile = profiles.first(where: { $0.id == userID }) {
-//                         existingProfile.image = data
-//                     } else {
-//                         let newProfile = ProfilePicture(id: userID, image: data)
-//                         context.insert(newProfile)
-//                     }
-//                     
-//                     try? context.save()
-//                     
-//                     // update UI immediately
-//                     if let uiImage = UIImage(data: data) {
-//                         selectedImage = Image(uiImage: uiImage)
-//                     }
-//                 }
-//             }
-//
-//
-//             
-////
-////             .onChange(of: selectedPhoto) {
-////                 Task {
-////                     if let data = try? await selectedPhoto?.loadTransferable(type: Data.self),
-////                        let userID = Auth.auth().currentUser?.uid {
-////                         if let profile = profiles.first {
-////                             profile.photoData = data
-////                         } else {
-////                             let newProfile = ProfilePicture(id: userID, photoData: data)
-////                             context.insert(newProfile)
-////                         }
-////                         try? context.save()
-////                         if let uiImage = UIImage(data: data) {
-////                             selectedImage = Image(uiImage: uiImage)
-////                         }
-////                     }
-////                 }
-////             }
-//
-//
-//             
-//              Text(goalSettings.gender == "Male" ? "Fitness Journey" : "Wellness Path")
-//                  .appFont(size: 22, weight: .bold)
-//             
-//              Text(Auth.auth().currentUser?.email ?? "MyFitPlate User")
-//                  .foregroundColor(Color(UIColor.secondaryLabel)).appFont(size: 12)
-//          }
-//    }
-
-
-
-    func profileHeader() -> some View {
-        VStack(spacing: 8) {
-            VStack {
-                VStack
-                {
-                    if let uiImage = selectedUIImage {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .clipShape(Circle())
-                            .frame(width: 90, height: 90)
-                            .simultaneousGesture(TapGesture().onEnded{
-                                showingOptions = true
-                            })
-                        
-                    } else {
-                        Image("pfp3") // default placeholder
-                            .resizable()
-                            .frame(width: 130, height: 90)
-                            .scaledToFit()
-                            .simultaneousGesture(TapGesture().onEnded{
-                                showingOptions = true
-                            })
-                        
-                    }
-                    
-                }
-        
-                .photosPicker(isPresented: $openPicker, selection: $selectedPhoto, matching: .images)
-                .confirmationDialog("Profile Picture", isPresented: $showingOptions, titleVisibility: .visible) {
-                    // PhotosPicker inside dialog – actually launches the picker
-                    Button("Select New Photo") {
-                                openPicker = true   // <- triggers hidden picker
-                            }
-
-                    // Delete option
-                    if selectedUIImage != nil {
-                        Button(role: .destructive) {
-                            // Clear in-memory image
-                            selectedPhoto = nil
-                            selectedUIImage = nil
-
-                            // Remove from disk
-                            let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                                .appendingPathComponent("profile.jpg")
-                            try? FileManager.default.removeItem(at: url)
-
-                            // Remove from SwiftData
-                            if let userID = Auth.auth().currentUser?.uid,
-                               let existingProfile = profiles.first(where: { $0.id == userID }) {
-                                context.delete(existingProfile)
-                                try? context.save()
-                            }
-                        } label: {
-                            Label("Delete Current Photo", systemImage: "trash")
-                        }
-                    }
-
-                }
-
-                
-            }
-//            .actionSheet(isPresented: $showingOptions) {
-//                ActionSheet(
-//                                    title: Text("Select a color"),
-//                                    buttons: [
-//                                        .default(Text("Red")) {
-//                                            selection = "Red"
-//                                        },
-//
-//                                        .default(Text("Green")) {
-//                                            selection = "Green"
-//                                        },
-//
-//                                        .default(Text("Blue")) {
-//                                            selection = "Blue"
-//                                        },
-//                                    ]
-//                                )
-//            }
-            
-
-            .onChange(of: selectedPhoto) { _, newItem in
-                if let newItem = newItem {
-                    Task {
-                        if let data = try? await newItem.loadTransferable(type: Data.self) {
-                            saveImageToDocuments(data)
-                            if let image = UIImage(data: data) {
-                                selectedUIImage = image
-                            }
-                        }
-                    }
-                }
-            }
-            .onAppear {
-                if let savedImage = loadImageFromDocuments() {
-                    selectedUIImage = savedImage
-                }
-            }
-
-            Text(goalSettings.gender == "Male" ? "Fitness Journey" : "Wellness Path")
-                .appFont(size: 22, weight: .bold)
-
-            Text(Auth.auth().currentUser?.email ?? "MyFitPlate User")
-                .foregroundColor(Color(UIColor.secondaryLabel))
-                .appFont(size: 12)
-        }
-    }
-
-
-=======
 
     func profileHeader() -> some View {
          VStack(spacing: 8) {
@@ -341,7 +89,6 @@ struct UserProfileView: View {
           }
     }
 
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     func userLevelAndPointsSection() -> some View {
         VStack(spacing: 5) {
             Text(userLevelDisplay)

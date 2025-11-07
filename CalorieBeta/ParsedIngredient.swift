@@ -4,18 +4,10 @@ struct ParsedIngredient {
     let quantity: Double
     let unit: String
     let name: String
-<<<<<<< HEAD
-}
-
-struct IngredientParser {
-    
-    // A mapping of common units and their variations.
-=======
     var originalString: String
 }
 
 struct IngredientParser {
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private static let unitMap: [String: [String]] = [
         "cup": ["cups", "c.", "c"],
         "tablespoon": ["tablespoons", "tbsp.", "tbsp", "tbs.", "tbs"],
@@ -32,29 +24,14 @@ struct IngredientParser {
         "slice": ["slices"],
         "whole": ["whole"]
     ]
-<<<<<<< HEAD
-    
-    /// Parses a raw ingredient string (e.g., "1 1/2 cups flour, sifted") into its components.
-    static func parse(_ rawString: String) -> ParsedIngredient {
-        var mutableString = rawString.lowercased()
-        
-        // Handle unicode fractions like ½
-=======
 
     static func parse(_ rawString: String) -> ParsedIngredient {
         var mutableString = rawString.lowercased()
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         mutableString = replaceUnicodeFractions(in: mutableString)
         
         let (quantity, remainingString) = extractQuantity(from: mutableString)
         let (unit, finalName) = extractUnitAndName(from: remainingString.trimmingCharacters(in: .whitespaces))
         
-<<<<<<< HEAD
-        return ParsedIngredient(quantity: quantity, unit: unit, name: finalName)
-    }
-    
-    /// Replaces common unicode fractions with their decimal equivalents.
-=======
         return ParsedIngredient(quantity: quantity, unit: unit, name: finalName, originalString: rawString)
     }
 
@@ -62,7 +39,6 @@ struct IngredientParser {
         return lines.compactMap { parse($0) }
     }
     
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private static func replaceUnicodeFractions(in text: String) -> String {
         let fractionMap = [
             "½": "0.5", "⅓": "0.33", "⅔": "0.67", "¼": "0.25", "¾": "0.75",
@@ -76,10 +52,6 @@ struct IngredientParser {
         return result
     }
     
-<<<<<<< HEAD
-    /// Extracts a numeric quantity from the beginning of the string.
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private static func extractQuantity(from text: String) -> (Double, String) {
         let components = text.split(separator: " ", maxSplits: 1)
         guard let firstComponent = components.first else {
@@ -88,10 +60,6 @@ struct IngredientParser {
         
         var quantity = 0.0
         
-<<<<<<< HEAD
-        // Check for mixed numbers like "1 1/2"
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         if let first = Double(firstComponent), components.count > 1 {
             let secondComponent = components[1]
             if let fraction = fractionToDouble(String(secondComponent.split(separator: " ").first ?? "")) {
@@ -100,10 +68,6 @@ struct IngredientParser {
             }
         }
         
-<<<<<<< HEAD
-        // Check for simple fractions or decimals
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
         if let number = fractionToDouble(String(firstComponent)) {
             quantity = number
             let remaining = components.count > 1 ? String(components[1]) : ""
@@ -113,10 +77,6 @@ struct IngredientParser {
         return (1.0, text)
     }
 
-<<<<<<< HEAD
-    /// Converts a string fraction (e.g., "1/2") to a Double.
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private static func fractionToDouble(_ fraction: String) -> Double? {
         if fraction.contains("/") {
             let parts = fraction.split(separator: "/").compactMap { Double($0) }
@@ -127,10 +87,6 @@ struct IngredientParser {
         return Double(fraction)
     }
     
-<<<<<<< HEAD
-    /// Extracts a unit from the string and returns the remaining text as the ingredient name.
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private static func extractUnitAndName(from text: String) -> (String, String) {
         for (canonicalUnit, variations) in unitMap {
             for variation in [canonicalUnit] + variations {
@@ -141,16 +97,9 @@ struct IngredientParser {
                 }
             }
         }
-<<<<<<< HEAD
-        return ("item", cleanIngredientName(text)) // Default unit if none found
-    }
-    
-    /// Cleans up the final ingredient name by removing common descriptors.
-=======
         return ("item", cleanIngredientName(text))
     }
     
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     private static func cleanIngredientName(_ name: String) -> String {
         let suffixesToRemove = [", chopped", ", diced", ", minced", ", sifted", ", melted", " of", ", to taste"]
         var cleanedName = name
