@@ -1,7 +1,8 @@
-#MyFitPlate
-  Patch notes version 1.1:
-    Nutrition progress card
-      - New Swiping mrchanic for the cards
-      - New dot indicator
-      - Made entire component smoother overall
-      
+# MyFitPlate
+
+## Patch Notes — Version 1.1
+
+### Nutrition Progress Card
+- New swiping mechanic for the cards
+- New dot indicator
+- Improved smoothness and animation behavior
