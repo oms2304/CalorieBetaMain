@@ -10,13 +10,11 @@
 	</array>
 	<key>com.apple.developer.healthkit.background-delivery</key>
 	<true/>
-	<key>com.apple.developer.healthkit.recalibrate-estimates</key>
-	<true/>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.peterandrews.CalorieBeta</string>
+		<string>group.com.omar.myfitplate.shareddata</string>
 	</array>
 	<key>com.apple.security.files.user-selected.read-only</key>
 	<true/>

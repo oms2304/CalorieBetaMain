@@ -2,23 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-7662518342313720~4521360591</string>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>This allows us to provide a personalized ad experience, which helps support the app and keep our core features free.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app uses the camera to allow you to take pictures of your food for nutritional analysis.</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>Your workout and activity data is used to improve the accuracy of your daily calorie and exercise tracking.</string>
 	<key>OPENAI_API_KEY</key>
 	<string>$(OPENAI_API_KEY)</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>This app updates your Health data to keep your calorie and exercise information synchronized.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "originHash" : "65e312c10a2dec73c130867ac74717676363d2ce2cbcebd5e5ea892ef11a3d2c",
-=======
   "originHash" : "741dbd11c96b7569c859e5080fbd6a37b870cd3065dde5121e904d3fe9a802c6",
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -157,36 +153,6 @@
         "revision" : "aa85ee96017a730031bafe411cde24a08a17a9c9",
         "version" : "2.8.8"
       }
-<<<<<<< HEAD
-    },
-    {
-      "identity" : "swiftui-toasts",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sunghyun-k/swiftui-toasts.git",
-      "state" : {
-        "revision" : "9412602c30dff5cba211a984df12976250daf495",
-        "version" : "1.1.1"
-      }
-    },
-    {
-      "identity" : "swiftui-window-overlay",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sunghyun-k/swiftui-window-overlay.git",
-      "state" : {
-        "revision" : "46739300713772a62a3bf31d77f8f23ba9cf61f7",
-        "version" : "1.0.2"
-      }
-    },
-    {
-      "identity" : "toast-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/scalessec/Toast-Swift",
-      "state" : {
-        "revision" : "ddccd20d6fb718448d9b179c454c561653fda7d5",
-        "version" : "5.1.1"
-      }
-=======
->>>>>>> 5424a6b (Recreated the reports page with more polished UI)
     }
   ],
   "version" : 3

@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 import FirebaseAuth
 
+// Main view for displaying reports and insights.
 struct ReportsView: View {
     @StateObject private var viewModel: ReportsViewModel
     @EnvironmentObject var goalSettings: GoalSettings
@@ -14,6 +15,7 @@ struct ReportsView: View {
     
     @State private var showingDetailedInsights = false
 
+    // Formatter for displaying numbers.
     private var numberFormatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
@@ -22,24 +24,31 @@ struct ReportsView: View {
         return formatter
     }
 
-    init(dailyLogService: DailyLogService, wellnessScore: WellnessScore) {
+    // This is the "live" init. It's correct.
+    init(dailyLogService: DailyLogService) {
         _viewModel = StateObject(wrappedValue: ReportsViewModel(dailyLogService: dailyLogService))
-        self.wellnessScore = wellnessScore
     }
     
-    func safePercentage(user: Double, total: Double) -> Double {
-        guard total > 0 else { return 0 }
-        return min((user / total) * 100, 100)
-    }
-    
-    private func calculateProgress(consumed: Double, goal: Double) -> Double {
-        guard goal > 0 else { return 0 }
-        return min(consumed / goal, 1.0) * 0.8
+    // Helper function to fetch data based on the selected timeframe.
+    private func fetchDataForCurrentSelection() {
+        if selectedTimeframe == .custom {
+            if customEndDate < customStartDate {
+                viewModel.errorMessage = "End date cannot be before start date."
+                return
+            }
+            viewModel.fetchData(for: .custom, startDate: customStartDate, endDate: customEndDate)
+        } else {
+            viewModel.fetchData(for: selectedTimeframe)
+        }
     }
 
     var body: some View {
-        VStack {
+        ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                // Header section with timeframe picker and smart suggestion
+                headerSection
+
+                // Display loading, error, content, or no data message
                 if viewModel.isLoading {
                     ProgressView("Loading Reports...")
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -50,33 +59,39 @@ struct ReportsView: View {
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 50)
-                } else if !viewModel.calorieTrend.isEmpty {
+                } else if viewModel.summary != nil || viewModel.enhancedSleepReport != nil || viewModel.weeklyWorkoutReport != nil || viewModel.wellnessScore != nil {
+                     // The main content section with all the report cards
                      reportsContentSection
                 } else {
+                    // Message when no data is available for the period
                     VStack {
                         Spacer()
-                        Text("No food or exercise logged in the selected period.")
+                        Text("No data available for the selected period.")
+                            .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 50)
                 }
-                
+
                 Spacer()
             }
-            .padding(.top, 10)
             .padding(.horizontal)
         }
         .background(Color.backgroundPrimary.ignoresSafeArea())
         .navigationTitle("Reports")
         .navigationBarTitleDisplayMode(.inline)
+        // This onAppear/onChange logic is from your "live" version and is correct.
         .onAppear {
-            viewModel.setup(goals: goalSettings)
+            viewModel.setup(goals: goalSettings, healthKitViewModel: healthKitViewModel)
             fetchDataForCurrentSelection()
             insightsService.generateDailySmartInsight()
+            if let userID = Auth.auth().currentUser?.uid {
+                viewModel.fetchMealScoreHistory(for: userID)
+            }
             if healthKitViewModel.isAuthorized {
-                viewModel.processSleepData(samples: healthKitViewModel.sleepSamples)
+                 healthKitViewModel.fetchLastSevenDaysSleep()
             }
         }
         .onChange(of: selectedTimeframe) { newValue in
@@ -84,11 +99,19 @@ struct ReportsView: View {
                 fetchDataForCurrentSelection()
             }
         }
+        .onChange(of: customStartDate) { _ in
+            if selectedTimeframe == .custom { fetchDataForCurrentSelection() }
+        }
+        .onChange(of: customEndDate) { _ in
+             if selectedTimeframe == .custom { fetchDataForCurrentSelection() }
+        }
         .onChange(of: healthKitViewModel.sleepSamples) { newSamples in
-            viewModel.processSleepData(samples: newSamples)
+            // This correctly calls the full sleep processing logic in your "live" VM
+            viewModel.processAndScoreSleepData(samples: newSamples)
         }
     }
 
+    // Header section containing smart insight and timeframe controls.
     @ViewBuilder
     private var headerSection: some View {
         if let insight = insightsService.smartSuggestion {
@@ -107,22 +130,9 @@ struct ReportsView: View {
         }
         
         timeframeSelectorAndPickers
-        
-        VStack(spacing: 12) {
-            insightsActionSection
-            
-            NavigationLink(destination: WeightTrackingView()) {
-                Label("View Weight Tracking", systemImage: "chart.xyaxis.line")
-            }
-            .buttonStyle(SecondaryButtonStyle())
-            
-            NavigationLink(destination: CycleTrackingView()) {
-                Label("View Cycle Tracking", systemImage: "timer.circle")
-            }
-            .buttonStyle(SecondaryButtonStyle())
-        }
     }
 
+    // Button to generate and navigate to detailed weekly insights.
     @ViewBuilder
     private var insightsActionSection: some View {
         Button {
@@ -132,127 +142,62 @@ struct ReportsView: View {
             Label("Generate Weekly Insights", systemImage: "wand.and.stars")
         }
         .buttonStyle(PrimaryButtonStyle())
-       
+        
         NavigationLink(isActive: $showingDetailedInsights) {
             DetailedInsightsView(insightsService: insightsService)
         } label: { EmptyView() }
     }
     
-    let wellnessScore: WellnessScore
-    
-//     MARK: - Content
+    // This section now matches the new screenshot layout.
     @ViewBuilder
     private var reportsContentSection: some View {
         VStack(spacing: 12) {
-//            if let score = viewModel.mealScore {
-//                MealScoreCard(score: score)
-//            }
-            if let score = viewModel.mealScore {
+            // Full-width Wellness Score card
+            if let wellnessScore = viewModel.wellnessScore {
                 WellnessScoreCardView(wellnessScore: wellnessScore)
             }
-        
+            
+            // Full-width Workout Summary card
             if let workoutReport = viewModel.weeklyWorkoutReport {
                 WorkoutReportCard(report: workoutReport)
             }
             
+            // Two-column layout for Calorie and Weight reports
             HStack(spacing: 12){
-                mealDistributionCard
-                WeightCardReport
-            }
-        }
-        .padding(.bottom, 15)
-        
-        insightsActionSection
-
-    }
-    //     MARK: - Weight
-    private var WeightCardReport: some View {
-        NavigationLink(destination: WeightTrackingView()){
-            VStack(alignment: .center){
-                HStack{
-                    Text("Weight Report")
-                        .appFont(size: 16, weight: .semibold)
-                        .padding(.bottom, 15)
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    VStack{
-                        Image(systemName:"ellipsis")
-                            .foregroundColor(.white)
-                            Spacer()
-                    }
-                    .padding(.top,-5)
-                    
+                // Left card: Calorie Report
+                NavigationLink(destination: CalorieTrackingView(viewModel: viewModel)) {
+                    mealDistributionCard
                 }
-              
+                .buttonStyle(.plain) // Ensures the card is the tappable element
                 
-                HStack(spacing: 24) {
-                    ZStack {
-                        Circle()
-                            .trim(from: 0, to: 5/6)
-                            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                            .rotationEffect(.degrees(120))
-                            .frame(width: 130, height: 105)
-                        Circle()
-                            .trim(from: 0, to: (goalSettings.calculateWeightProgress() ?? 0) / 100 * 5/6)
-                            .stroke(Color.green, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                            .rotationEffect(.degrees(120))
-                            .frame(width: 130, height: 105)
-                            .animation(.easeInOut, value: goalSettings.weight)
-                        VStack {
-                            Text("\(Int(goalSettings.calculateWeightProgress() ?? 0))%")
-                                .font(.title2.bold())
-                            Text("Progress")
-                                .font(.caption)
-                        }
-                    }
-
+                // Right card: Weight Report
+                NavigationLink(destination: WeightTrackingView()){
+                    WeightCardReport
                 }
+                .buttonStyle(.plain)
             }
-            .asCard()
-//            .background(Color.black.opacity(0.8))
-            .cornerRadius(20)
-            .frame(width: 180, height: 140) // <-- same width & height
             
-            
+            // "Generate Insights" button at the bottom
+            insightsActionSection
+                .padding(.top, 8)
         }
     }
 
-
+    // Segmented control for timeframe and conditional date pickers.
     private var timeframeSelectorAndPickers: some View {
         VStack {
-            
             Picker("Timeframe", selection: $selectedTimeframe) {
-                ForEach(ReportTimeframe.allCases) { tf in
-                    Text(tf.rawValue).tag(tf)
-                }
+                ForEach(ReportTimeframe.allCases) { tf in Text(tf.rawValue).tag(tf) }
             }
             .pickerStyle(SegmentedPickerStyle())
-            
+
             if selectedTimeframe == .custom {
                 VStack(spacing: 12) {
-                    
                     Grid(alignment: .leading) {
-                        
-                        GridRow {
-                            Text("Start Date").gridColumnAlignment(.leading)
-                            DatePicker("Start Date", selection: $customStartDate, in: ...customEndDate, displayedComponents: .date)
-                                .labelsHidden()
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        
-                        GridRow {
-                            Text("End Date").gridColumnAlignment(.leading)
-                            DatePicker("End Date", selection: $customEndDate, in: customStartDate..., displayedComponents: .date)
-                                .labelsHidden()
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
+                        GridRow { Text("Start Date").gridColumnAlignment(.leading); DatePicker("Start Date", selection: $customStartDate, in: ...customEndDate, displayedComponents: .date).labelsHidden().frame(maxWidth: .infinity, alignment: .trailing) }
+                        GridRow { Text("End Date").gridColumnAlignment(.leading); DatePicker("End Date", selection: $customEndDate, in: customStartDate..., displayedComponents: .date).labelsHidden().frame(maxWidth: .infinity, alignment: .trailing) }
                     }
-
-                    Button("View Custom Report") {
-                        fetchDataForCurrentSelection()
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
+                    Button("View Custom Report") { fetchDataForCurrentSelection() }.buttonStyle(PrimaryButtonStyle())
                 }
                 .padding(.top, 10)
                 .transition(.asymmetric(insertion: .scale(scale: 0.95).combined(with: .opacity), removal: .opacity))
@@ -261,153 +206,106 @@ struct ReportsView: View {
         }
     }
     
-    private var citationSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Source Information")
-                .appFont(size: 17, weight: .semibold)
-            Text("Calorie and micronutrient goals are based on established dietary guidelines, including the Mifflin-St Jeor equation and Dietary Reference Intakes (DRIs).")
-                .appFont(size: 12)
-                .foregroundColor(Color(UIColor.secondaryLabel))
-            if let url = URL(string: "https://www.nal.usda.gov/human-nutrition-and-food-safety/dri-calculator") {
-                Link("Source: USDA Dietary Reference Intakes", destination: url)
-                    .appFont(size: 12)
+    // This is the Weight Report card, now color-corrected.
+    private var WeightCardReport: some View {
+        VStack(alignment: .center, spacing: 5){
+            HStack{
+                Text("Weight Report")
+                    .appFont(size: 16, weight: .semibold)
+                Spacer()
+                Image(systemName:"ellipsis")
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
+            
+            Spacer()
+            
+            ZStack {
+                Circle()
+                    .trim(from: 0, to: 5/6)
+                    .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                    .rotationEffect(.degrees(120))
+                    .frame(width: 105, height: 105)
+                Circle()
+                    .trim(from: 0, to: (goalSettings.calculateWeightProgress().map { $0 / 100.0 } ?? 0.0) * 5/6)
+                    .stroke(Color.green, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                    .rotationEffect(.degrees(120))
+                    .frame(width: 105, height: 105)
+                    .animation(.easeInOut, value: goalSettings.weight)
+                VStack {
+                    Text("\(Int(goalSettings.calculateWeightProgress() ?? 0))%")
+                        .font(.title2.bold())
+                    Text("Progress")
+                        .font(.caption)
+                }
+            }
+            Spacer()
+        }
+        .foregroundColor(.textPrimary) // FIX: Use dynamic text color
+        .asCard()
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 180)
+    }
+
+    // This is the Calorie Report card, now color-corrected and with better labels.
+    @ViewBuilder private var mealDistributionCard: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack{
+                Text("Calorie Report")
+                    .appFont(size: 16, weight: .semibold)
+                Spacer()
+                Image(systemName:"ellipsis")
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
+            .foregroundColor(.textPrimary) // FIX: Use dynamic text color
+
+            if !viewModel.mealDistributionData.isEmpty {
+                let groupedMeals = Dictionary(grouping: viewModel.mealDistributionData, by: { $0.mealName })
+                let orderedMealNames = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+                
+                let processedData: [(meal: String, totalCalories: Double)] = orderedMealNames.compactMap { mealName in
+                    if let items = groupedMeals[mealName], let total = items.first?.totalCalories, total > 0 {
+                        return (mealName, total)
+                    } else { return nil }
+                }
+                
+                let colorMapping: [String: Color] = [
+                    "Breakfast": .red, "Lunch": .orange, "Dinner": .blue, "Snacks": .green
+                ]
+                
+                Spacer()
+                Chart(processedData, id: \.meal) { dp in
+                    SectorMark(
+                        angle: .value("Calories", dp.totalCalories),
+                        innerRadius: .ratio(0.5),
+                        angularInset: 2
+                    )
+                    .foregroundStyle(colorMapping[dp.meal, default: .gray])
+                    // *** FIX: Updated annotation to match new screenshot ***
+                    .annotation(position: .overlay) {
+                        VStack(spacing: 0) {
+                            Text(dp.meal) // "Breakfast", "Lunch", etc.
+                                .appFont(size: 10, weight: .bold)
+                            Text("\(dp.totalCalories, specifier: "%.0f") cal")
+                                .appFont(size: 10, weight: .regular)
+                        }
+                        .foregroundColor(.white) // Keep white, it's on colored segments
+                    }
+                }
+                .chartLegend(.hidden)
+                .frame(maxWidth: .infinity, maxHeight: 105)
+                Spacer()
+                
+            } else if !viewModel.isLoading {
+                Spacer()
+                Text("No meal data available.")
+                    .foregroundColor(.textPrimary) // FIX: Use dynamic text color
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Spacer()
             }
         }
         .asCard()
-    }
-    
-    private func fetchDataForCurrentSelection() {
-        if selectedTimeframe == .custom {
-            if customEndDate < customStartDate {
-                viewModel.errorMessage = "End date cannot be before start date."
-                return
-            }
-            viewModel.fetchData(for: .custom, startDate: customStartDate, endDate: customEndDate)
-        } else {
-            viewModel.fetchData(for: selectedTimeframe)
-        }
-    }
-
-    @ViewBuilder private var summaryCard: some View {
-        if let summary = viewModel.summary {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("\(summary.timeframe) Averages")
-                    .appFont(size: 17, weight: .semibold)
-                Text("Based on \(summary.daysLogged) day(s) logged")
-                    .appFont(size: 12)
-                    .foregroundColor(Color(UIColor.secondaryLabel))
-                    .padding(.bottom, 5)
-
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
-                    averageStatBox(value: summary.averageCalories, label: "Calories", unit: "cal", goal: goalSettings.calories)
-                    averageStatBox(value: summary.averageProtein, label: "Protein", unit: "g", goal: goalSettings.protein)
-                    averageStatBox(value: summary.averageCarbs, label: "Carbs", unit: "g", goal: goalSettings.carbs)
-                    averageStatBox(value: summary.averageFats, label: "Fats", unit: "g", goal: goalSettings.fats)
-                }
-            }
-            .asCard()
-        }
-    }
-
-    @ViewBuilder private func averageStatBox(value: Double, label: String, unit: String, goal: Double?) -> some View {
-       let formattedValue = numberFormatter.string(from: NSNumber(value: value)) ?? ""
-       let valueText = "\(formattedValue) \(unit)"
-       
-       VStack(alignment: .leading) {
-           Text(label).appFont(size: 12).foregroundColor(Color(UIColor.secondaryLabel))
-           Text(valueText)
-                .appFont(size: 22, weight: .medium)
-           if let g = goal, g > 0 {
-               let pct = (value / g) * 100
-               let goalText = "Goal: \(numberFormatter.string(from: NSNumber(value: g)) ?? "") (\(String(format: "%.0f", pct))%)"
-               Text(goalText)
-                    .appFont(size: 10).foregroundColor(Color(UIColor.secondaryLabel))
-           }
-       }
-       .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-//     MARK: - Macro
-    @ViewBuilder private var mealDistributionCard: some View {
-        NavigationLink(destination: CalorieTrackingView(viewModel: viewModel)){
-            VStack(alignment: .center) {
-                HStack{
-                    Text("Calorie Report")
-                        .appFont(size: 16, weight: .semibold)
-                        
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    
-                    Image(systemName:"ellipsis")
-                        .foregroundColor(.white)
-                        .padding(.bottom, 1)
-                }
-                
-                if !viewModel.mealDistributionData.isEmpty {
-                    // Group and order meals correctly
-                    let groupedMeals = Dictionary(grouping: viewModel.mealDistributionData, by: { $0.mealName })
-                    let orderedMealNames = ["Breakfast", "Lunch", "Dinner", "Snack"]
-                    
-                    // Calculate total calories per meal type
-                    let processedData: [(meal: String, totalCalories: Double)] = orderedMealNames.compactMap { mealName in
-                        if let items = groupedMeals[mealName] {
-                            let total = items.reduce(0) { $0 + $1.totalCalories }
-                            return (mealName, total)
-                        } else { return nil }
-                    }
-                    
-                    // Define distinct colors
-                    let colorMapping: [String: Color] = [
-                        "Breakfast": .red,
-                        "Lunch": .orange,
-                        "Dinner": .blue,
-                        "Snack": .green
-                    ]
-                    
-                    Chart(processedData, id: \.meal) { dp in
-                        SectorMark(
-                            angle: .value("Calories", dp.totalCalories),
-                            innerRadius: .ratio(0.5),
-                            angularInset: 2
-                        )
-                        .foregroundStyle(colorMapping[dp.meal, default: .gray])
-                        .annotation(position: .overlay) {
-                            VStack {
-                                Text(dp.meal)
-                                    .appFont(size: 11, weight: .bold)
-                                Text("\(dp.totalCalories, specifier: "%.0f") cal")
-                                    .appFont(size: 10, weight: .bold)
-                                
-                            }
-                        }
-                    }
-                    .chartLegend(position: .bottom, alignment: .center)
-                    .frame(maxWidth: .infinity, maxHeight: 120)
-                    .padding(.top, 8)
-                    
-                } else if !viewModel.isLoading {
-                    Text("No meal data available for calorie distribution.")
-                        .foregroundColor(Color(UIColor.secondaryLabel))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .asCard()
-            .frame(width: 180, height: 180) // <-- same width & height
-        }
-        
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 180)
     }
 }
-//
-//
-//struct ReportsView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NavigationView {
-//            ReportsView(dailyLogService: DailyLogService())
-//                .environmentObject(GoalSettings())
-////                .environmentObject(InsightsService())
-//                .environmentObject(HealthKitViewModel())
-//        }
-//    }
-//}

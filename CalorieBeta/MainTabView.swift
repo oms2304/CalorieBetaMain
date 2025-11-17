@@ -1,30 +1,36 @@
 import SwiftUI
 import FirebaseAuth
 
+struct IdentifiableFoodItems: Identifiable {
+    let id = UUID()
+    let items: [FoodItem]
+}
+
 struct MainTabView: View {
     @EnvironmentObject var goalSettings: GoalSettings
     @EnvironmentObject var dailyLogService: DailyLogService
-    
     @EnvironmentObject var achievementService: AchievementService
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var groupService: GroupService
-    @EnvironmentObject var recipeService: RecipeService
     @EnvironmentObject var mealPlannerService: MealPlannerService
     @EnvironmentObject var spotlightManager: SpotlightManager
+    
+    @StateObject private var recipeService = RecipeService()
     
     @State private var showSettings = false
     @State private var showingAddOptions = false
 
-    @State private var showingAddFoodView = false
+    @State private var showingFoodSearch = false
     @State private var showingBarcodeScanner = false
     @State private var showingAddExerciseView = false
     @State private var showingRecipeListView = false
-    @State private var showingFoodSearch = false
     @State private var showingAITextLog = false
+    @State private var showingAddFoodManually = false
+    @State private var showingAddJournalView = false // Add state for journal view
     
     @State private var showingImagePicker = false
     @State private var isProcessingImage = false
-    @State private var estimatedFoodItems: [FoodItem]? = nil
+    @State private var estimatedFoodItemsWrapper: IdentifiableFoodItems? = nil
     
     @State private var scannedFoodItem: FoodItem? = nil
     @State private var isSearchingAfterScan = false
@@ -38,19 +44,7 @@ struct MainTabView: View {
     private var containerBackground: Color {
         Color.backgroundSecondary
     }
-    private let wellnessScoreService = WellnessScoreService()
 
-    private var currentWellnessScore: WellnessScore {
-        // You'll need to get the actual data from your services
-        wellnessScoreService.calculateWellnessScore(
-            mealScore: nil, // Get from dailyLogService
-            lastNightSleepScore: nil, // Get from your sleep tracking
-            restingHeartRate: nil, // Get from HealthKit
-            hrv: nil // Get from HealthKit
-        )
-    }
-
-    
     var body: some View {
         ZStack {
             ZStack(alignment: .bottom) {
@@ -62,11 +56,14 @@ struct MainTabView: View {
                     case 1:
                         NavigationView { AIChatbotView(selectedTab: $appState.selectedTab) }
                         .navigationViewStyle(StackNavigationViewStyle())
+                    case 2:
+                        NavigationView { WorkoutRoutinesView() }
+                        .navigationViewStyle(StackNavigationViewStyle())
                     case 3:
                         NavigationView { MealPlannerView() }
                         .navigationViewStyle(StackNavigationViewStyle())
                     case 4:
-                        NavigationView { ReportsView(dailyLogService: dailyLogService, wellnessScore: currentWellnessScore) }
+                        NavigationView { ReportsView(dailyLogService: dailyLogService) }
                         .navigationViewStyle(StackNavigationViewStyle())
                     default:
                         NavigationView { HomeView(navigateToProfile: .constant(false), showSettings: $showSettings) }
@@ -101,7 +98,7 @@ struct MainTabView: View {
                             ("Scan Barcode", "barcode.viewfinder", { self.showingBarcodeScanner = true }),
                             ("Log with Camera", "camera.fill", { self.showingImagePicker = true }),
                             ("Describe Your Meal", "text.bubble.fill", { self.showingAITextLog = true }),
-                            ("Add Food Manually", "plus.circle", { self.showingAddFoodView = true }),
+                            ("Add Journal Entry", "book.closed.fill", { self.showingAddJournalView = true }), // New Button
                             ("Log Exercise", "figure.walk", { self.showingAddExerciseView = true }),
                             ("Log Recipe/Meal", "list.clipboard", { self.showingRecipeListView = true })
                         ]
@@ -135,8 +132,22 @@ struct MainTabView: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: $showSettings) { NavigationView { SettingsView(showSettings: $showSettings) } }
-            .sheet(isPresented: $showingAddFoodView) { AddFoodView { newFood in if let userID = Auth.auth().currentUser?.uid { dailyLogService.addFoodToCurrentLog(for: userID, foodItem: newFood, source: "manual_log") } } }
-            .sheet(isPresented: $showingFoodSearch) { FoodSearchView(dailyLog: $dailyLogService.currentDailyLog, onFoodItemLogged: { showingFoodSearch = false }, searchContext: "general_search" ) }
+            .sheet(isPresented: $showingFoodSearch) {
+                FoodSearchView(dailyLog: $dailyLogService.currentDailyLog, onFoodItemLogged: {
+                    showingFoodSearch = false
+                }, searchContext: "general_search")
+            }
+            .sheet(isPresented: $showingAddFoodManually) {
+                AddFoodView(
+                    isPresented: $showingAddFoodManually,
+                    onFoodLogged: { foodItem, mealType in
+                        Task {
+                            await dailyLogService.logFoodItem(foodItem, mealType: mealType)
+                            showingAddFoodManually = false
+                        }
+                    }
+                )
+            }
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(sourceType: .camera) { image in
                     self.isProcessingImage = true
@@ -144,15 +155,15 @@ struct MainTabView: View {
                         self.isProcessingImage = false
                         switch result {
                         case .success(let foodItems):
-                            self.estimatedFoodItems = foodItems
+                            self.estimatedFoodItemsWrapper = IdentifiableFoodItems(items: foodItems)
                         case .failure(let error):
                             self.scanError = (true, "Could not analyze the image. Error: \(error.localizedDescription)")
                         }
                     }
                 }
             }
-            .sheet(item: $estimatedFoodItems) { items in
-                 AISummaryView(estimatedItems: $estimatedFoodItems)
+            .sheet(item: $estimatedFoodItemsWrapper) { wrapper in
+                 AISummaryView(estimatedItems: .constant(wrapper.items))
             }
             .sheet(isPresented: $showingBarcodeScanner) {
                 BarcodeScannerView { barcode in
@@ -180,16 +191,15 @@ struct MainTabView: View {
                     )
                 }
             }
-            .sheet(isPresented: $showingAITextLog) {
-                AITextLogView()
-            }
+            .sheet(isPresented: $showingAITextLog) { AITextLogView() }
             .sheet(isPresented: $showingAddExerciseView) { AddExerciseView { newExercise in if let userID = Auth.auth().currentUser?.uid { dailyLogService.addExerciseToLog(for: userID, exercise: newExercise) } } }
-            .sheet(isPresented: $showingRecipeListView) { RecipeListView() }
-            .alert("Scan Error", isPresented: $scanError.0) {
-                Button("OK") { }
-            } message: {
-                Text(scanError.1)
+            .sheet(isPresented: $showingRecipeListView) {
+                RecipeListView().environmentObject(recipeService)
             }
+            .sheet(isPresented: $showingAddJournalView) { // Add sheet for journal
+                JournalView()
+            }
+            .alert("Scan Error", isPresented: $scanError.0) { Button("OK") { } } message: { Text(scanError.1) }
             .onChange(of: showingAddOptions) { newValue in
                 if newValue && !spotlightManager.isShown(id: "action-menu") {
                     withAnimation {
@@ -199,7 +209,7 @@ struct MainTabView: View {
             }
             
             if showingSpotlightTour {
-                Color.black.opacity(0.5).ignoresSafeArea()
+                Color.black.opacity(0.6).ignoresSafeArea()
                     .onTapGesture(perform: finishTour)
                     .transition(.opacity)
                 
@@ -249,11 +259,5 @@ struct MainTabView: View {
             .background(Color.backgroundSecondary)
             .cornerRadius(12)
         }
-    }
-}
-
-extension Array: Identifiable where Element: Identifiable {
-    public var id: [Element.ID] {
-        self.map { $0.id }
     }
 }

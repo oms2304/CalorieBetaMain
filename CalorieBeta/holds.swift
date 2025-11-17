@@ -1,10 +1,3 @@
-//
-//  holds.swift
-//  MyFitPlate
-//
-//  Created by Peter Andrews on 9/23/25.
-//
-
 
 import Foundation
 import FirebaseFirestore

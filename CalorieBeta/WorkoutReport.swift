@@ -13,17 +13,9 @@ struct WorkoutReportCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack{
-                Text("Weekly Workout Summary")
-                    .appFont(size: 17, weight: .semibold)
-                
-                Spacer()
-                
-                Image(systemName: "ellipsis")
-                    .foregroundColor(.white)
-            }
-            
-                
+            Text("Weekly Workout Summary")
+                .appFont(size: 17, weight: .semibold)
+                .padding([.top, .leading, .trailing])
             
             HStack(spacing: 16) {
                 workoutStatBox(value: "\(report.totalWorkouts)", label: "Workouts")

@@ -9,9 +9,12 @@ struct NutritionProgressView: View {
     @EnvironmentObject var dailyLogService: DailyLogService
     var insight: UserInsight?
 
-    @GestureState private var dragOffset: CGFloat = 0
-    private let swipeThreshold: CGFloat = 50
+    @State private var dragOffset: CGFloat = 0
+    @State private var currentIndex: Int = 0
+    
     private let totalViews = 4
+    private let cardSpacing: CGFloat = 20
+    private let cardWidth: CGFloat = UIScreen.main.bounds.width - 60
 
     var body: some View {
         let totalCalories = max(0, dailyLog.totalCalories())
@@ -29,36 +32,117 @@ struct NutritionProgressView: View {
         let carbsPercentage = min(carbs / carbsGoal, 1.0)
         
         VStack(spacing: 16) {
-            ZStack {
-                 switch goal.nutritionViewIndex {
-                 case 0:
-                    summaryView(calories: totalCalories, caloriesGoal: caloriesGoal, caloriesPercentage: caloriesPercentage, protein: protein, proteinGoal: proteinGoal, fats: fats, fatsGoal: fatsGoal, carbs: carbs, carbsGoal: carbsGoal)
-                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-                 case 1:
-                     bubblesView(calories: totalCalories, caloriesGoal: caloriesGoal, caloriesPercentage: caloriesPercentage, protein: protein, proteinGoal: proteinGoal, proteinPercentage: proteinPercentage, fats: fats, fatsGoal: fatsGoal, fatsPercentage: fatsPercentage, carbs: carbs, carbsGoal: carbsGoal, carbsPercentage: carbsPercentage)
-                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-                 case 2:
-                     HorizontalBarChartView(dailyLog: dailyLog, goal: goal)
-                      .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-                 case 3:
-                     MicronutrientProgressView(dailyLog: dailyLog, goalSettings: goal)
-                         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-                 default: EmptyView()
-                 }
-             }
-            .padding(.horizontal, 8)
-            .frame(minHeight: 180)
-            .background(Color.backgroundSecondary.opacity(0.8))
-            .cornerRadius(12)
-            .clipped()
-            .gesture( DragGesture().updating($dragOffset) { value, state, _ in state = value.translation.width }.onEnded { value in let swipeDistance = value.translation.width; if abs(swipeDistance) > swipeThreshold { withAnimation(.easeInOut(duration: 0.3)) { if swipeDistance < 0 { goal.nutritionViewIndex = (goal.nutritionViewIndex + 1) % totalViews } else { goal.nutritionViewIndex = (goal.nutritionViewIndex - 1 + totalViews) % totalViews } } } } )
-            .offset(x: dragOffset / 3)
-
-            DotIndicator(goalSettings: goal)
-                .padding(.top, -4)
-                .padding(.bottom, 4)
-
-        }.padding(.bottom, 8)
+            GeometryReader { geometry in
+                ZStack {
+                    ForEach(0..<totalViews, id: \.self) { index in
+                        let offset = CGFloat(index - currentIndex) * (cardWidth + cardSpacing) + dragOffset
+                        let scale = getScale(for: index)
+                        let opacity = getOpacity(for: index)
+                        
+                        Group {
+                            switch index {
+                            case 0:
+                                summaryView(calories: totalCalories, caloriesGoal: caloriesGoal, caloriesPercentage: caloriesPercentage, protein: protein, proteinGoal: proteinGoal, fats: fats, fatsGoal: fatsGoal, carbs: carbs, carbsGoal: carbsGoal)
+                            case 1:
+                                bubblesView(calories: totalCalories, caloriesGoal: caloriesGoal, caloriesPercentage: caloriesPercentage, protein: protein, proteinGoal: proteinGoal, proteinPercentage: proteinPercentage, fats: fats, fatsGoal: fatsGoal, fatsPercentage: fatsPercentage, carbs: carbs, carbsGoal: carbsGoal, carbsPercentage: carbsPercentage)
+                            case 2:
+                                HorizontalBarChartView(dailyLog: dailyLog, goal: goal)
+                            case 3:
+                                MicronutrientProgressView(dailyLog: dailyLog, goalSettings: goal)
+                            default:
+                                EmptyView()
+                            }
+                        }
+                        .padding(.horizontal,8)
+                        .frame(width: cardWidth, height: 220)
+                        .background(Color.backgroundSecondary.opacity(0.8))
+                        .cornerRadius(12)
+                        
+                        .overlay(
+                            
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+                        )
+                        .scaleEffect(scale)
+                        .opacity(opacity)
+                        .offset(x: offset)
+                        .clipped()
+                        .zIndex(index == currentIndex ? 1 : 0)
+                    }
+                }
+                .frame(width: geometry.size.width, height: 220)
+            }
+            .frame(height: 220)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        dragOffset = value.translation.width
+                    }
+                    .onEnded { value in
+                        let threshold: CGFloat = cardWidth / 3
+                        
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                            if value.translation.width < -threshold && currentIndex < totalViews - 1 {
+                                currentIndex += 1
+                                goal.nutritionViewIndex = currentIndex
+                            } else if value.translation.width > threshold && currentIndex > 0 {
+                                currentIndex -= 1
+                                goal.nutritionViewIndex = currentIndex
+                            }
+                            dragOffset = 0
+                        }
+                    }
+            )
+            
+            // Modern page indicator
+            HStack(spacing: 6) {
+                ForEach(0..<totalViews, id: \.self) { index in
+                    if index == currentIndex {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.accentColor)
+                            .frame(width: 24, height: 6)
+//                            .transition(.scale)
+                    } else {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 6, height: 6)
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                    currentIndex = index
+                                    goal.nutritionViewIndex = index
+                                }
+                            }
+                    }
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding(.vertical, 16)
+        .onAppear {
+            currentIndex = goal.nutritionViewIndex
+        }
+    }
+    
+    private func getScale(for index: Int) -> CGFloat {
+        let distance = abs(CGFloat(index - currentIndex))
+        if distance == 0 {
+            return 1.0
+        } else if distance == 1 {
+            return 0.9
+        } else {
+            return 0.8
+        }
+    }
+    
+    private func getOpacity(for index: Int) -> Double {
+        let distance = abs(index - currentIndex)
+        if distance == 0 {
+            return 1.0
+        } else if distance == 1 {
+            return 0.5
+        } else {
+            return 0.2
+        }
     }
 
     @ViewBuilder
@@ -101,18 +185,18 @@ struct NutritionProgressView: View {
                 )
             }
         }
-        .padding(.horizontal, 8)
-        .frame(minHeight: 120)
+        .padding(20)
     }
 
     @ViewBuilder
     private func bubblesView(calories: Double, caloriesGoal: Double, caloriesPercentage: Double, protein: Double, proteinGoal: Double, proteinPercentage: Double, fats: Double, fatsGoal: Double, fatsPercentage: Double, carbs: Double, carbsGoal: Double, carbsPercentage: Double) -> some View {
-         HStack(spacing: 15) {
-             ProgressBubble(value: calories, goal: caloriesGoal, percentage: caloriesPercentage, label: "Calories", unit: "cal", color: .red, isSmall: true)
-             ProgressBubble(value: protein, goal: proteinGoal, percentage: proteinPercentage, label: "Protein", unit: "g", color: .accentProtein, isSmall: true)
-             ProgressBubble(value: fats, goal: fatsGoal, percentage: fatsPercentage, label: "Fats", unit: "g", color: .accentFats, isSmall: true)
-             ProgressBubble(value: carbs, goal: carbsGoal, percentage: carbsPercentage, label: "Carbs", unit: "g", color: .accentCarbs, isSmall: true)
-         }.padding(.horizontal, 8).frame(maxWidth: .infinity)
+        HStack(spacing: 15) {
+            ProgressBubble(value: calories, goal: caloriesGoal, percentage: caloriesPercentage, label: "Calories", unit: "cal", color: .red, isSmall: true)
+            ProgressBubble(value: protein, goal: proteinGoal, percentage: proteinPercentage, label: "Protein", unit: "g", color: .accentProtein, isSmall: true)
+            ProgressBubble(value: fats, goal: fatsGoal, percentage: fatsPercentage, label: "Fats", unit: "g", color: .accentFats, isSmall: true)
+            ProgressBubble(value: carbs, goal: carbsGoal, percentage: carbsPercentage, label: "Carbs", unit: "g", color: .accentCarbs, isSmall: true)
+        }
+        .padding(20)
     }
 }
 
@@ -124,6 +208,10 @@ struct ProgressBubble: View {
     let unit: String
     let color: Color
     var isSmall: Bool = false
+    
+    private var remaining: Double {
+        goal - value
+    }
     
     var body: some View {
         VStack {
@@ -137,17 +225,30 @@ struct ProgressBubble: View {
                     .animation(.easeInOut(duration: 0.75), value: percentage)
 
                 VStack {
-                    Text("\(String(format: "%.0f", value))")
-                        .appFont(size: isSmall ? 15 : 24, weight: isSmall ? .medium : .bold)
-                        .foregroundColor(.textPrimary)
-                    Text("/ \(String(format: "%.0f", goal)) \(isSmall ? unit : "")")
-                         .appFont(size: isSmall ? 10 : 12)
-                        .foregroundColor(Color(UIColor.secondaryLabel))
+                    if isSmall {
+                        Text("\(String(format: "%.0f", value))")
+                            .appFont(size: isSmall ? 15 : 24, weight: isSmall ? .medium : .bold)
+                            .foregroundColor(.textPrimary)
+                        Text("/ \(String(format: "%.0f", goal)) \(unit)")
+                             .appFont(size: isSmall ? 10 : 12)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                    } else {
+                        Text("\(String(format: "%.0f", remaining))")
+                            .appFont(size: 28, weight: .bold)
+                            .foregroundColor(.textPrimary)
+                        Text("Remaining")
+                            .appFont(size: 12)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                    }
                 }
             }
             .frame(width: isSmall ? 70 : 100, height: isSmall ? 70 : 100)
             
-            if !label.isEmpty {
+            if !isSmall {
+                Text("\(String(format: "%.0f", value)) / \(String(format: "%.0f", goal)) \(unit)")
+                     .appFont(size: 12)
+                    .foregroundColor(Color(UIColor.secondaryLabel))
+            } else if !label.isEmpty {
                 Text(label)
                     .appFont(size: 12)
                     .foregroundColor(.textPrimary)
@@ -157,21 +258,10 @@ struct ProgressBubble: View {
     }
 }
 
-private struct DotIndicator: View {
-    @ObservedObject var goalSettings: GoalSettings
-    let totalDots: Int = 4
-    var body: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<totalDots, id: \.self) { index in
-                Circle()
-                    .frame(width: index == goalSettings.nutritionViewIndex ? 10 : 6, height: index == goalSettings.nutritionViewIndex ? 10 : 6)
-                    .foregroundColor(index == goalSettings.nutritionViewIndex ? Color.brandPrimary : Color(UIColor.secondaryLabel).opacity(0.5))
-                    .onTapGesture {
-                        withAnimation(.easeInOut) {
-                            goalSettings.nutritionViewIndex = index
-                        }
-                    }
-            }
-        }
-    }
+#Preview {
+    NutritionProgressView(
+        dailyLog: DailyLog(date: Date(), meals: []),
+        goal: GoalSettings()
+    )
+    .environmentObject(DailyLogService())
 }
