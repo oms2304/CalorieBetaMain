@@ -64,51 +64,36 @@ struct HomeView: View {
                     VStack(spacing: 20) {
                         dateNavigationView
                             .padding(.horizontal)
+                            .padding(.vertical, -5)
                         
                         nutritionProgressSection
                             .padding(.horizontal)
+                            .padding(.vertical, -5)
                             .id("nutritionProgress")
-//                        
-//                        if isToday {
-//                            MealSuggestionCardView(
-//                                suggestion: mealSuggestion,
-//                                onGenerate: {
-//                                    Task {
-//                                        self.mealSuggestion = await insightsService.generateSingleMealSuggestion()
-//                                    }
-//                                },
-//                                onTap: {
-//                                    if mealSuggestion != nil {
-//                                        showingSuggestionDetail = true
-//                                    } else {
-//                                        showingSuggestionPreferences = true
-//                                    }
-//                                },
-//                                onPrefs: {
-//                                    showingSuggestionPreferences = true
-//                                },
-//                                isLoading: insightsService.isGeneratingSuggestion
-//                            )
-//                            .padding(.horizontal)
-//                        }
+
                         
                         if let currentDailyLog = dailyLogService.currentDailyLog, Calendar.current.isDate(currentDailyLog.date, inSameDayAs: selectedDate) {
                             
                             let insightToShow = insightsService.isLoadingInsights ? nil : weeklyInsight
-                            
-                            WaterTrackingCardView(date: currentDailyLog.date, insight: insightToShow)
-                                .asCard()
-                                .featureSpotlight(isActive: isSpotlightActive(for: "waterTracker"))
-                                .id("waterTracker")
-                                .padding(.horizontal)
+                           
+                                WaterTrackingCardView(date: currentDailyLog.date, insight: insightToShow)
+                                    .asCard()
+                                    .background(Color.backgroundSecondary)
+                                    .cornerRadius(20)
+                                    .featureSpotlight(isActive: isSpotlightActive(for: "waterTracker"))
+                                    .id("waterTracker")
+                                    .padding(.horizontal)
+                                    .padding(.vertical, -5)
                         }
                         
                         foodDiarySection
                             .padding(.horizontal)
+                            .padding(.vertical, -5)
                             .id("dailyLog")
 
                         journalSection
                             .padding(.horizontal)
+                            .padding(.vertical, -5)
                     }
                     .padding(.top)
                     .padding(.bottom, 120)
@@ -304,16 +289,24 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Nutrition Progress")
                 .appFont(size: 22, weight: .bold)
-                
+                .padding(.leading, -5)
+                .padding(.bottom, 5)
             
+            Divider()
+                
             if let currentDailyLog = dailyLogService.currentDailyLog, Calendar.current.isDate(currentDailyLog.date, inSameDayAs: selectedDate) {
                 NutritionProgressView(dailyLog: currentDailyLog, goal: goalSettings, insight: weeklyInsight)
+                    
             } else {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 220)
             }
         }
         .asCard()
+//        .padding(16)
+        .background(colorScheme == .dark ? Color.backgroundPrimary : Color(UIColor.systemGray6))
+//        .background(Color.backgroundSecondary)
+        .cornerRadius(20)
         .featureSpotlight(isActive: isSpotlightActive(for: "nutritionProgress"))
     }
 

@@ -14,7 +14,7 @@ struct NutritionProgressView: View {
     
     private let totalViews = 4
     private let cardSpacing: CGFloat = 20
-    private let cardWidth: CGFloat = UIScreen.main.bounds.width - 60
+    private let cardWidth: CGFloat = UIScreen.main.bounds.width - 80
 
     var body: some View {
         let totalCalories = max(0, dailyLog.totalCalories())
@@ -53,26 +53,26 @@ struct NutritionProgressView: View {
                                 EmptyView()
                             }
                         }
-                        .padding(.horizontal,8)
-                        .frame(width: cardWidth, height: 220)
-                        .background(Color.backgroundSecondary.opacity(0.8))
-                        .cornerRadius(12)
-                        
-                        .overlay(
-                            
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
-                        )
+                        .padding(.horizontal, 8)
+                        .padding(.top, -5)
+//                        .padding(.bottom,5)
+                        .frame(width: cardWidth * 1.08, height: 220)
+//                        .background(colorScheme == .dark ? Color(red: 43/255, green: 54/255, blue: 48/255) : Color.backgroundSecondary)
+//                        .background(Color.backgroundSecondary)
+                        .cornerRadius(20)
                         .scaleEffect(scale)
-                        .opacity(opacity)
                         .offset(x: offset)
                         .clipped()
                         .zIndex(index == currentIndex ? 1 : 0)
                     }
                 }
-                .frame(width: geometry.size.width, height: 220)
+                
+                .frame(width: geometry.size.width)
+                
             }
-            .frame(height: 220)
+            .frame(height: 200)
+
+            
             .gesture(
                 DragGesture()
                     .onChanged { value in
@@ -99,9 +99,8 @@ struct NutritionProgressView: View {
                 ForEach(0..<totalViews, id: \.self) { index in
                     if index == currentIndex {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.accentColor)
-                            .frame(width: 24, height: 6)
-//                            .transition(.scale)
+                            .fill(Color.green)
+                            .frame(width: 14, height: 6)
                     } else {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
@@ -115,9 +114,9 @@ struct NutritionProgressView: View {
                     }
                 }
             }
-            .padding(.top, 8)
+            .padding(.bottom, -8)
         }
-        .padding(.vertical, 16)
+        
         .onAppear {
             currentIndex = goal.nutritionViewIndex
         }
@@ -242,7 +241,7 @@ struct ProgressBubble: View {
                     }
                 }
             }
-            .frame(width: isSmall ? 70 : 100, height: isSmall ? 70 : 100)
+            .frame(width: isSmall ? 67 : 97, height: isSmall ? 67 : 97)
             
             if !isSmall {
                 Text("\(String(format: "%.0f", value)) / \(String(format: "%.0f", goal)) \(unit)")
