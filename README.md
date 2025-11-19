@@ -1,5 +1,12 @@
 # MyFitPlate
 
+## Patch Notes — Version 1.2
+
+### Home Page
+- New swiping mechanic for the cards
+- New dot indicator
+- Made the colors more appealing and easier look at (especially light mode)
+
 ## Patch Notes — Version 1.1
 
 ### Nutrition Progress Card
