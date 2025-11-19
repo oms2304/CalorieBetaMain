@@ -78,7 +78,7 @@ struct HomeView: View {
                            
                                 WaterTrackingCardView(date: currentDailyLog.date, insight: insightToShow)
                                     .asCard()
-                                    .background(Color.backgroundSecondary)
+                                    .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
                                     .cornerRadius(20)
                                     .featureSpotlight(isActive: isSpotlightActive(for: "waterTracker"))
                                     .id("waterTracker")
@@ -304,8 +304,9 @@ struct HomeView: View {
         }
         .asCard()
 //        .padding(16)
-        .background(colorScheme == .dark ? Color.backgroundPrimary : Color(UIColor.systemGray6))
+//        .background(colorScheme == .dark ? Color.backgroundPrimary : Color(UIColor.systemGray6))
 //        .background(Color.backgroundSecondary)
+        .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
         .cornerRadius(20)
         .featureSpotlight(isActive: isSpotlightActive(for: "nutritionProgress"))
     }
@@ -314,6 +315,8 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Daily Log")
                 .appFont(size: 22, weight: .bold)
+            
+            Divider()
 
             let currentLogForDisplay = (dailyLogService.currentDailyLog != nil && Calendar.current.isDate(dailyLogService.currentDailyLog!.date, inSameDayAs: selectedDate)) ? dailyLogService.currentDailyLog : nil
 
@@ -333,6 +336,8 @@ struct HomeView: View {
             }
         }
         .asCard()
+        .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
+        .cornerRadius(20)
         .featureSpotlight(isActive: isSpotlightActive(for: "dailyLog"))
     }
 
@@ -341,6 +346,7 @@ struct HomeView: View {
             HStack {
                 Text("AI Journal")
                     .appFont(size: 22, weight: .bold)
+                
                 Spacer()
                 Button("Add Entry") {
                     showingAddJournalView = true
@@ -348,6 +354,7 @@ struct HomeView: View {
                 .appFont(size: 15, weight: .semibold)
                 .foregroundColor(.brandPrimary)
             }
+            Divider()
 
             if let entries = dailyLogService.currentDailyLog?.journalEntries, !entries.isEmpty {
                 List {
@@ -369,7 +376,7 @@ struct HomeView: View {
                         }
                         .padding(.vertical, 8)
                         .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear) // *** ADDED THIS LINE ***
+                        .listRowBackground(Color.clear)
                     }
                     .onDelete(perform: deleteJournalEntry)
                     .listRowSeparator(.hidden)
@@ -377,7 +384,7 @@ struct HomeView: View {
                 .listStyle(.plain)
                 .frame(height: CGFloat(entries.count) * 60)
                 .padding(.top, -5)
-                .background(Color.clear) // This background(Color.clear) is for the List itself
+                .background(Color.clear)
                 
             } else {
                 Text("No journal entries for this day.")
@@ -388,6 +395,8 @@ struct HomeView: View {
             }
         }
         .asCard()
+        .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
+        .cornerRadius(20)
     }
     
     private func deleteJournalEntry(at offsets: IndexSet) {

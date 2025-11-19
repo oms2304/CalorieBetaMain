@@ -55,8 +55,10 @@ struct WaterTrackingCardView: View {
                                 .foregroundColor(Color(UIColor.secondaryLabel))
                                 .lineLimit(8)
                         }
+                        
                         .padding(.bottom, 8)
                     }
+                        
                     
                     VStack(alignment: .leading, spacing: 3) {
                         Text(motivationalQuote.text)
@@ -71,6 +73,7 @@ struct WaterTrackingCardView: View {
                     Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, -15)
                 
                 VStack(alignment: .center, spacing: 5) {
                     Text("Water Intake")
@@ -104,7 +107,7 @@ struct WaterTrackingCardView: View {
                         } label: {
                             Image(systemName: "minus.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.brandPrimary)
+                                .foregroundColor(.green)
                         }
                         .buttonStyle(.plain)
                         .contentShape(Rectangle())
@@ -119,21 +122,29 @@ struct WaterTrackingCardView: View {
                         } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.brandPrimary)
+                                .foregroundColor(.green)
                         }
                         .buttonStyle(.plain)
                         .contentShape(Rectangle())
                     }
                 }
                 .frame(width: 110, alignment: .top)
+                
+                
             }
+            
             .padding(.horizontal)
             .frame(maxWidth: .infinity, minHeight: 140, alignment: .center)
             .padding(.bottom, 5)
+            
         }
+        .padding()
+        
+        
         .onAppear {
             selectRandomQuote()
         }
+        
     }
     
     private func adjustWater(by amount: Double) {
