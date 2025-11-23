@@ -19,7 +19,10 @@ struct HomeView: View {
     @State private var selectedDate: Date = Calendar.current.startOfDay(for: Date())
     @State private var showingProfileSheet = false
     @State private var showingAddExerciseView = false
-    @State private var showingAddJournalView = false
+    
+    @State private var showingWeightEntrySheet = false
+    @State private var showingDetailedInsights = false
+    @State private var showingAIJournalSheet = false
     
     @State private var exerciseToEdit: LoggedExercise? = nil
     @State private var showingEditExerciseView = false
@@ -56,6 +59,7 @@ struct HomeView: View {
         Calendar.current.isDateInToday(selectedDate)
     }
 
+    // MARK: Body
     var body: some View {
           ZStack {
             NavigationLink(destination: WorkoutRoutinesView(), isActive: $showingWorkoutRoutines) { EmptyView() }
@@ -70,34 +74,41 @@ struct HomeView: View {
                             .padding(.horizontal)
                             .padding(.vertical, -5)
                             .id("nutritionProgress")
-
                         
-                        if let currentDailyLog = dailyLogService.currentDailyLog, Calendar.current.isDate(currentDailyLog.date, inSameDayAs: selectedDate) {
-                            
-                            let insightToShow = insightsService.isLoadingInsights ? nil : weeklyInsight
-                           
-                                WaterTrackingCardView(date: currentDailyLog.date, insight: insightToShow)
-                                    .asCard()
-                                    .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
-                                    .cornerRadius(20)
-                                    .featureSpotlight(isActive: isSpotlightActive(for: "waterTracker"))
-                                    .id("waterTracker")
-                                    .padding(.horizontal)
-                                    .padding(.vertical, -5)
-                        }
                         
                         foodDiarySection
                             .padding(.horizontal)
                             .padding(.vertical, -5)
                             .id("dailyLog")
 
-                        journalSection
-                            .padding(.horizontal)
-                            .padding(.vertical, -5)
+                        
+                        HStack(spacing: 10) {
+                            quickActions
+                                .padding(.leading, -10)
+                            if let currentDailyLog = dailyLogService.currentDailyLog,
+                               Calendar.current.isDate(currentDailyLog.date, inSameDayAs: selectedDate) {
+                                let insightToShow = insightsService.isLoadingInsights ? nil : weeklyInsight
+                                
+                                WaterTrackingCardView(date: currentDailyLog.date, insight: insightToShow)
+                                    .asCard()
+                                    .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
+                                    .cornerRadius(20)
+                                    .featureSpotlight(isActive: isSpotlightActive(for: "waterTracker"))
+                                    .id("waterTracker")
+                                    .padding(.trailing, -10)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, -5)
+                        
+//                        journalSection
+//                            .padding(.horizontal)
+//                            .padding(.vertical, -5)
                     }
                     .padding(.top)
-                    .padding(.bottom, 120)
+                    .padding(.bottom, 50)
                 }
+                .padding(.horizontal, -20)
                 .onChange(of: currentSpotlightIndex) { newIndex in
                     if showingSpotlightTour && newIndex < tourSpotlightIDs.count {
                         let spotlightID = tourSpotlightIDs[newIndex]
@@ -125,7 +136,7 @@ struct HomeView: View {
                         )
                     }
                 }
-            }
+             }
           }
           .toolbar {
               ToolbarItem(placement: .navigationBarLeading) {
@@ -133,10 +144,6 @@ struct HomeView: View {
                       Text("MyFitPlate")
                           .appFont(size: 17, weight: .semibold)
                           .foregroundColor(Color(UIColor.secondaryLabel))
-                      
-                      Button(action: { showingWorkoutRoutines = true }) {
-                          Image(systemName: "dumbbell.fill")
-                      }
                   }
               }
               ToolbarItem(placement: .navigationBarTrailing) {
@@ -175,9 +182,9 @@ struct HomeView: View {
                   }
               }
           }
-          .sheet(isPresented: $showingAddJournalView) {
-              JournalView()
-          }
+//          .sheet(isPresented: $showingAddJournalView) {
+//              JournalView()
+//          }
           .sheet(item: $exerciseToEdit) { exerciseToEdit in
               AddExerciseView(exerciseToEdit: exerciseToEdit) { updatedExercise in
                   if let userID = Auth.auth().currentUser?.uid {
@@ -282,8 +289,110 @@ struct HomeView: View {
             }
             .disabled(isToday)
         }
+        .frame(maxWidth: UIScreen.main.bounds.width * 0.88)
         .padding(.vertical, 4)
     }
+    
+    let quickWidth = UIScreen.main.bounds.width * 0.22
+    
+    // MARK: Quick Actions
+    private var quickActions: some View {
+        VStack(spacing: 10) {
+            HStack(spacing:10){
+                Button(action: {
+                    self.showingWorkoutRoutines = true
+                }) {
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 28))
+                        .frame(width: quickWidth, height: 95)
+//                        .asCard()
+                        
+                        .background(.ultraThinMaterial)
+                        .background(
+                            (colorScheme == .dark ? Color.backgroundPrimary
+                             : Color.brandPrimary.opacity(0.03))
+                        )
+                        .clipShape(.rect(
+                            topLeadingRadius: 20,
+                            bottomLeadingRadius: 0,
+                            bottomTrailingRadius: 0,
+                            topTrailingRadius: 0
+                        ))
+                }
+
+                Button {
+                    insightsService.generateAndFetchInsights(forLastDays: 7)
+                    showingAIJournalSheet = true
+                    
+                } label: {
+                    Image(systemName: "book.pages.fill")
+                        .font(.system(size: 28))
+                        .frame(width: quickWidth, height: 95)
+                        .background(.ultraThinMaterial)
+                        .background(
+                            (colorScheme == .dark ? Color.backgroundPrimary
+                             : Color.brandPrimary.opacity(0.03))
+                        )
+                        .clipShape(.rect(
+                            topLeadingRadius: 0,
+                            bottomLeadingRadius: 0,
+                            bottomTrailingRadius: 0,
+                            topTrailingRadius: 20
+                        ))
+                }
+
+            }
+            HStack{
+                Button {
+                    insightsService.generateAndFetchInsights(forLastDays: 7)
+                    showingDetailedInsights = true
+                } label: {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 28))
+                        .frame(width: quickWidth, height: 95)
+                        .background(.ultraThinMaterial)
+                        .background(
+                            (colorScheme == .dark ? Color.backgroundPrimary
+                             : Color.brandPrimary.opacity(0.03))
+                        )
+                        .clipShape(.rect(
+                            topLeadingRadius: 0,
+                            bottomLeadingRadius: 20,
+                            bottomTrailingRadius: 0,
+                            topTrailingRadius: 0
+                        ))
+                }
+                
+                Button(action: { showingWeightEntrySheet = true }) {
+                    Image("scale")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 35, height: 35)
+                        .frame(width: quickWidth, height: 95)
+                        .background(.ultraThinMaterial)
+                        .background(
+                            (colorScheme == .dark ? Color.backgroundPrimary
+                             : Color.brandPrimary.opacity(0.03))
+                        )
+                        .clipShape(.rect(
+                            topLeadingRadius: 0,
+                            bottomLeadingRadius: 0,
+                            bottomTrailingRadius: 20,
+                            topTrailingRadius: 0
+                        ))
+                }
+            }
+            
+        }
+        .sheet(isPresented: $showingWeightEntrySheet) {
+            CurrentWeightView()
+                .environmentObject(goalSettings)
+        }
+        .sheet(isPresented: $showingAIJournalSheet){
+            AIJournalSheet()
+        }
+    }
+
 
     private var nutritionProgressSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -299,9 +408,10 @@ struct HomeView: View {
                     
             } else {
                 ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 220)
+                    .frame(maxWidth: UIScreen.main.bounds.width * 0.88, minHeight: 220)
             }
         }
+        .frame(maxWidth: UIScreen.main.bounds.width * 0.88)
         .asCard()
 //        .padding(16)
 //        .background(colorScheme == .dark ? Color.backgroundPrimary : Color(UIColor.systemGray6))
@@ -335,81 +445,18 @@ struct HomeView: View {
                 }
             }
         }
+        .frame(maxWidth: UIScreen.main.bounds.width * 0.88)
         .asCard()
         .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
         .cornerRadius(20)
         .featureSpotlight(isActive: isSpotlightActive(for: "dailyLog"))
     }
 
-    private var journalSection: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            HStack {
-                Text("AI Journal")
-                    .appFont(size: 22, weight: .bold)
-                
-                Spacer()
-                Button("Add Entry") {
-                    showingAddJournalView = true
-                }
-                .appFont(size: 15, weight: .semibold)
-                .foregroundColor(.brandPrimary)
-            }
-            Divider()
-
-            if let entries = dailyLogService.currentDailyLog?.journalEntries, !entries.isEmpty {
-                List {
-                    ForEach(entries) { entry in
-                        HStack(spacing: 8) {
-                            Text(JournalEmojiMapper.getEmoji(for: entry.category))
-                                .font(.title3)
-                            
-                            VStack(alignment: .leading) {
-                                Text(entry.text)
-                                    .appFont(size: 15, weight: .medium)
-                                    .foregroundColor(.textPrimary)
-                                    .lineLimit(2)
-                                
-                                Text(entry.category)
-                                    .appFont(size: 12)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .padding(.vertical, 8)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                    }
-                    .onDelete(perform: deleteJournalEntry)
-                    .listRowSeparator(.hidden)
-                }
-                .listStyle(.plain)
-                .frame(height: CGFloat(entries.count) * 60)
-                .padding(.top, -5)
-                .background(Color.clear)
-                
-            } else {
-                Text("No journal entries for this day.")
-                    .foregroundColor(Color(UIColor.secondaryLabel))
-                    .appFont(size: 15)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-            }
-        }
-        .asCard()
-        .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
-        .cornerRadius(20)
-    }
-    
-    private func deleteJournalEntry(at offsets: IndexSet) {
-        guard let userID = Auth.auth().currentUser?.uid,
-              let allEntries = dailyLogService.currentDailyLog?.journalEntries else { return }
-        
-        let entriesToDelete = offsets.map { allEntries[$0] }
-        
-        for entry in entriesToDelete {
-            dailyLogService.deleteJournalEntry(for: userID, entry: entry)
-        }
-    }
-
+//    private var journalSection: some View {
+//
+//    }
+//    
+  
     @ViewBuilder
     private func activityWidget() -> some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -638,6 +685,86 @@ private struct SwipeableFoodItemView: View {
         .padding(.bottom, 1)
     }
 }
+
+struct AIJournalSheet : View {
+@EnvironmentObject var dailyLogService: DailyLogService
+@Environment(\.colorScheme) var colorScheme
+
+@State private var showingAddJournalView = false
+
+private func deleteJournalEntry(at offsets: IndexSet) {
+    guard let userID = Auth.auth().currentUser?.uid,
+            let allEntries = dailyLogService.currentDailyLog?.journalEntries else { return }
+    
+    let entriesToDelete = offsets.map { allEntries[$0] }
+    
+    for entry in entriesToDelete {
+        dailyLogService.deleteJournalEntry(for: userID, entry: entry)
+    }
+}
+
+
+var body: some View {
+    VStack(alignment: .leading, spacing: 15) {
+        HStack {
+            Text("AI Journal")
+                .appFont(size: 22, weight: .bold)
+            
+            Spacer()
+            Button("Add Entry") {
+                showingAddJournalView = true
+            }
+            .appFont(size: 15, weight: .semibold)
+            .foregroundColor(.brandPrimary)
+        }
+        Divider()
+
+        if let entries = dailyLogService.currentDailyLog?.journalEntries, !entries.isEmpty {
+            List {
+                ForEach(entries) { entry in
+                    HStack(spacing: 8) {
+                        Text(JournalEmojiMapper.getEmoji(for: entry.category))
+                            .font(.title3)
+                        
+                        VStack(alignment: .leading) {
+                            Text(entry.text)
+                                .appFont(size: 15, weight: .medium)
+                                .foregroundColor(.textPrimary)
+                                .lineLimit(2)
+                            
+                            Text(entry.category)
+                                .appFont(size: 12)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                }
+                .onDelete(perform: deleteJournalEntry)
+                .listRowSeparator(.hidden)
+            }
+            .listStyle(.plain)
+            .frame(height: CGFloat(entries.count) * 60)
+            .padding(.top, -5)
+            .background(Color.clear)
+            
+        } else {
+            Text("No journal entries for this day.")
+                .foregroundColor(Color(UIColor.secondaryLabel))
+                .appFont(size: 15)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding()
+        }
+    }
+    .frame(maxWidth: UIScreen.main.bounds.width * 0.88)
+    .asCard()
+    .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
+    .cornerRadius(20)
+}
+
+}
+
 
 struct HomeView_Previews: PreviewProvider {
     @State static var navigateToProfile = false

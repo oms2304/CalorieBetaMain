@@ -40,41 +40,6 @@ struct WaterTrackingCardView: View {
         
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 10) {
-                    if let insight = insight {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Image(systemName: "lightbulb.fill")
-                                    .foregroundColor(.yellow)
-                                Text(insight.title)
-                                    .appFont(size: 13, weight: .semibold)
-                                    .foregroundColor(.brandPrimary)
-                            }
-                            Text(insight.message)
-                                .appFont(size: 12)
-                                .foregroundColor(Color(UIColor.secondaryLabel))
-                                .lineLimit(8)
-                        }
-                        
-                        .padding(.bottom, 8)
-                    }
-                        
-                    
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(motivationalQuote.text)
-                            .appFont(size: 12)
-                            .italic()
-                            .lineLimit(3)
-                        Text("- \(motivationalQuote.author)")
-                            .appFont(size: 10)
-                            .foregroundColor(Color(UIColor.tertiaryLabel))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    Spacer(minLength: 0)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, -15)
-                
                 VStack(alignment: .center, spacing: 5) {
                     Text("Water Intake")
                         .appFont(size: 17, weight: .semibold)
@@ -107,7 +72,7 @@ struct WaterTrackingCardView: View {
                         } label: {
                             Image(systemName: "minus.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.green)
+                                .foregroundColor(Color.brandPrimary)
                         }
                         .buttonStyle(.plain)
                         .contentShape(Rectangle())
@@ -122,23 +87,20 @@ struct WaterTrackingCardView: View {
                         } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.green)
+                                .foregroundColor(Color.brandPrimary)
                         }
                         .buttonStyle(.plain)
                         .contentShape(Rectangle())
                     }
                 }
-                .frame(width: 110, alignment: .top)
-                
-                
             }
+            .frame(maxWidth: UIScreen.main.bounds.width * 0.39, minHeight: 140)
             
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity, minHeight: 140, alignment: .center)
             .padding(.bottom, 5)
             
         }
-        .padding()
+        
+//        .padding()
         
         
         .onAppear {
