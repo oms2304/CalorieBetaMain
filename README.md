@@ -1,5 +1,14 @@
 # MyFitPlate
 
+## Patch Notes — Version 1.3
+
+### Home Page
+- Added quick action buttons:
+  - one for updating weight
+  - AI journal
+  - Accessing Workout routines
+  - AI Insights
+
 ## Patch Notes — Version 1.2
 
 ### Home Page
