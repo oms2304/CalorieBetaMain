@@ -182,9 +182,6 @@ struct HomeView: View {
                   }
               }
           }
-//          .sheet(isPresented: $showingAddJournalView) {
-//              JournalView()
-//          }
           .sheet(item: $exerciseToEdit) { exerciseToEdit in
               AddExerciseView(exerciseToEdit: exerciseToEdit) { updatedExercise in
                   if let userID = Auth.auth().currentUser?.uid {
@@ -299,11 +296,22 @@ struct HomeView: View {
     private var quickActions: some View {
         VStack(spacing: 10) {
             HStack(spacing:10){
+                
                 Button(action: {
                     self.showingWorkoutRoutines = true
                 }) {
-                    Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 28))
+                    VStack{
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 28))
+                        
+                        Text("Workouts")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.top, 20)
+                            .padding(.bottom, -10)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                    }
+                    
                         .frame(width: quickWidth, height: 95)
 //                        .asCard()
                         
@@ -325,8 +333,16 @@ struct HomeView: View {
                     showingAIJournalSheet = true
                     
                 } label: {
-                    Image(systemName: "book.pages.fill")
-                        .font(.system(size: 28))
+                    VStack {
+                        Image(systemName: "book.pages.fill")
+                            .font(.system(size: 28))
+                        
+                        Text("AI Journal")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.top, 8)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                    }
                         .frame(width: quickWidth, height: 95)
                         .background(.ultraThinMaterial)
                         .background(
@@ -347,8 +363,16 @@ struct HomeView: View {
                     insightsService.generateAndFetchInsights(forLastDays: 7)
                     showingDetailedInsights = true
                 } label: {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 28))
+                    VStack{
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 28))
+                        
+                        Text("AI Insights")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.top, 8)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                    }
                         .frame(width: quickWidth, height: 95)
                         .background(.ultraThinMaterial)
                         .background(
@@ -364,10 +388,19 @@ struct HomeView: View {
                 }
                 
                 Button(action: { showingWeightEntrySheet = true }) {
-                    Image("scale")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 35, height: 35)
+                    VStack{
+                        Image("scale")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 35, height: 35)
+                        
+                        Text("Log Weight")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.top, 8)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                        
+                    }
                         .frame(width: quickWidth, height: 95)
                         .background(.ultraThinMaterial)
                         .background(
@@ -684,85 +717,6 @@ private struct SwipeableFoodItemView: View {
         }
         .padding(.bottom, 1)
     }
-}
-
-struct AIJournalSheet : View {
-@EnvironmentObject var dailyLogService: DailyLogService
-@Environment(\.colorScheme) var colorScheme
-
-@State private var showingAddJournalView = false
-
-private func deleteJournalEntry(at offsets: IndexSet) {
-    guard let userID = Auth.auth().currentUser?.uid,
-            let allEntries = dailyLogService.currentDailyLog?.journalEntries else { return }
-    
-    let entriesToDelete = offsets.map { allEntries[$0] }
-    
-    for entry in entriesToDelete {
-        dailyLogService.deleteJournalEntry(for: userID, entry: entry)
-    }
-}
-
-
-var body: some View {
-    VStack(alignment: .leading, spacing: 15) {
-        HStack {
-            Text("AI Journal")
-                .appFont(size: 22, weight: .bold)
-            
-            Spacer()
-            Button("Add Entry") {
-                showingAddJournalView = true
-            }
-            .appFont(size: 15, weight: .semibold)
-            .foregroundColor(.brandPrimary)
-        }
-        Divider()
-
-        if let entries = dailyLogService.currentDailyLog?.journalEntries, !entries.isEmpty {
-            List {
-                ForEach(entries) { entry in
-                    HStack(spacing: 8) {
-                        Text(JournalEmojiMapper.getEmoji(for: entry.category))
-                            .font(.title3)
-                        
-                        VStack(alignment: .leading) {
-                            Text(entry.text)
-                                .appFont(size: 15, weight: .medium)
-                                .foregroundColor(.textPrimary)
-                                .lineLimit(2)
-                            
-                            Text(entry.category)
-                                .appFont(size: 12)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                }
-                .onDelete(perform: deleteJournalEntry)
-                .listRowSeparator(.hidden)
-            }
-            .listStyle(.plain)
-            .frame(height: CGFloat(entries.count) * 60)
-            .padding(.top, -5)
-            .background(Color.clear)
-            
-        } else {
-            Text("No journal entries for this day.")
-                .foregroundColor(Color(UIColor.secondaryLabel))
-                .appFont(size: 15)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-        }
-    }
-    .frame(maxWidth: UIScreen.main.bounds.width * 0.88)
-    .asCard()
-    .background(colorScheme == .dark ? Color.backgroundPrimary : Color.brandPrimary.opacity(0.03))
-    .cornerRadius(20)
-}
-
 }
 
 

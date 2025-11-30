@@ -4,6 +4,7 @@ struct AddFoodView: View {
     @Binding var isPresented: Bool
     var foodItem: FoodItem?
     var onFoodLogged: (FoodItem, String) -> Void
+    @EnvironmentObject var recipeService: RecipeService
 
     @State private var foodName = ""
     @State private var calories = ""
@@ -41,6 +42,7 @@ struct AddFoodView: View {
     @State private var vitaminK = ""
     
     @State private var showingImagePicker = false
+    @State private var showingRecipeListView = false
     @State private var isProcessingLabel = false
     @State private var scanError: (Bool, String) = (false, "")
     
@@ -58,6 +60,16 @@ struct AddFoodView: View {
                                     Text($0)
                                 }
                             }
+                            HStack{
+                                Text("Add a new recipe")
+                                Spacer()
+                                Button {
+                                    showingRecipeListView = true
+                                }label: {
+                                    Image(systemName: "plus")
+                                }
+                            }
+                            
                         }
                         
                         Section(header: Text("Nutritional Information"), footer: Text("Tap the camera icon to scan a nutrition label automatically.")) {
@@ -146,6 +158,9 @@ struct AddFoodView: View {
                             }
                         }
                     }
+                }
+                .sheet(isPresented: $showingRecipeListView) {
+                    RecipeListView().environmentObject(recipeService)
                 }
                 .alert("Scan Error", isPresented: $scanError.0) {
                     Button("OK") { }

@@ -94,13 +94,9 @@ struct MainTabView: View {
 
                     VStack(spacing: 16) {
                         let buttons = [
-                            ("Search Food", "magnifyingglass", { self.showingFoodSearch = true }),
-                            ("Scan Barcode", "barcode.viewfinder", { self.showingBarcodeScanner = true }),
-                            ("Log with Camera", "camera.fill", { self.showingImagePicker = true }),
-                            ("Describe Your Meal", "text.bubble.fill", { self.showingAITextLog = true }),
                             ("Add Journal Entry", "book.closed.fill", { self.showingAddJournalView = true }), // New Button
                             ("Log Exercise", "figure.walk", { self.showingAddExerciseView = true }),
-                            ("Log Recipe/Meal", "list.clipboard", { self.showingRecipeListView = true })
+                            ("Log Recipe/Meal", "list.clipboard", { self.showingFoodSearch = true })
                         ]
 
                         ForEach(Array(buttons.enumerated()), id: \.offset) { index, buttonInfo in
