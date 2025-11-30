@@ -1,6 +1,6 @@
 # MyFitPlate
 
-## Patch Notes — Version 1.2
+## Patch Notes — Version 1.4
 ### Home Pagee:
 - Added labels under each quick action button
 - Reduced list options for (+) button
