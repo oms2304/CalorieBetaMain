@@ -1,4 +1,8 @@
 # MyFitPlate
+## Patch Notes - Version 1.5
+### Settings:
+- Users are now able to set custom calorie goal for the day
+- Fixed a bug that was pereventing custom calorie goals
 
 ## Patch Notes — Version 1.4
 ### Home Pagee:
