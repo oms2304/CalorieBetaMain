@@ -96,6 +96,9 @@ struct CaloricCalculatorView: View {
                         .keyboardType(.numberPad)
                         .appFont(size: 28, weight: .bold)
                         .foregroundColor(accentColor)
+                        .onChange(of: calorieInput){ newValue in
+                            goalSettings.useUserCalories = true
+                        }
                     
                     Text("kcal")
                         .appFont(size: 17)
@@ -225,13 +228,14 @@ struct CaloricCalculatorView: View {
         }
         
         goalSettings.calories = calorieValue
+        
         if let targetWeightValue = Double(targetWeightInput) {
             goalSettings.targetWeight = targetWeightValue
         }
         
         goalSettings.recalculateAllGoals()
+//        goalSettings.updateMacros()
         goalSettings.saveUserGoals(userID: userID)
-        
         showSaveConfirmation = true
     }
 }

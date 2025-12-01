@@ -41,11 +41,13 @@ class GoalSettings: ObservableObject {
     @Published var suggestionCuisines: [String] = ["Any"]
     @Published var suggestionCarbs: [String] = ["Rice", "Potatoes", "Pasta"]
     @Published var suggestionVeggies: [String] = ["Broccoli", "Bell Peppers"]
+    @Published var useUserCalories: Bool = false
 
     private let db = Firestore.firestore()
     private var weightHistoryListener: ListenerRegistration?
     private var cancellables = Set<AnyCancellable>()
     weak var dailyLogService: DailyLogService?
+    
 
     init(dailyLogService: DailyLogService? = nil) {
         self.dailyLogService = dailyLogService
@@ -113,12 +115,15 @@ class GoalSettings: ObservableObject {
         let minimumGoal: Double = (gender.lowercased() == "male") ? 1500 : 1200
         let finalCalculatedCalories = max(minimumGoal, calculatedCalories)
         
-        if self.calories == nil || abs((self.calories ?? 0) - finalCalculatedCalories) > 0.1 {
-            self.calories = finalCalculatedCalories
-            self.updateMacros()
-        } else if self.calories != nil && (self.protein == 0 && self.fats == 0 && self.carbs == 0 && finalCalculatedCalories > 0) {
-            self.updateMacros()
+        if !self.useUserCalories{
+            if self.calories == nil || abs((self.calories ?? 0) - finalCalculatedCalories) > 0.1 {
+                self.calories = finalCalculatedCalories
+                self.updateMacros()
+            }
         }
+//         else if self.calories != nil && (self.protein == 0 && self.fats == 0 && self.carbs == 0 && finalCalculatedCalories > 0) {
+//            self.updateMacros()
+//        }
     }
     
     private func updateMacros() {
@@ -137,7 +142,7 @@ class GoalSettings: ObservableObject {
         let fCals = (fatsPercentage / 100) * calGoal
         self.protein = pCals / 4
         self.carbs = cCals / 4
-        self.fats = fCals / 9
+        self.fats = fCals  / 9
     }
     
     private func calculateMicronutrientGoals() {
@@ -254,7 +259,7 @@ class GoalSettings: ObservableObject {
         guard !userID.isEmpty else { return }
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            self.recalculateAllGoals()
+            self.recalculateAllGoals() 
             let goalsDict: [String:Any] = [
                 "calories": self.calories ?? 0, "protein": self.protein, "fats": self.fats, "carbs": self.carbs,
                 "proteinPercentage": self.proteinPercentage, "carbsPercentage": self.carbsPercentage, "fatsPercentage": self.fatsPercentage,
