@@ -1,4 +1,8 @@
 # MyFitPlate
+## Patch Notes - Version 1.6
+### Profile Page:
+- New and improved look for the profile page with added functionality
+
 ## Patch Notes - Version 1.5
 ### Settings:
 - Users are now able to set custom calorie goal for the day
